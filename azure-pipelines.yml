@@ -1,19 +1,35 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- checkout: self
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    echo "Setting up Java 17..."
+    sudo update-java-alternatives --set java-1.17.0-openjdk-amd64
+    java -version
+  displayName: 'Set up Java 17 manually'
+
+- task: Cache@2
+  inputs:
+    key: 'gradle | "$(Agent.OS)" | build.gradle.kts'
+    restoreKeys: |
+      gradle | "$(Agent.OS)"
+    path: ~/.gradle
+  displayName: 'Cache Gradle packages'
+
+- script: chmod +x ./gradlew
+  displayName: 'Grant execute permission for gradlew'
+
+- script: ./gradlew assembleDebug
+  displayName: 'Build Debug APK'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'app/build/outputs/apk/debug'
+    ArtifactName: 'debug-apk'
+    publishLocation: 'Container'
+  displayName: 'Publish APK artifact'
