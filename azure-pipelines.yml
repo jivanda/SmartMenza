@@ -15,7 +15,8 @@ steps:
     key: 'gradle | "$(Agent.OS)" | build.gradle.kts'
     restoreKeys: |
       gradle | "$(Agent.OS)"
-    path: $(GRADLE_USER_HOME)
+    path: $(Pipeline.Workspace)\.gradle
+    
   displayName: 'Cache Gradle packages'
 
 - script: |
