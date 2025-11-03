@@ -7,24 +7,19 @@ pool:
 steps:
 - checkout: self
 
-- script: |
-    echo "Setting up Java 17..."
-    sudo update-java-alternatives --set java-1.17.0-openjdk-amd64
-    java -version
-  displayName: 'Set up Java 17 manually'
+- script: java -version
+  displayName: 'Verify Java version'
 
 - task: Cache@2
   inputs:
     key: 'gradle | "$(Agent.OS)" | build.gradle.kts'
     restoreKeys: |
       gradle | "$(Agent.OS)"
-    path: ~/.gradle
+    path: $(GRADLE_USER_HOME)
   displayName: 'Cache Gradle packages'
 
-- script: chmod +x ./gradlew
-  displayName: 'Grant execute permission for gradlew'
-
-- script: ./gradlew assembleDebug
+- script: |
+    if exist gradlew.bat (gradlew.bat assembleDebug) else (./gradlew assembleDebug)
   displayName: 'Build Debug APK'
 
 - task: PublishBuildArtifacts@1
