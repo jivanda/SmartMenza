@@ -10,17 +10,14 @@ steps:
 - script: java -version
   displayName: 'Verify Java version'
 
-- task: Cache@2
-  inputs:
-    key: 'gradle | "$(Agent.OS)" | build.gradle.kts'
-    restoreKeys: |
-      gradle | "$(Agent.OS)"
-    path: $(Pipeline.Workspace)\.gradle
-    
-  displayName: 'Cache Gradle packages'
-
 - script: |
-    if exist gradlew.bat (gradlew.bat assembleDebug) else (./gradlew assembleDebug)
+    echo Building Android Debug APK...
+    if exist gradlew.bat (
+      gradlew.bat clean assembleDebug --stacktrace
+    ) else (
+      chmod +x ./gradlew
+      ./gradlew clean assembleDebug --stacktrace
+    )
   displayName: 'Build Debug APK'
 
 - task: PublishBuildArtifacts@1
