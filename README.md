@@ -36,7 +36,7 @@ Projekt će biti izrađen korištenjem sljedećih tehnologija i alata:
 - AI i Cloud: Azure AI Services, Azure Cloud Services
 - DevOps: Azure Repos, Azure Pipelines (CI/CD)
 - Dizajn: Figma
-- Verzije i dokumentacija: Git i GitHub
+- Verzije i dokumentacija: Azure DevOps i spojeni Repos sa GitHubom
 
 ## Repozitoriji i povezani alati
 - GitHub (javni repozitorij): https://github.com/jivanda/SmartMenza
