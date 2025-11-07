@@ -1,6 +1,13 @@
 package com.example.smartmenza.ui.theme
 import androidx.compose.ui.graphics.Color
 
+val SpanRed = Color(0xFFE63946)     // primarna
+val SpanRedDark = Color(0xFFD62828) // hover/akcent
+val SpanTextDarkRed = Color(0xFF8B1E1E)
+val BackgroundBeige = Color(0xFFFFF9F7)
+val NeutralGray = Color(0xFF2B2B2B)
+val SoftGray = Color(0xFFE5E5E5)
+
 val primaryLight = Color(0xFF6D5E0F)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFF8E287)

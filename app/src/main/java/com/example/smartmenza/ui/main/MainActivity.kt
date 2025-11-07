@@ -13,14 +13,14 @@ import com.example.smartmenza.navigation.Route
 import com.example.smartmenza.ui.auth.login.LoginScreen
 import com.example.smartmenza.ui.auth.register.RegisterScreen
 import com.example.smartmenza.ui.intro.IntroScreen
-import com.example.smartmenza.ui.theme.AppTheme
+import com.example.smartmenza.ui.theme.SmartMenzaTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme {
+            SmartMenzaTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     val nav = rememberNavController()
                     NavHost(navController = nav, startDestination = Route.Intro.route) {
