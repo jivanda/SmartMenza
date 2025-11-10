@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.smartmenza.navigation.Route
 import com.example.smartmenza.ui.auth.login.LoginScreen
 import com.example.smartmenza.ui.auth.register.RegisterScreen
+import com.example.smartmenza.ui.home.HomeScreen
 import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 
@@ -19,27 +20,48 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             SmartMenzaTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    val nav = rememberNavController()
-                    NavHost(navController = nav, startDestination = Route.Intro.route) {
+                    val navController = rememberNavController()
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = Route.Intro.route
+                    ) {
+                        // Uvodni ekran
                         composable(Route.Intro.route) {
                             IntroScreen(
-                                onLogin = { nav.navigate(Route.Login.route) },
-                                onRegister = { nav.navigate(Route.Register.route) }
+                                onLogin = { navController.navigate(Route.Login.route) },
+                                onRegister = { navController.navigate(Route.Register.route) }
                             )
                         }
+
+                        // Prijava
                         composable(Route.Login.route) {
-                            LoginScreen(
-                                onBack = { nav.popBackStack() },
-                                onSuccess = { /* nav.navigate(Route.StudentHome.route) { popUpTo(Route.Intro.route) { inclusive = true } } */ }
-                            )
+                            LoginScreen(navController = navController)
                         }
+
+                        // Registracija
                         composable(Route.Register.route) {
                             RegisterScreen(
-                                onBack = { nav.popBackStack() },
-                                onSuccess = { /* nav.navigate(Route.Login.route) */ }
+                                navController = navController
+                            )
+                        }
+
+                        // Glavni ekran (StudentHome)
+                        composable(
+                            route = Route.StudentHome.route + "/{ime}"
+                        ) { backStackEntry ->
+                            val ime = backStackEntry.arguments?.getString("ime") ?: "Korisnik"
+                            HomeScreen(
+                                ime = ime,
+                                onLogout = {
+                                    navController.navigate(Route.Login.route) {
+                                        popUpTo(Route.StudentHome.route) { inclusive = true }
+                                    }
+                                }
                             )
                         }
                     }
