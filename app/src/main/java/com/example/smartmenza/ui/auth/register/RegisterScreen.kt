@@ -1,15 +1,12 @@
 package com.example.smartmenza.ui.auth.register
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -20,18 +17,24 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.smartmenza.R
+import com.example.smartmenza.data.remote.RegisterRequest
+import com.example.smartmenza.data.remote.RetrofitInstance
+import com.example.smartmenza.navigation.Route
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.smartmenza.ui.theme.SpanRed
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
-    onBack: () -> Unit = {},
-    onSuccess: () -> Unit = {},
+    navController: NavController,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     SmartMenzaTheme {
@@ -39,9 +42,8 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxSize(),
             color = BackgroundBeige
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+
                 // HEADER
                 Box(
                     modifier = Modifier
@@ -63,19 +65,25 @@ fun RegisterScreen(
                 }
 
                 // CONTENT
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                ) {
-                    subtlePattern?.let { painter ->
-                        Image(
-                            painter = painter,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .alpha(0.06f),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Image(
+                        painter = subtlePattern,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(0.06f),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    val scope = rememberCoroutineScope()
+                    var ime by remember { mutableStateOf("") }
+                    var email by remember { mutableStateOf("") }
+                    var password by remember { mutableStateOf("") }
+                    var selectedRole by remember { mutableStateOf("Student") }
+                    var expanded by remember { mutableStateOf(false) }
+
+                    var isLoading by remember { mutableStateOf(false) }
+                    var errorMessage by remember { mutableStateOf<String?>(null) }
 
                     Column(
                         modifier = Modifier
@@ -92,29 +100,101 @@ fun RegisterScreen(
 
                         Spacer(modifier = Modifier.height(40.dp))
 
-                        var username by remember { mutableStateOf("") }
-
                         TextField(
-                            value = username,
-                            onValueChange = { username = it },
-                            label = { Text("Username") }
+                            value = ime,
+                            onValueChange = { ime = it },
+                            label = { Text("Ime") }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        var password by remember { mutableStateOf("") }
+                        TextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = { Text("Email") }
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         TextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = { Text("Password") }
+                            label = { Text("Lozinka") },
+                            visualTransformation = PasswordVisualTransformation()
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Confirm (filled)
+                        // DROPDOWN ZA ULOGU
+                        ExposedDropdownMenuBox(
+                            expanded = expanded,
+                            onExpandedChange = { expanded = !expanded }
+                        ) {
+                            TextField(
+                                value = selectedRole,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Uloga") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                modifier = Modifier.menuAnchor()
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                listOf("Student", "Zaposlenik").forEach { role ->
+                                    DropdownMenuItem(
+                                        text = { Text(role) },
+                                        onClick = {
+                                            selectedRole = role
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // GUMB ZA REGISTRACIJU
                         Button(
-                            onClick = onSuccess,
+                            onClick = {
+                                if (ime.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
+                                    isLoading = true
+                                    errorMessage = null
+                                    scope.launch {
+                                        try {
+                                            val response = RetrofitInstance.api.register(
+                                                RegisterRequest(
+                                                    ime = ime,
+                                                    email = email,
+                                                    lozinka = password,
+                                                    uloga = selectedRole
+                                                )
+                                            )
+
+                                            if (response.isSuccessful) {
+                                                Log.d("REGISTER", "Uspješna registracija: ${response.body()?.poruka}")
+                                                isLoading = false
+
+                                                // Nakon uspješne registracije idi na login
+                                                navController.navigate(Route.Login.route) {
+                                                    popUpTo(Route.Register.route) { inclusive = true }
+                                                }
+                                            } else {
+                                                errorMessage = "Greška: ${response.code()}"
+                                                isLoading = false
+                                            }
+                                        } catch (e: Exception) {
+                                            errorMessage = "Greška: ${e.message}"
+                                            isLoading = false
+                                        }
+                                    }
+                                } else {
+                                    errorMessage = "Molimo popunite sva polja"
+                                }
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp),
@@ -122,17 +202,33 @@ fun RegisterScreen(
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = SpanRed,
                                 contentColor = Color.White
-                            ),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
+                            )
                         ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    color = Color.White,
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = "Potvrdi",
+                                    style = MaterialTheme.typography.labelLarge.copy(color = Color.White)
+                                )
+                            }
+                        }
+
+                        errorMessage?.let {
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "Potvrdi",
-                                style = MaterialTheme.typography.labelLarge.copy(color = Color.White)
+                                text = it,
+                                color = Color.Red,
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
 
-                    // Footer (powered by)
+                    // FOOTER
                     Text(
                         text = "Powered by SPAN",
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),

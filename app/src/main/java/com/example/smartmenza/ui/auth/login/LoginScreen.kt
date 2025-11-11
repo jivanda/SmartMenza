@@ -1,13 +1,12 @@
 package com.example.smartmenza.ui.auth.login
 
-import androidx.compose.foundation.BorderStroke
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -18,22 +17,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.smartmenza.R
+import com.example.smartmenza.data.remote.LoginRequest
+import com.example.smartmenza.data.remote.RetrofitInstance
+import com.example.smartmenza.navigation.Route
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.smartmenza.ui.theme.SpanRed
-import androidx.compose.material3.TextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    onBack: () -> Unit = {},
-    onSuccess: () -> Unit = {},
+    navController: NavController,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     SmartMenzaTheme {
@@ -41,9 +41,8 @@ fun LoginScreen(
             modifier = Modifier.fillMaxSize(),
             color = BackgroundBeige
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+
                 // HEADER
                 Box(
                     modifier = Modifier
@@ -64,20 +63,22 @@ fun LoginScreen(
                     )
                 }
 
-                // CONTENT
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                ) {
-                    subtlePattern?.let { painter ->
-                        Image(
-                            painter = painter,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .alpha(0.06f),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+                // BODY
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Image(
+                        painter = subtlePattern,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(0.06f),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    val scope = rememberCoroutineScope()
+                    var email by remember { mutableStateOf("") }
+                    var password by remember { mutableStateOf("") }
+                    var isLoading by remember { mutableStateOf(false) }
+                    var errorMessage by remember { mutableStateOf<String?>(null) }
 
                     Column(
                         modifier = Modifier
@@ -94,29 +95,59 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(40.dp))
 
-                        var username by remember { mutableStateOf("") }
-
                         TextField(
-                            value = username,
-                            onValueChange = { username = it },
-                            label = { Text("Username") }
+                            value = email,
+                            onValueChange = { email = it },
+                            label = { Text("Email") }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
-
-                        var password by remember { mutableStateOf("") }
 
                         TextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = { Text("Password") }
+                            label = { Text("Lozinka") },
+                            visualTransformation = PasswordVisualTransformation()
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Confirm (filled)
+                        // Gumb za prijavu
                         Button(
-                            onClick = onSuccess,
+                            onClick = {
+                                if (email.isNotBlank() && password.isNotBlank()) {
+                                    isLoading = true
+                                    errorMessage = null
+
+                                    scope.launch {
+                                        try {
+                                            val response = RetrofitInstance.api.login(
+                                                LoginRequest(email = email, lozinka = password)
+                                            )
+
+                                            if (response.isSuccessful) {
+                                                val body = response.body()
+                                                val ime = body?.ime ?: "Korisnik"
+                                                Log.d("LOGIN", "Uspjeh: ${body?.poruka}")
+
+                                                isLoading = false
+
+                                                navController.navigate("${Route.StudentHome.route}/$ime") {
+                                                    popUpTo(Route.Login.route) { inclusive = true }
+                                                }
+                                            } else {
+                                                errorMessage = "Neispravni podaci (${response.code()})"
+                                                isLoading = false
+                                            }
+                                        } catch (e: Exception) {
+                                            errorMessage = "Greška: ${e.message}"
+                                            isLoading = false
+                                        }
+                                    }
+                                } else {
+                                    errorMessage = "Molimo unesite email i lozinku"
+                                }
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp),
@@ -127,14 +158,30 @@ fun LoginScreen(
                             ),
                             elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
                         ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    color = Color.White,
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = "Potvrdi",
+                                    style = MaterialTheme.typography.labelLarge.copy(color = Color.White)
+                                )
+                            }
+                        }
+
+                        errorMessage?.let {
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "Potvrdi",
-                                style = MaterialTheme.typography.labelLarge.copy(color = Color.White)
+                                text = it,
+                                color = Color.Red,
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
 
-                    // Footer (powered by)
                     Text(
                         text = "Powered by SPAN",
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
