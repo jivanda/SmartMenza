@@ -32,7 +32,7 @@ F10 | ImageGenerator | Zaposlenik može uploadati sliku jela ili generirati slik
 Projekt će biti izrađen korištenjem sljedećih tehnologija i alata:
 - Frontend: Android Studio (Kotlin, Jetpack Compose)
 - Backend: ASP.NET Web API (.NET), Swagger (testiranje API-ja)
-- Baza podataka: Entity Framework, SQL Server (SQL Server Management Studio)
+- Baza podataka: Microsoft SQL Server - relacijska baza podataka, Entity Framework Core - ORM sloj za mapiranje entiteta i upravljanje podacima.
 - AI i Cloud: Azure AI Services, Azure Cloud Services
 - DevOps: Azure Repos, Azure Pipelines (CI/CD)
 - Dizajn: Figma
