@@ -1,9 +1,9 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\karlo\\Desktop\\backend\\SmartMenzaBackend\\",
+  "WorkspaceRootPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7555165A-E18F-4ACB-842A-4CE788BD5FCA}|SmartMenza.API\\SmartMenza.API.csproj|c:\\users\\karlo\\desktop\\backend\\smartmenzabackend\\smartmenza.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7555165A-E18F-4ACB-842A-4CE788BD5FCA}|SmartMenza.API\\SmartMenza.API.csproj|c:\\users\\karlo\\desktop\\smartmenza\\backend\\smartmenzabackend\\smartmenza.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7555165A-E18F-4ACB-842A-4CE788BD5FCA}|SmartMenza.API\\SmartMenza.API.csproj|solutionrelative:smartmenza.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -32,11 +32,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "AuthController.cs",
-              "DocumentMoniker": "C:\\Users\\karlo\\Desktop\\backend\\SmartMenzaBackend\\SmartMenza.API\\Controllers\\AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "SmartMenza.API\\Controllers\\AuthController.cs",
-              "ToolTip": "C:\\Users\\karlo\\Desktop\\backend\\SmartMenzaBackend\\SmartMenza.API\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\Controllers\\AuthController.cs",
               "RelativeToolTip": "SmartMenza.API\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADQAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-10T23:09:46.34Z",
               "EditorCaption": ""
