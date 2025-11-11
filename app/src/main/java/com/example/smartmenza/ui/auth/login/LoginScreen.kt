@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.smartmenza.R
+import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.LoginRequest
 import com.example.smartmenza.data.remote.RetrofitInstance
 import com.example.smartmenza.navigation.Route
@@ -36,11 +38,18 @@ fun LoginScreen(
     navController: NavController,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
+    val context = LocalContext.current
+    val prefs = remember { UserPreferences(context) }
+    val scope = rememberCoroutineScope()
+
+    // State
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
     SmartMenzaTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = BackgroundBeige
-        ) {
+        Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
             Column(modifier = Modifier.fillMaxSize()) {
 
                 // HEADER
@@ -73,12 +82,6 @@ fun LoginScreen(
                             .alpha(0.06f),
                         contentScale = ContentScale.Crop
                     )
-
-                    val scope = rememberCoroutineScope()
-                    var email by remember { mutableStateOf("") }
-                    var password by remember { mutableStateOf("") }
-                    var isLoading by remember { mutableStateOf(false) }
-                    var errorMessage by remember { mutableStateOf<String?>(null) }
 
                     Column(
                         modifier = Modifier
@@ -128,11 +131,16 @@ fun LoginScreen(
                                             if (response.isSuccessful) {
                                                 val body = response.body()
                                                 val ime = body?.ime ?: "Korisnik"
+                                                val uloga = body?.uloga ?: "Student"
+                                                val emailRes = body?.email ?: email
+
+                                                // spremi korisnika u DataStore
+                                                prefs.saveUser(ime, emailRes, uloga)
+
                                                 Log.d("LOGIN", "Uspjeh: ${body?.poruka}")
 
                                                 isLoading = false
-
-                                                navController.navigate("${Route.StudentHome.route}/$ime") {
+                                                navController.navigate(Route.StudentHome.route) {
                                                     popUpTo(Route.Login.route) { inclusive = true }
                                                 }
                                             } else {

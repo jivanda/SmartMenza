@@ -69,5 +69,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation("com.google.dagger:hilt-android:2.52")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
     kapt("com.google.dagger:hilt-compiler:2.52")
 }
