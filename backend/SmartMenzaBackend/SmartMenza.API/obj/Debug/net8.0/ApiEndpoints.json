@@ -1,0 +1,34 @@
+[
+  {
+    "ContainingType": "SmartMenza.API.Controllers.AuthController",
+    "Method": "Prijava",
+    "RelativePath": "api/Auth/prijava",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "SmartMenza.Domain.DTOs.UserLoginDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.AuthController",
+    "Method": "Registracija",
+    "RelativePath": "api/Auth/registracija",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "SmartMenza.Domain.DTOs.UserRegisterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
