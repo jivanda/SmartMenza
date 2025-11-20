@@ -130,7 +130,6 @@ fun LoginScreen(
                                                 val uloga = body?.roleName ?: "Student"
                                                 val emailRes = body?.email ?: email
 
-                                                // spremi korisnika u DataStore
                                                 prefs.saveUser(ime, emailRes, uloga)
 
                                                 Log.d("LOGIN", "Uspjeh: ${body?.poruka}")
