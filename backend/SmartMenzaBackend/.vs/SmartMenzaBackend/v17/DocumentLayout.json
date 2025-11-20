@@ -3,31 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CBD077F3-1848-418D-9D88-8DC51FFD729B}|SmartMenza.Business\\SmartMenza.Business.csproj|c:\\users\\karlo\\desktop\\smartmenza\\backend\\smartmenzabackend\\smartmenza.business\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CBD077F3-1848-418D-9D88-8DC51FFD729B}|SmartMenza.Business\\SmartMenza.Business.csproj|solutionrelative:smartmenza.business\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C6FE66EE-0691-4E46-BB9D-D0BFEDF14986}|SmartMenza.Domain\\SmartMenza.Domain.csproj|c:\\users\\karlo\\desktop\\smartmenza\\backend\\smartmenzabackend\\smartmenza.domain\\entities\\useraccount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C6FE66EE-0691-4E46-BB9D-D0BFEDF14986}|SmartMenza.Domain\\SmartMenza.Domain.csproj|solutionrelative:smartmenza.domain\\entities\\useraccount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|ViewDataWindow_MSSQL__/_localdb__MSSQLLocalDB/SmartMenzaDB/True/SqlTable/dbo.UserAccount.sql||{0058A1F7-65F3-4DB9-B3D0-CA7E64DD73CD}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7555165A-E18F-4ACB-842A-4CE788BD5FCA}|SmartMenza.API\\SmartMenza.API.csproj|c:\\users\\karlo\\desktop\\smartmenza\\backend\\smartmenzabackend\\smartmenza.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7555165A-E18F-4ACB-842A-4CE788BD5FCA}|SmartMenza.API\\SmartMenza.API.csproj|solutionrelative:smartmenza.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C6FE66EE-0691-4E46-BB9D-D0BFEDF14986}|SmartMenza.Domain\\SmartMenza.Domain.csproj|c:\\users\\karlo\\desktop\\smartmenza\\backend\\smartmenzabackend\\smartmenza.domain\\entities\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C6FE66EE-0691-4E46-BB9D-D0BFEDF14986}|SmartMenza.Domain\\SmartMenza.Domain.csproj|solutionrelative:smartmenza.domain\\entities\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C6FE66EE-0691-4E46-BB9D-D0BFEDF14986}|SmartMenza.Domain\\SmartMenza.Domain.csproj|c:\\users\\karlo\\desktop\\smartmenza\\backend\\smartmenzabackend\\smartmenza.domain\\dtos\\userregisterdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C6FE66EE-0691-4E46-BB9D-D0BFEDF14986}|SmartMenza.Domain\\SmartMenza.Domain.csproj|solutionrelative:smartmenza.domain\\dtos\\userregisterdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C6FE66EE-0691-4E46-BB9D-D0BFEDF14986}|SmartMenza.Domain\\SmartMenza.Domain.csproj|c:\\users\\karlo\\desktop\\smartmenza\\backend\\smartmenzabackend\\smartmenza.domain\\dtos\\userlogindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C6FE66EE-0691-4E46-BB9D-D0BFEDF14986}|SmartMenza.Domain\\SmartMenza.Domain.csproj|solutionrelative:smartmenza.domain\\dtos\\userlogindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6317EBA4-046E-4D34-83E8-59379C9C5B3A}|UnitTestbackend\\UnitTestbackend.csproj|c:\\users\\karlo\\desktop\\smartmenza\\backend\\smartmenzabackend\\unittestbackend\\unittest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6317EBA4-046E-4D34-83E8-59379C9C5B3A}|UnitTestbackend\\UnitTestbackend.csproj|solutionrelative:unittestbackend\\unittest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -37,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -53,90 +30,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "dbo.UserAccount [Data]",
-              "DocumentMoniker": "ViewDataWindow_MSSQL__/_localdb__MSSQLLocalDB/SmartMenzaDB/True/SqlTable/dbo.UserAccount.sql",
-              "ToolTip": "dbo.UserAccount [Data]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
-              "WhenOpened": "2025-11-20T08:40:19.332Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Role.cs",
-              "DocumentMoniker": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\Entities\\Role.cs",
-              "RelativeDocumentMoniker": "SmartMenza.Domain\\Entities\\Role.cs",
-              "ToolTip": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\Entities\\Role.cs",
-              "RelativeToolTip": "SmartMenza.Domain\\Entities\\Role.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T08:35:48.716Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "UserLoginDto.cs",
-              "DocumentMoniker": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\DTOs\\UserLoginDto.cs",
-              "RelativeDocumentMoniker": "SmartMenza.Domain\\DTOs\\UserLoginDto.cs",
-              "ToolTip": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\DTOs\\UserLoginDto.cs",
-              "RelativeToolTip": "SmartMenza.Domain\\DTOs\\UserLoginDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T08:34:30.787Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "UserRegisterDto.cs",
-              "DocumentMoniker": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\DTOs\\UserRegisterDto.cs",
-              "RelativeDocumentMoniker": "SmartMenza.Domain\\DTOs\\UserRegisterDto.cs",
-              "ToolTip": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\DTOs\\UserRegisterDto.cs",
-              "RelativeToolTip": "SmartMenza.Domain\\DTOs\\UserRegisterDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T08:32:04.273Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "UserService.cs",
-              "DocumentMoniker": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\Services\\UserService.cs",
-              "RelativeDocumentMoniker": "SmartMenza.Business\\Services\\UserService.cs",
-              "ToolTip": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\Services\\UserService.cs",
-              "RelativeToolTip": "SmartMenza.Business\\Services\\UserService.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAADgvzEAAAAhAAAAAAAAAA==",
+              "Title": "UnitTest.cs",
+              "DocumentMoniker": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\UnitTestbackend\\UnitTest.cs",
+              "RelativeDocumentMoniker": "UnitTestbackend\\UnitTest.cs",
+              "ToolTip": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\UnitTestbackend\\UnitTest.cs",
+              "RelativeToolTip": "UnitTestbackend\\UnitTest.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAYwBIAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T08:31:48.651Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AuthController.cs",
-              "DocumentMoniker": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\Controllers\\AuthController.cs",
-              "RelativeDocumentMoniker": "SmartMenza.API\\Controllers\\AuthController.cs",
-              "ToolTip": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\Controllers\\AuthController.cs",
-              "RelativeToolTip": "SmartMenza.API\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAAYwCAAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T08:31:46.606Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "UserAccount.cs",
-              "DocumentMoniker": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\Entities\\UserAccount.cs",
-              "RelativeDocumentMoniker": "SmartMenza.Domain\\Entities\\UserAccount.cs",
-              "ToolTip": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\Entities\\UserAccount.cs",
-              "RelativeToolTip": "SmartMenza.Domain\\Entities\\UserAccount.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T08:31:21.397Z",
+              "WhenOpened": "2025-11-20T15:02:46.86Z",
               "EditorCaption": ""
             }
           ]
