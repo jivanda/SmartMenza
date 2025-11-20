@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 using SmartMenza.Data.Context;
 using SmartMenza.Domain.DTOs;
 using SmartMenza.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SmartMenza.Business.Services
 {
@@ -19,36 +20,36 @@ namespace SmartMenza.Business.Services
             _context = context;
         }
 
-        public bool Registriraj(UserRegisterDto dto)
+        public bool RegisterUser(UserRegisterDto dto)
         {
-            if (_context.Users.Any(u => u.Email == dto.Email))
+            if (_context.UserAccount.Any(u => u.Email == dto.Email))
                 return false;
 
-            var user = new User
+            var user = new UserAccount
             {
-                Ime = dto.Ime,
+                Username = dto.Username,
                 Email = dto.Email,
-                LozinkaHash = HashirajLozinku(dto.Lozinka),
-                Uloga = dto.Uloga
+                PasswordHash = HashPassword(dto.Password),
+                RoleId = dto.RoleName == "Student" ? 1 : 2
             };
 
-            _context.Users.Add(user);
+            _context.UserAccount.Add(user);
             _context.SaveChanges();
             return true;
         }
 
-        public User? Prijavi(UserLoginDto dto)
+        public UserAccount? LoginUser(UserLoginDto dto)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
+            var user = _context.UserAccount.Include(u => u.Role).FirstOrDefault(u => u.Email == dto.Email);
             if (user == null) return null;
 
-            var hash = HashirajLozinku(dto.Lozinka);
-            if (user.LozinkaHash != hash) return null;
+            var hash = HashPassword(dto.Password);
+            if (user.PasswordHash != hash) return null;
 
             return user;
         }
 
-        private string HashirajLozinku(string lozinka)
+        private string HashPassword(string lozinka)
         {
             using var sha = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(lozinka);

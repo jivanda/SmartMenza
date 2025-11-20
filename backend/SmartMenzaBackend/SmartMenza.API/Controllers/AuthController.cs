@@ -16,37 +16,36 @@ namespace SmartMenza.API.Controllers
             _userService = userService;
         }
 
-        [HttpPost("registracija")]
-        public IActionResult Registracija([FromBody] UserRegisterDto dto)
+        [HttpPost("registration")]
+        public IActionResult Registration([FromBody] UserRegisterDto dto)
         {
-            var uspjeh = _userService.Registriraj(dto);
+            var uspjeh = _userService.RegisterUser(dto);
 
             if (!uspjeh)
                 return BadRequest(new { poruka = "Korisnik s tom email adresom već postoji." });
 
-            // vraćamo JSON objekt
             return Ok(new
             {
                 poruka = "Registracija uspješna!",
-                ime = dto.Ime,
+                ime = dto.Username,
                 email = dto.Email,
-                uloga = dto.Uloga
+                uloga = dto.RoleName
             });
         }
 
-        [HttpPost("prijava")]
-        public IActionResult Prijava(UserLoginDto dto)
+        [HttpPost("login")]
+        public IActionResult Login(UserLoginDto dto)
         {
-            var korisnik = _userService.Prijavi(dto);
+            var korisnik = _userService.LoginUser(dto);
             if (korisnik == null)
                 return Unauthorized("Pogrešan email ili lozinka.");
 
             return Ok(new
             {
                 poruka = "Prijava uspješna!",
-                korisnik.Ime,
+                korisnik.Username,
                 korisnik.Email,
-                korisnik.Uloga
+                uloga = korisnik.Role.RoleName
             });
         }
     }

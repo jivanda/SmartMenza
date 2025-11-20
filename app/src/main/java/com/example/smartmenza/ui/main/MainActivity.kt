@@ -32,12 +32,10 @@ class MainActivity : ComponentActivity() {
                     val prefs = UserPreferences(this)
                     val isLoggedIn by prefs.isLoggedIn.collectAsState(initial = false)
 
-                    // Ako je korisnik već prijavljen, starta odmah HomeScreen
                     NavHost(
                         navController = navController,
                         startDestination = if (isLoggedIn) Route.StudentHome.route else Route.Intro.route
                     ) {
-                        // Uvodni ekran
                         composable(Route.Intro.route) {
                             IntroScreen(
                                 onLogin = { navController.navigate(Route.Login.route) },
@@ -45,23 +43,19 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // Prijava
                         composable(Route.Login.route) {
                             LoginScreen(navController = navController)
                         }
 
-                        // Registracija
                         composable(Route.Register.route) {
                             RegisterScreen(
                                 navController = navController
                             )
                         }
 
-                        // Glavni ekran (StudentHome)
                         composable(Route.StudentHome.route) {
                             HomeScreen(
                                 onLogout = {
-                                    // Brišemo sve lokalne podatke kad se odjavi
                                     runBlocking {
                                         prefs.logout()
                                     }

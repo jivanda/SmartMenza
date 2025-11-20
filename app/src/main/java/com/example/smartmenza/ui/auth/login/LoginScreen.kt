@@ -42,7 +42,6 @@ fun LoginScreen(
     val prefs = remember { UserPreferences(context) }
     val scope = rememberCoroutineScope()
 
-    // State
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -52,7 +51,6 @@ fun LoginScreen(
         Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // HEADER
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -72,7 +70,6 @@ fun LoginScreen(
                     )
                 }
 
-                // BODY
                 Box(modifier = Modifier.fillMaxSize()) {
                     Image(
                         painter = subtlePattern,
@@ -115,7 +112,6 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Gumb za prijavu
                         Button(
                             onClick = {
                                 if (email.isNotBlank() && password.isNotBlank()) {
@@ -125,13 +121,13 @@ fun LoginScreen(
                                     scope.launch {
                                         try {
                                             val response = RetrofitInstance.api.login(
-                                                LoginRequest(email = email, lozinka = password)
+                                                LoginRequest(email = email, password = password)
                                             )
 
                                             if (response.isSuccessful) {
                                                 val body = response.body()
-                                                val ime = body?.ime ?: "Korisnik"
-                                                val uloga = body?.uloga ?: "Student"
+                                                val ime = body?.username ?: "Korisnik"
+                                                val uloga = body?.roleName ?: "Student"
                                                 val emailRes = body?.email ?: email
 
                                                 // spremi korisnika u DataStore

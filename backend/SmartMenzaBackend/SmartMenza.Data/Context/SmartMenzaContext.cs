@@ -12,6 +12,7 @@ namespace SmartMenza.Data.Context
     {
         public SmartMenzaContext(DbContextOptions<SmartMenzaContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<UserAccount> UserAccount { get; set; }
+        public DbSet<Role> Role { get; set; }
     }
 }

@@ -1,8 +1,8 @@
 [
   {
     "ContainingType": "SmartMenza.API.Controllers.AuthController",
-    "Method": "Prijava",
-    "RelativePath": "api/Auth/prijava",
+    "Method": "Login",
+    "RelativePath": "api/Auth/login",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -17,8 +17,8 @@
   },
   {
     "ContainingType": "SmartMenza.API.Controllers.AuthController",
-    "Method": "Registracija",
-    "RelativePath": "api/Auth/registracija",
+    "Method": "Registration",
+    "RelativePath": "api/Auth/registration",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,

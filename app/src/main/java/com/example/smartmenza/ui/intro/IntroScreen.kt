@@ -41,7 +41,7 @@ fun IntroScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // HEADER
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -61,7 +61,6 @@ fun IntroScreen(
                     )
                 }
 
-                // CONTENT
                 Box(modifier = Modifier
                     .fillMaxSize()
                 ) {
@@ -91,25 +90,7 @@ fun IntroScreen(
                             textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Text(
-                            text = "Planiraj obroke, prati prehranu i jedi pametnije.\n" +
-                                    "SmartMenza ti prikazuje dnevni meni, preporučuje jela prema tvojim ciljevima.\n" +
-                                    "Otkrij omiljena jela, ocijeni ih i pomozi menzi da bude bolja.",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontSize = 16.sp,
-                                color = Color.DarkGray,
-                                fontFamily = Montserrat
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            textAlign = TextAlign.Center
-                        )
-
-
-                        Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         OutlinedButton(
                             onClick = onRegister,
@@ -129,10 +110,8 @@ fun IntroScreen(
                             )
                         }
 
+                        Spacer(modifier = Modifier.height(20.dp))
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Login (filled)
                         Button(
                             onClick = onLogin,
                             modifier = Modifier
@@ -152,7 +131,6 @@ fun IntroScreen(
                         }
                     }
 
-                    // Footer (powered by)
                     Text(
                         text = "Powered by SPAN",
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),

@@ -32,6 +32,12 @@ C:\Users\karlo\Desktop\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\n
 C:\Users\karlo\Desktop\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\refint\SmartMenza.Business.dll
 C:\Users\karlo\Desktop\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.pdb
 C:\Users\karlo\Desktop\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\ref\SmartMenza.Business.dll
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.csproj.AssemblyReference.cache
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.AssemblyInfoInputs.cache
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.AssemblyInfo.cs
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.csproj.CoreCompileInputs.cache
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.sourcelink.json
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\bin\Debug\net8.0\SmartMenza.Business.deps.json
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\bin\Debug\net8.0\SmartMenza.Business.dll
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\bin\Debug\net8.0\SmartMenza.Business.pdb
@@ -39,12 +45,6 @@ C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\bin\Debug\net8.0\SmartMenza.Domain.dll
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\bin\Debug\net8.0\SmartMenza.Data.pdb
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\bin\Debug\net8.0\SmartMenza.Domain.pdb
-C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.csproj.AssemblyReference.cache
-C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.AssemblyInfoInputs.cache
-C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.AssemblyInfo.cs
-C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.csproj.CoreCompileInputs.cache
-C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.sourcelink.json
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMen.A5FA3C81.Up2Date
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\SmartMenza.Business.dll
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Business\obj\Debug\net8.0\refint\SmartMenza.Business.dll

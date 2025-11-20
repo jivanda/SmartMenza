@@ -5,7 +5,7 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/Auth/registracija": {
+    "/api/Auth/registration": {
       "post": {
         "tags": [
           "Auth"
@@ -36,7 +36,7 @@
         }
       }
     },
-    "/api/Auth/prijava": {
+    "/api/Auth/login": {
       "post": {
         "tags": [
           "Auth"
@@ -77,7 +77,7 @@
             "type": "string",
             "nullable": true
           },
-          "lozinka": {
+          "password": {
             "type": "string",
             "nullable": true
           }
@@ -87,7 +87,7 @@
       "UserRegisterDto": {
         "type": "object",
         "properties": {
-          "ime": {
+          "username": {
             "type": "string",
             "nullable": true
           },
@@ -95,11 +95,11 @@
             "type": "string",
             "nullable": true
           },
-          "lozinka": {
+          "password": {
             "type": "string",
             "nullable": true
           },
-          "uloga": {
+          "roleName": {
             "type": "string",
             "nullable": true
           }

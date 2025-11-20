@@ -44,7 +44,6 @@ fun RegisterScreen(
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // HEADER
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -64,7 +63,6 @@ fun RegisterScreen(
                     )
                 }
 
-                // CONTENT
                 Box(modifier = Modifier.fillMaxSize()) {
                     Image(
                         painter = subtlePattern,
@@ -125,7 +123,6 @@ fun RegisterScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // DROPDOWN ZA ULOGU
                         ExposedDropdownMenuBox(
                             expanded = expanded,
                             onExpandedChange = { expanded = !expanded }
@@ -157,7 +154,6 @@ fun RegisterScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // GUMB ZA REGISTRACIJU
                         Button(
                             onClick = {
                                 if (ime.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
@@ -167,10 +163,10 @@ fun RegisterScreen(
                                         try {
                                             val response = RetrofitInstance.api.register(
                                                 RegisterRequest(
-                                                    ime = ime,
+                                                    username = ime,
                                                     email = email,
-                                                    lozinka = password,
-                                                    uloga = selectedRole
+                                                    password = password,
+                                                    roleName = selectedRole
                                                 )
                                             )
 
@@ -178,7 +174,6 @@ fun RegisterScreen(
                                                 Log.d("REGISTER", "Uspješna registracija: ${response.body()?.poruka}")
                                                 isLoading = false
 
-                                                // Nakon uspješne registracije idi na login
                                                 navController.navigate(Route.Login.route) {
                                                     popUpTo(Route.Register.route) { inclusive = true }
                                                 }
@@ -228,7 +223,6 @@ fun RegisterScreen(
                         }
                     }
 
-                    // FOOTER
                     Text(
                         text = "Powered by SPAN",
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),

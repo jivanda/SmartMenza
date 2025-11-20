@@ -43,7 +43,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // HEADER
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
