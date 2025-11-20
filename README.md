@@ -17,11 +17,11 @@ SmartMenza je aplikacija za planiranje i praćenje prehrane u studentskoj menzi.
 ## Specifikacija projekta
 Oznaka | Naziv | Kratki opis | Odgovorni član tima
 ------ | ----- | ----------- | -------------------
-F01 | Registracija i prijava (Google ili klasična) | Student/Zaposlenik može se registrirati i prijaviti (Google ili klasično) radi korištenja funkcionalnosti. | Jurica Ivanda
+F01 | Registracija i prijava (Google ili klasična) | Student/Zaposlenik može se registrirati i prijaviti (Google ili klasično) radi korištenja funkcionalnosti. | Jakov Lisjak
 F02 | Pregled dnevnog menija | Student može pregledati jelovnik za određeni dan. | Karlo Mišić
 F03 | Unos vlastitih prehrambenih ciljeva (CRUD) | Student može unijeti, mijenjati i brisati ciljeve (npr. dnevni unos proteina, kalorija). | Karlo Mišić
 F04 | AI preporuka obroka (AI)| Na temelju unesenih ciljeva i dnevnog menija, AI predlaže najprikladnije jelo. | Nikola Polonijo
-F05 | Označavanje favorita (CRUD) | Student može označiti i spremiti svoja najdraža jela. | Jakov Lisjak
+F05 | Označavanje favorita (CRUD) | Student može označiti i spremiti svoja najdraža jela. | Jurica Ivanda
 F06 | Ocjenjivanje i komentiranje jela (CRUD) | Student može ostaviti ocjenu i recenziju pojedinog jela. | Jakov Lisjak
 F07 | Unos i uređivanje menija (CRUD) | Zaposlenik unosi dnevne menije (naziv, sastojci, cijena). | Marko Ivić
 F08 | Nutritivna analiza menija (AI) | Na temelju sastojaka AI automatski izračunava nutritivne vrijednosti (kalorije, proteini, ugljikohidrati, masti). | Nikola Polonijo 
