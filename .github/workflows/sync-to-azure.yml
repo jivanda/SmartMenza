@@ -1,4 +1,4 @@
-name: Sync GitHub to Azure DevOps
+name: Sync GitHub to Azure DevOps (frontend + backend)
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Push to Azure DevOps
+      - name: Push to Azure DevOps frontend and backend
         env:
           AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           AZURE_DEVOPS_USER: ${{ secrets.AZURE_DEVOPS_USER }}
@@ -23,7 +23,13 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          git remote add azure "https://${AZURE_DEVOPS_USER}:${AZURE_DEVOPS_PAT}@dev.azure.com/IMPLI/SmartMenza_backend/_git/SmartMenza_backend"
+          git remote remove azure_frontend 2>/dev/null || true
+          git remote remove azure_backend 2>/dev/null || true
 
-          git push azure --all
-          git push azure --tags
+          git remote add azure_frontend "https://${AZURE_DEVOPS_USER}:${AZURE_DEVOPS_PAT}@dev.azure.com/IMPLI/_git/SmartMenza_frontend"
+          git push azure_frontend --all
+          git push azure_frontend --tags
+
+          git remote add azure_backend "https://${AZURE_DEVOPS_USER}:${AZURE_DEVOPS_PAT}@dev.azure.com/IMPLI/_git/SmartMenza_backend"
+          git push azure_backend --all
+          git push azure_backend --tags
