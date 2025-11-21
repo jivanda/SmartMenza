@@ -1,26 +1,66 @@
-# ==== Android / Kotlin ====
+# ANDROID / KOTLIN (Android Studio)
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.gradle/
 local.properties
+/.idea/
+/.idea/*
+!/.idea/codeStyles
+!/.idea/icon.svg
+!/.idea/vcs.xml
 
-# ==== .NET / C# ====
+# Build output
+/build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# OS junk
+.DS_Store
+
+# Keystore files
+*.jks
+*.keystore
+
+# DOTNET / C#
+# build folders
 [Bb]in/
 [Oo]bj/
+[Ll]og/
+
+# Visual Studio stuff
 .vs/
 *.user
 *.suo
+*.cache
+*.config
 *.dbmdl
+*.psess
+*.vsp
+*.vspx
+
+# Entity Framework migration temp
+*.db
+
+# Resharper / JetBrains Rider
+_ReSharper*/
+*.DotSettings.user
+
+# LOGS / TEMP / BACKUP
 *.log
-*.vspscc
-*.vssscc
 *.tmp
+*.temp
+*.bak
+
+# OTHER
+# SQLite/Local database files
+*.sqlite
+*.db
+*.db-shm
+*.db-wal
+
+# ZIP / package output
+*.zip
+*.7z
+*.tar
+*.gz
