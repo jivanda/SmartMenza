@@ -32,3 +32,15 @@ C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\ob
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\refint\SmartMenza.Domain.dll
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\SmartMenza.Domain.pdb
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\ref\SmartMenza.Domain.dll
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\bin\Debug\net8.0\SmartMenza.Domain.deps.json
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\bin\Debug\net8.0\SmartMenza.Domain.dll
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\bin\Debug\net8.0\SmartMenza.Domain.pdb
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\SmartMenza.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\SmartMenza.Domain.AssemblyInfoInputs.cache
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\SmartMenza.Domain.AssemblyInfo.cs
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\SmartMenza.Domain.csproj.CoreCompileInputs.cache
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\SmartMenza.Domain.sourcelink.json
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\SmartMenza.Domain.dll
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\refint\SmartMenza.Domain.dll
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\SmartMenza.Domain.pdb
+C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.Domain\obj\Debug\net8.0\ref\SmartMenza.Domain.dll

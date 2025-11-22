@@ -49,7 +49,7 @@ namespace SmartMenza.Business.Services
             return user;
         }
 
-        private string HashPassword(string lozinka)
+        public string HashPassword(string lozinka)
         {
             using var sha = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(lozinka);

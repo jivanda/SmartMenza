@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj": {}
+    "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj": {
+    "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj",
+        "projectUniqueName": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj",
         "projectName": "SmartMenza.API",
-        "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj",
-        "packagesPath": "C:\\Users\\karlo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\obj\\",
+        "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj",
+        "packagesPath": "C:\\Users\\juric\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\karlo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\juric\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,14 +32,14 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj": {
-                "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj"
+              "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj": {
+                "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj"
               },
-              "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj": {
-                "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj"
+              "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj": {
+                "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj"
               },
-              "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
-                "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj"
+              "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
+                "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj"
               }
             }
           }
@@ -94,20 +94,20 @@
         }
       }
     },
-    "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj": {
+    "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj",
+        "projectUniqueName": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj",
         "projectName": "SmartMenza.Business",
-        "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj",
-        "packagesPath": "C:\\Users\\karlo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\obj\\",
+        "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\SmartMenza.Business.csproj",
+        "packagesPath": "C:\\Users\\juric\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Business\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\karlo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\juric\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -122,11 +122,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj": {
-                "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj"
+              "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj": {
+                "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj"
               },
-              "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
-                "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj"
+              "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
+                "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj"
               }
             }
           }
@@ -166,20 +166,20 @@
         }
       }
     },
-    "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj": {
+    "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj",
+        "projectUniqueName": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj",
         "projectName": "SmartMenza.Data",
-        "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj",
-        "packagesPath": "C:\\Users\\karlo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\obj\\",
+        "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\SmartMenza.Data.csproj",
+        "packagesPath": "C:\\Users\\juric\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Data\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\karlo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\juric\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -194,8 +194,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
-                "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj"
+              "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
+                "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj"
               }
             }
           }
@@ -245,20 +245,20 @@
         }
       }
     },
-    "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
+    "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj",
         "projectName": "SmartMenza.Domain",
-        "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj",
-        "packagesPath": "C:\\Users\\karlo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\obj\\",
+        "projectPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj",
+        "packagesPath": "C:\\Users\\juric\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\juric\\source\\repos\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\karlo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\juric\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
