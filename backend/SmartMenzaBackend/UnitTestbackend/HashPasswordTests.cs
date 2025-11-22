@@ -8,7 +8,6 @@ namespace UnitTestbackend
 {
     public class HashPasswordTests
     {
-        // Isto kao u RegisterUserTests – koristimo in-memory bazu
         private static SmartMenzaContext CreateContext()
         {
             var options = new DbContextOptionsBuilder<SmartMenzaContext>()
@@ -29,13 +28,8 @@ namespace UnitTestbackend
         [Fact]
         public void HashPassword_ReturnsNonEmptyString()
         {
-            // Arrange
             var password = "MojaTajna123!";
-
-            // Act
             var hash = _sut.HashPassword(password);
-
-            // Assert
             Assert.False(string.IsNullOrWhiteSpace(hash));
         }
 
@@ -81,4 +75,3 @@ namespace UnitTestbackend
         }
     }
 }
-
