@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartMenza.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+84a55c202e635c28ef4c4bd459ed8076b05797f9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+25603a9f82f094822c2edd4601ae54fceafd4850")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartMenza.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartMenza.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

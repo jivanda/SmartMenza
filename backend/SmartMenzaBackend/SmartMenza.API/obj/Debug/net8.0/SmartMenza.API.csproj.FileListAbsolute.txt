@@ -707,3 +707,4 @@ C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\
 C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\SmartMenza.API.pdb
 C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\SmartMenza.API.genruntimeconfig.cache
 C:\Users\juric\source\repos\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\ref\SmartMenza.API.dll
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\SmartMenza.API.MvcApplicationPartsAssemblyInfo.cs

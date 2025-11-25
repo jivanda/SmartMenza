@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "jRdkZa9Aers=",
+  "dgSpecHash": "qiVq5v5afR4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\karlo\\Desktop\\sdf\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj",
+  "projectFilePath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.API\\SmartMenza.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\karlo\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\karlo\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
