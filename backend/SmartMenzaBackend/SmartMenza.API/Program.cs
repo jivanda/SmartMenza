@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartMenza.Data.Context;
 using SmartMenza.Business.Services;
+using SmartMenza.Data.Context.SmartMenza.Data.Context;
 
 namespace SmartMenza.API
 {
@@ -34,6 +35,7 @@ namespace SmartMenza.API
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<MenuService>();
 
             var app = builder.Build();
 

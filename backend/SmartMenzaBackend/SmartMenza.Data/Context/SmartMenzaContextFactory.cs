@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using SmartMenza.Data.Context.SmartMenza.Data.Context;
 
 namespace SmartMenza.Data.Context
 {
