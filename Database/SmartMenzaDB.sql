@@ -21,6 +21,7 @@ IF OBJECT_ID('dbo.Meal', 'U') IS NOT NULL DROP TABLE dbo.Meal;
 IF OBJECT_ID('dbo.MealType', 'U') IS NOT NULL DROP TABLE dbo.MealType;
 IF OBJECT_ID('dbo.UserAccount', 'U') IS NOT NULL DROP TABLE dbo.UserAccount;
 IF OBJECT_ID('dbo.Role', 'U') IS NOT NULL DROP TABLE dbo.Role;
+IF OBJECT_ID('dbo.TypeMenu', 'U') IS NOT NULL DROP TABLE dbo.TypeMenu;
 GO
 
 -------------------------------------------------------
@@ -81,12 +82,27 @@ CREATE TABLE Meal (
 GO
 
 -------------------------------------------------------
+-- Table: MenuType
+-------------------------------------------------------
+CREATE TABLE MenuType (
+    MenuTypeId  INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL
+);
+GO
+
+-------------------------------------------------------
 -- Table: Menu
 -------------------------------------------------------
 CREATE TABLE Menu (
     MenuId INT IDENTITY(1,1) PRIMARY KEY,
+    MenuTypeId INT,
     Name NVARCHAR(100) NOT NULL,
-    Description NVARCHAR(255)
+    Description NVARCHAR(255),
+    CONSTRAINT FK_MenuType
+        FOREIGN KEY (MenuTypeId)
+        REFERENCES MenuType(MenuTypeId)
+        ON DELETE NO ACTION
+        ON UPDATE CASCADE
 );
 GO
 
@@ -195,11 +211,19 @@ VALUES
     ('Pasta Carbonara', 'Creamy pasta with pancetta', 30.00, 2, 600, 20, 75, 25, 'carbonara.jpg');
 GO
 
--- Menus
-INSERT INTO Menu (Name, Description)
+-- Menu types
+INSERT INTO MenuType (Name)
 VALUES 
-    ('Weekly Menu 1', 'Best selection for the start of the week'),
-    ('Weekly Menu 2', 'Diverse meals for midweek');
+    ('Weekly Menu 1 Fall'),
+    ('Weekly Menu 2 Spring'),
+    ('Vegetarian Menu Winter');
+GO
+
+-- Menus
+INSERT INTO Menu (MenuTypeId, Name, Description)
+VALUES 
+    (1, 'Weekly Menu 1', 'Best selection for the start of the week'),
+    (2, 'Weekly Menu 2', 'Diverse meals for midweek');
 GO
 
 -- MenuDate (link menus to specific dates)
