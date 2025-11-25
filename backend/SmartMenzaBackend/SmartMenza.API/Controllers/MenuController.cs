@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartMenza.Business.Services;
+using SmartMenza.Domain.DTOs;
 using System.Globalization;
 
 namespace SmartMenza.API.Controllers
@@ -38,5 +39,67 @@ namespace SmartMenza.API.Controllers
 
             return Ok(menu);
         }
+
+        [HttpPost("admin")]
+        public IActionResult CreateMenu(
+            [FromBody] CreateMenuDto dto,
+            [FromHeader(Name = "Uloga")] string? roleHeader)
+        {
+            if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    message = "Nemate ovlasti za kreiranje menija."
+                });
+            }
+
+            var result = _menuService.CreateMenuForDate(dto);
+
+            if (!result.Success)
+            {
+                return BadRequest(new
+                {
+                    message = result.ErrorMessage
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Meni je uspješno spremljen.",
+                menuId = result.MenuId
+            });
+        }
+
+        [HttpPut("admin/{menuId}")]
+        public IActionResult UpdateMenu(
+    int menuId,
+    [FromBody] UpdateMenuDto dto,
+    [FromHeader(Name = "Uloga")] string? roleHeader)
+        {
+            if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
+                return Unauthorized("Nedovoljna dopuštenja");
+
+            var result = _menuService.UpdateMenu(menuId, dto);
+            if (!result.Success)
+                return BadRequest(new { message = result.ErrorMessage });
+
+            return Ok(new { message = "Meni je uspješno ažuriran" });
+        }
+
+        [HttpDelete("admin/{menuId}")]
+        public IActionResult DeleteMenu(
+            int menuId,
+            [FromHeader(Name = "Uloga")] string? roleHeader)
+        {
+            if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
+                return Unauthorized("Nedovoljna dopuštenja");
+
+            var result = _menuService.DeleteMenu(menuId);
+            if (!result.Success)
+                return BadRequest(new { message = result.ErrorMessage });
+
+            return Ok(new { message = "Meni je uspješno obrisan" });
+        }
+
     }
 }

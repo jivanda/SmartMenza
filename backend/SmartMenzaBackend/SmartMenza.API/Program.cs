@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using SmartMenza.Data.Context;
 using SmartMenza.Business.Services;
-using SmartMenza.Data.Context.SmartMenza.Data.Context;
+using SmartMenza.Data.Context;
 
 namespace SmartMenza.API
 {
