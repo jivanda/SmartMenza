@@ -360,7 +360,6 @@ C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\D
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\SmartMenza.API.csproj.CoreCompileInputs.cache
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\SmartMenza.API.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\SmartMenza.API.sourcelink.json
-C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\SmartMenza.API.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\bin\Debug\net8.0\appsettings.json
 C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\bin\Debug\net8.0\SmartMenza.API.staticwebassets.endpoints.json
