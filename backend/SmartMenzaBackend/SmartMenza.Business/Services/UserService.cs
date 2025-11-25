@@ -1,14 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SmartMenza.Data.Context;
-using SmartMenza.Data.Context.SmartMenza.Data.Context;
-using SmartMenza.Domain.DTOs;
-using SmartMenza.Domain.Entities;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SmartMenza.Data.Context;
+using SmartMenza.Domain.DTOs;
+using SmartMenza.Domain.Entities;
 
 namespace SmartMenza.Business.Services
 {

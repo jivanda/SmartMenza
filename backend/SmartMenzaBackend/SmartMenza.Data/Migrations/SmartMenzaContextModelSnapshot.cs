@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartMenza.Data.Context;
-using SmartMenza.Data.Context.SmartMenza.Data.Context;
 
 #nullable disable
 
