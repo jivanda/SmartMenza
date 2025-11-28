@@ -71,4 +71,6 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.52")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     kapt("com.google.dagger:hilt-compiler:2.52")
+    implementation("androidx.compose.material:material-icons-extended")
+
 }
