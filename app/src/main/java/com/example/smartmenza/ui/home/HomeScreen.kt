@@ -34,10 +34,10 @@ import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.smartmenza.ui.components.StickerCard
 import com.example.smartmenza.ui.components.IconGrid
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material.icons.rounded.*      // rounded versions
-import androidx.compose.material.icons.sharp.*        // sharp versions
-import androidx.compose.material.icons.twotone.*      // two-tone versions
+//import androidx.compose.material.icons.outlined.*
+//import androidx.compose.material.icons.rounded.*
+//import androidx.compose.material.icons.sharp.*
+//import androidx.compose.material.icons.twotone.*
 import com.example.smartmenza.ui.components.MenuCard
 
 
@@ -49,6 +49,24 @@ fun HomeScreen(
     val context = LocalContext.current
     val prefs = remember { UserPreferences(context) }
     val userName by prefs.userName.collectAsState(initial = "Korisnik")
+
+
+    //var isLoading by remember { mutableStateOf(true) }
+    //var error by remember { mutableStateOf<String?>(null) }
+    //var dailyMenus by remember { mutableStateOf<List<DailyMenuDto>>(emptyList()) }
+
+    //LaunchedEffect(Unit) {
+    //    try {
+    //        val today = java.time.LocalDate.now()
+    //        val dateStr = today.toString() // "2025-11-29"
+
+    //        dailyMenus = RetrofitInstance.menuApi.getDailyMenu(dateStr)
+    //    } catch (e: Exception) {
+    //        error = "Greška pri dohvaćanju današnje ponude."
+    //    } finally {
+    //        isLoading = false
+    //    }
+    //}
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -179,7 +197,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
-                            text = "Današnja Ponuda",
+                            text = "Današnja Ponuda - ${java.time.LocalDate.now()}",
                             style = MaterialTheme.typography.headlineSmall.copy(
                                 fontFamily = Montserrat,
                                 fontWeight = FontWeight.Bold,
@@ -196,16 +214,28 @@ fun HomeScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         )
-
                         Spacer(modifier = Modifier.height(12.dp))
 
                         MenuCard(
                             meals = "Hrenovke (x2)\nVoda\nČokoladni puding",
                             menuType = "Meni 1",
                             price = "1 EUR",
+                            imageRes = R.drawable.hrenovke,
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {}
                         )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        MenuCard( meals = "Sirnica\nJogurt\nChoco desert",
+                            menuType = "Meni 2",
+                            price = "1.6 EUR",
+                            imageRes = R.drawable.sirnica,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {}
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             }
