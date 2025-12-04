@@ -218,31 +218,42 @@ fun HomeScreen(
                             isLoading -> item { CircularProgressIndicator() }
                             errorMessage != null -> item { Text(text = errorMessage!!, color = Color.Red) }
                             todayMenus.isEmpty() -> item { Text("Za današnji datum nema spremljenih menija.") }
-                            else -> items(todayMenus) { menu ->
+                            else -> {
+                                val groupedMenus = todayMenus.groupBy { it.menuTypeName }
 
-                                Text(
-                                    text = menu.menuTypeName ?: "Jelovnik",
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontFamily = Montserrat,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                )
+                                groupedMenus.forEach { (menuTypeName, menus) ->
+                                    item {
+                                        Text(
+                                            text = menuTypeName ?: "Jelovnik",
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontFamily = Montserrat,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                    }
 
-                                Spacer(modifier = Modifier.height(8.dp))
+                                    val mergedMenus = menus.groupBy { it.name }
+                                        .map { (_, menusWithSameName) ->
+                                            val allMeals = menusWithSameName.flatMap { it.meals }
+                                            menusWithSameName.first().copy(meals = allMeals)
+                                        }
 
-                                val mealsText = menu.meals.joinToString("\n") { it.name }
-                                val totalPrice = menu.meals.sumOf { it.price }
+                                    items(mergedMenus) { menu ->
+                                        val mealsText = menu.meals.joinToString("") { it.name }
+                                        val totalPrice = menu.meals.sumOf { it.price }
 
-                                MenuCard(
-                                    meals = mealsText,
-                                    menuType = menu.name,
-                                    price = "${"%.2f".format(totalPrice)} EUR",
-                                    imageRes = R.drawable.hrenovke,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    onClick = {}
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
+                                        MenuCard(
+                                            meals = mealsText,
+                                            menuType = menu.name,
+                                            price = "${"%.2f".format(totalPrice)} EUR",
+                                            imageRes = R.drawable.hrenovke,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            onClick = {}
+                                        )
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+                                }
                             }
                         }
                     }
