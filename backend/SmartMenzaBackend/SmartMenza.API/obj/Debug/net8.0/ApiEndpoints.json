@@ -32,6 +32,64 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "SmartMenza.API.Controllers.GoalController",
+    "Method": "CheckGoalOwnership",
+    "RelativePath": "api/Goal/check-user",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "checkDto",
+        "Type": "SmartMenza.Domain.DTOs.GoalOwnershipCheckDto",
+        "IsRequired": true
+      },
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.GoalController",
+    "Method": "CreateGoal",
+    "RelativePath": "api/Goal/create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "goalDto",
+        "Type": "SmartMenza.Domain.DTOs.GoalCreateDto",
+        "IsRequired": true
+      },
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.GoalController",
+    "Method": "ValidateGoal",
+    "RelativePath": "api/Goal/validate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "goalDto",
+        "Type": "SmartMenza.Domain.DTOs.GoalValidationDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "SmartMenza.API.Controllers.MenuController",
     "Method": "GetByDate",
     "RelativePath": "api/Menu",

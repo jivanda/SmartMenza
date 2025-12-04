@@ -67,6 +67,119 @@
         }
       }
     },
+    "/api/Goal/create": {
+      "post": {
+        "tags": [
+          "Goal"
+        ],
+        "parameters": [
+          {
+            "name": "UserId",
+            "in": "header",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Goal/validate": {
+      "post": {
+        "tags": [
+          "Goal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalValidationDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalValidationDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalValidationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Goal/check-user": {
+      "post": {
+        "tags": [
+          "Goal"
+        ],
+        "parameters": [
+          {
+            "name": "UserId",
+            "in": "header",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalOwnershipCheckDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalOwnershipCheckDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalOwnershipCheckDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Menu": {
       "get": {
         "tags": [
@@ -233,6 +346,60 @@
               "$ref": "#/components/schemas/MenuMealItemDto"
             },
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GoalCreateDto": {
+        "type": "object",
+        "properties": {
+          "calories": {
+            "type": "number",
+            "format": "double"
+          },
+          "targetProteins": {
+            "type": "number",
+            "format": "double"
+          },
+          "targetCarbs": {
+            "type": "number",
+            "format": "double"
+          },
+          "targetFats": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GoalOwnershipCheckDto": {
+        "type": "object",
+        "properties": {
+          "goalId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GoalValidationDto": {
+        "type": "object",
+        "properties": {
+          "targetCalories": {
+            "type": "number",
+            "format": "double"
+          },
+          "targetProteins": {
+            "type": "number",
+            "format": "double"
+          },
+          "targetCarbs": {
+            "type": "number",
+            "format": "double"
+          },
+          "targetFats": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false

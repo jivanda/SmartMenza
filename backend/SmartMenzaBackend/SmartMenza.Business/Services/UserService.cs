@@ -54,5 +54,10 @@ namespace SmartMenza.Business.Services
             var hash = sha.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
+
+        public UserAccount? GetUserById(int userId)
+        {
+            return _context.UserAccount.FirstOrDefault(u => u.UserId == userId);
+        }
     }
 }

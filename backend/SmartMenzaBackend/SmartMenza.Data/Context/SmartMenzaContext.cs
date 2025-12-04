@@ -16,30 +16,49 @@ namespace SmartMenza.Data.Context
         public DbSet<MealType> MealType { get; set; }
         public DbSet<MenuMeal> MenuMeal { get; set; }
 
+        public DbSet<NutritionGoal> NutritionGoal { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<MenuDate>()
-                .HasKey(md => new { md.MenuId, md.Date });
+            modelBuilder.Entity<NutritionGoal>(entity =>
+            {
+                entity.ToTable("NutritionGoal");
+                entity.HasKey(e => e.GoalId);
 
-            modelBuilder.Entity<MenuDate>()
-                .HasOne(md => md.Menu)
-                .WithMany(m => m.MenuDates)
-                .HasForeignKey(md => md.MenuId);
+                entity.Property(e => e.DateSet).HasColumnName("DateSet");
 
-            modelBuilder.Entity<MenuMeal>()
-                .HasKey(mm => new { mm.MenuId, mm.MealId });
+                entity.HasOne(e => e.User)
+                      .WithMany(u => u.Goals)
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            modelBuilder.Entity<MenuMeal>()
-                .HasOne(mm => mm.Menu)
-                .WithMany(m => m.MenuMeals)
-                .HasForeignKey(mm => mm.MenuId);
+            modelBuilder.Entity<MenuDate>(entity =>
+            {
+                entity.HasKey(e => new { e.MenuId, e.Date });
 
-            modelBuilder.Entity<MenuMeal>()
-                .HasOne(mm => mm.Meal)
-                .WithMany(m => m.MenuMeals)
-                .HasForeignKey(mm => mm.MealId);
+                entity.HasOne(e => e.Menu)
+                      .WithMany(m => m.MenuDates)
+                      .HasForeignKey(e => e.MenuId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<MenuMeal>(entity =>
+            {
+                entity.HasKey(e => new { e.MenuId, e.MealId });
+
+                entity.HasOne(e => e.Menu)
+                      .WithMany(m => m.MenuMeals)
+                      .HasForeignKey(e => e.MenuId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Meal)
+                      .WithMany(me => me.MenuMeals)
+                      .HasForeignKey(e => e.MealId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

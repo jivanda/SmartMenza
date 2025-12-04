@@ -35,6 +35,7 @@ namespace SmartMenza.API
 
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<MenuService>();
+            builder.Services.AddScoped<GoalService>();
 
             var app = builder.Build();
 
