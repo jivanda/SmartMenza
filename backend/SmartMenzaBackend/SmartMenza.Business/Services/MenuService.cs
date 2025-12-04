@@ -89,11 +89,11 @@ namespace SmartMenza.Business.Services
                 return (false, "Jelovnik mora sadržavati barem jedno jelo", null);
             }
 
-            var existsForDate = _context.MenuDate.Any(md => md.Date == parsedDate);
-            if (existsForDate)
-            {
-                return (false, "Jelovnik za odabrani datum već postoji", null);
-            }
+            //var existsForDate = _context.MenuDate.Any(md => md.Date == parsedDate);
+            //if (existsForDate)
+            //{
+            //    return (false, "Jelovnik za odabrani datum već postoji", null);
+            //}
 
             var menu = new Domain.Entities.Menu
             {
