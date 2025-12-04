@@ -39,6 +39,12 @@ import androidx.compose.material.icons.filled.*
 //import androidx.compose.material.icons.sharp.*
 //import androidx.compose.material.icons.twotone.*
 import com.example.smartmenza.ui.components.MenuCard
+import androidx.compose.runtime.LaunchedEffect
+import com.example.smartmenza.data.remote.MenuResponseDto
+import com.example.smartmenza.data.remote.RetrofitInstance
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
 
 
 @Composable
@@ -51,22 +57,29 @@ fun HomeScreen(
     val userName by prefs.userName.collectAsState(initial = "Korisnik")
 
 
-    //var isLoading by remember { mutableStateOf(true) }
-    //var error by remember { mutableStateOf<String?>(null) }
-    //var dailyMenus by remember { mutableStateOf<List<DailyMenuDto>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var todayMenu by remember { mutableStateOf<MenuResponseDto?>(null) }
 
-    //LaunchedEffect(Unit) {
-    //    try {
-    //        val today = java.time.LocalDate.now()
-    //        val dateStr = today.toString() // "2025-11-29"
+    LaunchedEffect(Unit) {
+        try {
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            val dateStr = LocalDate.now().format(formatter)
 
-    //        dailyMenus = RetrofitInstance.menuApi.getDailyMenu(dateStr)
-    //    } catch (e: Exception) {
-    //        error = "Greška pri dohvaćanju današnje ponude."
-    //    } finally {
-    //        isLoading = false
-    //    }
-    //}
+            val response = RetrofitInstance.api.getMenuByDate(dateStr)
+
+            if (response.isSuccessful) {
+                todayMenu = response.body()
+            } else {
+                errorMessage = "Greška ${response.code()} pri dohvaćanju menija."
+            }
+        } catch (e: Exception) {
+            errorMessage = "Greška pri dohvaćanju menija: ${e.message}"
+        } finally {
+            isLoading = false
+        }
+    }
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -197,7 +210,8 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
-                            text = "Današnja Ponuda - ${java.time.LocalDate.now()}",
+                            text = "Današnja ponuda - " +
+                                    LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                             style = MaterialTheme.typography.headlineSmall.copy(
                                 fontFamily = Montserrat,
                                 fontWeight = FontWeight.Bold,
@@ -207,35 +221,54 @@ fun HomeScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Text(
-                            text = "Doručak",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontFamily = Montserrat,
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        when {
+                            isLoading -> {
+                                CircularProgressIndicator()
+                            }
+                            errorMessage != null -> {
+                                Text(
+                                    text = errorMessage!!,
+                                    color = Color.Red
+                                )
+                            }
+                            todayMenu == null -> {
+                                Text(
+                                    text = "Za današnji datum nema spremljenog menija.",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                            else -> {
+                                val menu = todayMenu!!
 
-                        MenuCard(
-                            meals = "Hrenovke (x2)\nVoda\nČokoladni puding",
-                            menuType = "Meni 1",
-                            price = "1 EUR",
-                            imageRes = R.drawable.hrenovke,
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {}
-                        )
+                                // naslov tipa menija (ako je postavljen), inače samo "Jelovnik"
+                                Text(
+                                    text = menu.menuTypeName ?: "Jelovnik",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontFamily = Montserrat,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
 
-                        MenuCard( meals = "Sirnica\nJogurt\nChoco desert",
-                            menuType = "Meni 2",
-                            price = "1.6 EUR",
-                            imageRes = R.drawable.sirnica,
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {}
-                        )
+                                // Složi tekst jela (svako u svoj red)
+                                val mealsText = menu.meals.joinToString("\n") { it.name }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                                // Izračunaj ukupnu cijenu (zbroj cijena svih jela)
+                                val totalPrice = menu.meals.sumOf { it.price }
+
+                                MenuCard(
+                                    meals = mealsText,
+                                    menuType = menu.name,              // npr. "Meni dana"
+                                    price = "${"%.2f".format(totalPrice)} EUR",
+                                    imageRes = R.drawable.hrenovke,    // za sada placeholder slika
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = { /* kasnije možeš detalje menija */ }
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
+                        }
                     }
                 }
             }
