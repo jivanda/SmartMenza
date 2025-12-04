@@ -3,6 +3,7 @@ using SmartMenza.Data.Context;
 using SmartMenza.Domain.DTOs;
 using SmartMenza.Domain.Entities;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -55,6 +56,7 @@ namespace SmartMenza.Business.Services
                 Date = menuDate.Date,
                 MenuTypeName = menu.MenuType?.Name,
                 Meals = menu.MenuMeals
+                    .Where(mm => mm.Meal != null)
                     .Select(mm => new MealDto
                     {
                         MealId = mm.Meal.MealId,
@@ -68,6 +70,67 @@ namespace SmartMenza.Business.Services
                     })
                     .ToList()
             };
+        }
+
+        // Returns all menus for the given date (string overload mirrors GetMenuByDate's input behavior)
+        public List<MenuResponseDto>? GetMenusByDate(string date)
+        {
+            if (!DateTime.TryParseExact(
+                    date,
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var parsedDate))
+            {
+                return null;
+            }
+
+            return GetMenusByDate(parsedDate);
+        }
+
+        // Returns all menus for the given date. Returns an empty list when none found.
+        public List<MenuResponseDto> GetMenusByDate(DateTime date)
+        {
+            var menuDates = _context.MenuDate
+                .Include(md => md.Menu)
+                    .ThenInclude(m => m.MenuType)
+                .Include(md => md.Menu)
+                    .ThenInclude(m => m.MenuMeals)
+                        .ThenInclude(mm => mm.Meal)
+                .Where(md => md.Date == date.Date)
+                .ToList();
+
+            var result = menuDates
+                .Select(md =>
+                {
+                    var menu = md.Menu;
+
+                    return new MenuResponseDto
+                    {
+                        MenuId = menu.MenuId,
+                        Name = menu.Name,
+                        Description = menu.Description,
+                        Date = md.Date,
+                        MenuTypeName = menu.MenuType?.Name,
+                        Meals = (menu.MenuMeals ?? Enumerable.Empty<MenuMeal>())
+                            .Where(mm => mm.Meal != null)
+                            .Select(mm => new MealDto
+                            {
+                                MealId = mm.Meal.MealId,
+                                Name = mm.Meal.Name,
+                                Description = mm.Meal.Description,
+                                Price = mm.Meal.Price,
+                                Calories = mm.Meal.Calories,
+                                Protein = mm.Meal.Protein,
+                                Carbohydrates = mm.Meal.Carbohydrates,
+                                Fat = mm.Meal.Fat
+                            })
+                            .ToList()
+                    };
+                })
+                .ToList();
+
+            return result;
         }
 
         public (bool Success, string? ErrorMessage, int? MenuId) CreateMenuForDate(CreateMenuDto dto)

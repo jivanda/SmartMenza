@@ -2,6 +2,7 @@
 using SmartMenza.Business.Services;
 using SmartMenza.Domain.DTOs;
 using System.Globalization;
+using System.Linq;
 
 namespace SmartMenza.API.Controllers
 {
@@ -40,6 +41,31 @@ namespace SmartMenza.API.Controllers
             return Ok(menu);
         }
 
+        // NEW: returns all menus for the given date (same input as GetByDate)
+        [HttpGet("all")]
+        public IActionResult GetAllByDate([FromQuery] string date)
+        {
+            if (!DateTime.TryParseExact(
+                    date,
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var parsedDate))
+            {
+                return BadRequest(new
+                {
+                    message = "Neispravan format datuma. Očekivan format je dd/MM/yyyy (npr. 03/11/2025)."
+                });
+            }
+
+            var menus = _menuService.GetMenusByDate(parsedDate);
+
+            if (menus == null || !menus.Any())
+                return NotFound(new { message = "Nema menija za traženi datum." });
+
+            return Ok(menus);
+        }
+
         [HttpPost("admin")]
         public IActionResult CreateMenu(
             [FromBody] CreateMenuDto dto,
@@ -72,9 +98,9 @@ namespace SmartMenza.API.Controllers
 
         [HttpPut("admin/{menuId}")]
         public IActionResult UpdateMenu(
-    int menuId,
-    [FromBody] UpdateMenuDto dto,
-    [FromHeader(Name = "Uloga")] string? roleHeader)
+            int menuId,
+            [FromBody] UpdateMenuDto dto,
+            [FromHeader(Name = "Uloga")] string? roleHeader)
         {
             if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
                 return Unauthorized("Nedovoljna dopuštenja");
