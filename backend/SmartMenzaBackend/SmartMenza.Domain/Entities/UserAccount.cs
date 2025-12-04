@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace SmartMenza.Domain.Entities
 {
@@ -8,10 +8,10 @@ namespace SmartMenza.Domain.Entities
         [Key]
         public int UserId { get; set; }
         public int RoleId { get; set; }
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty;
-
-       public Role Role { get; set; } = null!;
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
+        public Role Role { get; set; }
+        public List<NutritionGoal> Goals { get; set; } = new();
     }
 }
