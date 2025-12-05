@@ -219,7 +219,16 @@ fun HomeScreen(
                             errorMessage != null -> item { Text(text = errorMessage!!, color = Color.Red) }
                             todayMenus.isEmpty() -> item { Text("Za današnji datum nema spremljenih menija.") }
                             else -> {
-                                val groupedMenus = todayMenus.groupBy { it.menuTypeName }
+                                val categoryOrder = listOf("Dorucak", "Rucak", "Vecera")
+                                val comparator = compareBy<String?> { menuTypeName ->
+                                    if (menuTypeName == null) {
+                                        categoryOrder.size + 1 // Nulls go last
+                                    } else {
+                                        val index = categoryOrder.indexOfFirst { it.equals(menuTypeName, ignoreCase = true) }
+                                        if (index != -1) index else categoryOrder.size // Known categories first, then others
+                                    }
+                                }
+                                val groupedMenus = todayMenus.groupBy { it.menuTypeName }.toSortedMap(comparator)
 
                                 groupedMenus.forEach { (menuTypeName, menus) ->
                                     item {
@@ -246,7 +255,7 @@ fun HomeScreen(
                                         MenuCard(
                                             meals = mealsText,
                                             menuType = menu.name,
-                                            price = "${"%.2f".format(totalPrice)} EUR",
+                                            price = "%.2f EUR".format(totalPrice),
                                             imageRes = R.drawable.hrenovke,
                                             modifier = Modifier.fillMaxWidth(),
                                             onClick = {}
