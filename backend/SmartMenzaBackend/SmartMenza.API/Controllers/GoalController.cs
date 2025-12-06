@@ -135,5 +135,33 @@ namespace SmartMenza.API.Controllers
 
             return Ok(new { message = "Cilj je uspješno obrisan." });
         }
+
+        [HttpGet("myGoal")]
+        [ProducesResponseType(typeof(List<GoalSummaryDto>), StatusCodes.Status200OK)]
+        public IActionResult GetMyGoals([FromHeader(Name = "UserId")] int userId)
+        {
+            var goals = _goalService.GetGoalsByUser(userId);
+
+            var mapped = goals.Select(g => new GoalDto
+            {
+                GoalId = g.GoalId,
+                Calories = g.Calories,
+                Protein = g.Protein,
+                Carbohydrates = g.Carbohydrates,
+                Fat = g.Fat,
+                DateSet = g.DateSet
+            }).ToList();
+
+            return Ok(mapped);
+        }
+
+        [HttpGet("summary")]
+        [ProducesResponseType(typeof(List<GoalSummaryDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetGoalSummaries([FromHeader(Name = "UserId")] int userId)
+        {
+            var summaries = _goalService.GetGoalSummariesForUser(userId);
+            return Ok(summaries);
+        }
     }
 }

@@ -197,6 +197,54 @@
   },
   {
     "ContainingType": "SmartMenza.API.Controllers.GoalController",
+    "Method": "GetMyGoals",
+    "RelativePath": "api/Goal/myGoal",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[SmartMenza.Domain.DTOs.GoalSummaryDto, SmartMenza.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.GoalController",
+    "Method": "GetGoalSummaries",
+    "RelativePath": "api/Goal/summary",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.GoalController",
     "Method": "ValidateGoal",
     "RelativePath": "api/Goal/validate",
     "HttpMethod": "POST",
