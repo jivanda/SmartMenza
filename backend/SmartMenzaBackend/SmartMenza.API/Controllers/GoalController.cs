@@ -137,10 +137,22 @@ namespace SmartMenza.API.Controllers
         }
 
         [HttpGet("myGoal")]
-        [ProducesResponseType(typeof(List<GoalSummaryDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<GoalDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetMyGoals([FromHeader(Name = "UserId")] int userId)
         {
+            if (userId <= 0)
+                return BadRequest(new { message = "UserId header je obavezan." });
+
+            var user = _userService.GetUserById(userId);
+            if (user == null)
+                return NotFound(new { message = "Korisnik nije pronađen." });
+
             var goals = _goalService.GetGoalsByUser(userId);
+
+            if (goals == null || !goals.Any())
+                return NotFound(new { message = "Korisnik nema spremljenih ciljeva." });
 
             var mapped = goals.Select(g => new GoalDto
             {
@@ -156,11 +168,23 @@ namespace SmartMenza.API.Controllers
         }
 
         [HttpGet("summary")]
-        [ProducesResponseType(typeof(List<GoalSummaryDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GoalSummaryDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetGoalSummaries([FromHeader(Name = "UserId")] int userId)
         {
+            if (userId <= 0)
+                return BadRequest(new { message = "UserId header je obavezan." });
+
+            var user = _userService.GetUserById(userId);
+            if (user == null)
+                return NotFound(new { message = "Korisnik nije pronađen." });
+
             var summaries = _goalService.GetGoalSummariesForUser(userId);
+
+            if (summaries == null)
+                return NotFound(new { message = "Nema dostupnih podataka o ciljevima." });
+
             return Ok(summaries);
         }
     }

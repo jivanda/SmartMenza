@@ -59,6 +59,23 @@ namespace SmartMenza.Data.Context
                       .HasForeignKey(e => e.MealId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<Meal>(entity =>
+            {
+                entity.Property(e => e.Price).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Calories).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Protein).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Carbohydrates).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Fat).HasColumnType("decimal(10,2)");
+            });
+
+            modelBuilder.Entity<NutritionGoal>(entity =>
+            {
+                entity.Property(e => e.Calories).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Protein).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Carbohydrates).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Fat).HasColumnType("decimal(10,2)");
+            });
         }
     }
 }
