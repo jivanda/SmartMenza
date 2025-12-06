@@ -65,7 +65,8 @@ namespace SmartMenza.Business.Services
         }
 
         public (bool Success, string? ErrorMessage)
-            DeleteGoal(int goalId, int userId)
+
+        DeleteGoal(int goalId, int userId)
         {
             var goal = _context.NutritionGoal.FirstOrDefault(g => g.GoalId == goalId);
 
@@ -79,6 +80,37 @@ namespace SmartMenza.Business.Services
             _context.SaveChanges();
 
             return (true, null);
+        }
+
+        public List<NutritionGoal> GetGoalsForUser(int userId)
+        {
+            return _context.NutritionGoal
+                .Where(g => g.UserId == userId)
+                .OrderByDescending(g => g.DateSet)
+                .ToList();
+        }
+
+        public List<GoalSummaryDto> GetGoalSummariesForUser(int userId)
+        {
+            return _context.NutritionGoal
+                .Where(g => g.UserId == userId)
+                .OrderByDescending(g => g.DateSet)
+                .Select(g => new GoalSummaryDto
+                {
+                    Calories = g.Calories,
+                    Protein = g.Protein,
+                    Carbohydrates = g.Carbohydrates,
+                    Fat = g.Fat,
+                })
+                .ToList();
+        }
+
+        public List<NutritionGoal> GetGoalsByUser(int userId)
+        {
+            return _context.NutritionGoal
+                .Where(g => g.UserId == userId)
+                .OrderByDescending(g => g.DateSet)
+                .ToList();
         }
     }
 }
