@@ -33,8 +33,14 @@ interface SmartMenzaApi {
     @POST("api/Auth/login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
-    @GET("api/Menu")
+    @GET("api/menu")
     suspend fun getMenuByDate(
         @Query("date") date: String
     ): Response<MenuResponseDto>
+
+    @GET("api/menu/all")
+    suspend fun getMenusByDate(
+        @Query("date") date: String
+    ): Response<List<MenuResponseDto>>
+
 }
