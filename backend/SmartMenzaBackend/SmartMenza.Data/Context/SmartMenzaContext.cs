@@ -6,7 +6,6 @@ namespace SmartMenza.Data.Context
     public class SmartMenzaContext : DbContext
     {
         public SmartMenzaContext(DbContextOptions<SmartMenzaContext> options) : base(options) { }
-
         public DbSet<UserAccount> UserAccount { get; set; }
         public DbSet<Role> Role { get; set; }
         public DbSet<Menu> Menu { get; set; }
@@ -15,8 +14,8 @@ namespace SmartMenza.Data.Context
         public DbSet<Meal> Meal { get; set; }
         public DbSet<MealType> MealType { get; set; }
         public DbSet<MenuMeal> MenuMeal { get; set; }
-
         public DbSet<NutritionGoal> NutritionGoal { get; set; }
+        public DbSet<Favorite> Favorite { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -75,6 +74,21 @@ namespace SmartMenza.Data.Context
                 entity.Property(e => e.Protein).HasColumnType("decimal(10,2)");
                 entity.Property(e => e.Carbohydrates).HasColumnType("decimal(10,2)");
                 entity.Property(e => e.Fat).HasColumnType("decimal(10,2)");
+            });
+
+            modelBuilder.Entity<Favorite>(entity =>
+            {
+                entity.HasKey(f => new { f.UserId, f.MealId });
+
+                entity.HasOne(f => f.User)
+                    .WithMany()
+                    .HasForeignKey(f => f.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(f => f.Meal)
+                    .WithMany()
+                    .HasForeignKey(f => f.MealId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
