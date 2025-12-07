@@ -18,6 +18,7 @@ import com.example.smartmenza.ui.auth.register.RegisterScreen
 import com.example.smartmenza.ui.home.HomeScreen
 import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
+import com.example.smartmenza.ui.features.AllMealsScreen
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
@@ -62,7 +63,14 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate(Route.Login.route) {
                                         popUpTo(Route.StudentHome.route) { inclusive = true }
                                     }
-                                }
+                                },
+                                onAllMeals = { navController.navigate(Route.AllMeals.route) }
+                            )
+                        }
+
+                        composable(Route.AllMeals.route) {
+                            AllMealsScreen(
+                                navController = navController
                             )
                         }
                     }
