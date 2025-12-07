@@ -22,7 +22,7 @@ data class AuthResponse(
     val poruka: String,
     val username: String?,
     val email: String?,
-    val roleName: String?
+    val uloga: String?
 )
 
 interface SmartMenzaApi {

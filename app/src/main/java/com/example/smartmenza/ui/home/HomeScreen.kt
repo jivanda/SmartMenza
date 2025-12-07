@@ -50,6 +50,7 @@ fun HomeScreen(
         val context = LocalContext.current
         val prefs = remember { UserPreferences(context) }
         val userName by prefs.userName.collectAsState(initial = "Korisnik")
+        val userRole by prefs.userRole.collectAsState(initial = "Student")
 
         var isLoading by remember { mutableStateOf(true) }
         var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -183,13 +184,24 @@ fun HomeScreen(
 
                             Spacer(modifier = Modifier.height(12.dp))
 
-                            // Icon grid
-                            val menuItems = listOf(
-                                GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {}),
-                                GridItem(Icons.Filled.Flag, "Ciljevi", onClick = {}),
-                                GridItem(Icons.Filled.Favorite, "Favoriti", onClick = {}),
-                                GridItem(Icons.Filled.ShowChart, "Statistika", onClick = {})
-                            )
+                            val menuItems = when (userRole) {
+                                "Student" -> listOf(
+                                    GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {}),
+                                    GridItem(Icons.Filled.Flag, "Ciljevi", onClick = {}),
+                                    GridItem(Icons.Filled.Favorite, "Favoriti", onClick = {}),
+                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {})
+                                )
+
+                                "Employee" -> listOf(
+                                    GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {}),
+                                    GridItem(Icons.Filled.RestaurantMenu, "Meniji", onClick = {}),
+                                    GridItem(Icons.Filled.ShowChart, "Statistika", onClick = {}),
+                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {})
+                                )
+
+                                else -> emptyList()
+                            }
+
 
                             IconGrid(
                                 items = menuItems,

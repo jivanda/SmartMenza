@@ -27,6 +27,10 @@ class UserPreferences(private val context: Context) {
         prefs[KEY_NAME]
     }
 
+    val userRole: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[KEY_ROLE]
+    }
+
     suspend fun saveUser(ime: String, email: String, uloga: String) {
         context.dataStore.edit { prefs ->
             prefs[KEY_EMAIL] = email
