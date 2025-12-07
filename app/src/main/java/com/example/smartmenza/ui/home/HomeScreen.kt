@@ -43,6 +43,8 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
+    onNavigateToFavorites: () -> Unit,
+    onNavigateToGoals: () -> Unit,
     onLogout: () -> Unit = {},
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
@@ -187,8 +189,8 @@ fun HomeScreen(
                             val menuItems = when (userRole) {
                                 "Student" -> listOf(
                                     GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {}),
-                                    GridItem(Icons.Filled.Flag, "Ciljevi", onClick = {}),
-                                    GridItem(Icons.Filled.Favorite, "Favoriti", onClick = {}),
+                                    GridItem(Icons.Filled.Flag, "Ciljevi", onClick = onNavigateToGoals),
+                                    GridItem(Icons.Filled.Favorite, "Favoriti", onClick = onNavigateToFavorites),
                                     GridItem(Icons.Filled.Star, "Ponuda", onClick = {})
                                 )
 

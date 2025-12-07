@@ -25,6 +25,13 @@ data class AuthResponse(
     val uloga: String?
 )
 
+data class GoalDto(
+    val id: Int,
+    val name: String,
+    val description: String,
+    val progress: Float // 0.0 to 1.0
+)
+
 interface SmartMenzaApi {
 
     @POST("api/Auth/registration")
@@ -42,5 +49,11 @@ interface SmartMenzaApi {
     suspend fun getMenusByDate(
         @Query("date") date: String
     ): Response<List<MenuResponseDto>>
+
+    @GET("api/User/favorites")
+    suspend fun getMyFavorites(): Response<List<MenuResponseDto>>
+
+    @GET("api/User/goals")
+    suspend fun getMyGoals(): Response<List<GoalDto>>
 
 }
