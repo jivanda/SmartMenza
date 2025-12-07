@@ -41,7 +41,6 @@ namespace SmartMenza.API.Controllers
             return Ok(menu);
         }
 
-        // NEW: returns all menus for the given date (same input as GetByDate)
         [HttpGet("all")]
         public IActionResult GetAllByDate([FromQuery] string date)
         {

@@ -72,7 +72,6 @@ namespace SmartMenza.Business.Services
             };
         }
 
-        // Returns all menus for the given date (string overload mirrors GetMenuByDate's input behavior)
         public List<MenuResponseDto>? GetMenusByDate(string date)
         {
             if (!DateTime.TryParseExact(
@@ -88,7 +87,6 @@ namespace SmartMenza.Business.Services
             return GetMenusByDate(parsedDate);
         }
 
-        // Returns all menus for the given date. Returns an empty list when none found.
         public List<MenuResponseDto> GetMenusByDate(DateTime date)
         {
             var menuDates = _context.MenuDate
