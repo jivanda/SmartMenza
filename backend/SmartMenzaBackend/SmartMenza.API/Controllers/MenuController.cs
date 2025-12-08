@@ -41,7 +41,6 @@ namespace SmartMenza.API.Controllers
             return Ok(menu);
         }
 
-        // NEW: returns all menus for the given date (same input as GetByDate)
         [HttpGet("all")]
         public IActionResult GetAllByDate([FromQuery] string date)
         {
@@ -64,6 +63,18 @@ namespace SmartMenza.API.Controllers
                 return NotFound(new { message = "Nema menija za traženi datum." });
 
             return Ok(menus);
+        }
+
+        [HttpGet("{menuId}/meals")]
+        public IActionResult GetMealsByMenuId(int menuId)
+        {
+            var meals = _menuService.GetMealsByMenuId(menuId);
+
+            if (meals == null)
+                return NotFound(new { message = "Meni nije pronađen." });
+
+            // return empty list if there are no meals
+            return Ok(meals);
         }
 
         [HttpPost("admin")]
