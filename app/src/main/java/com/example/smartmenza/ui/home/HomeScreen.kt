@@ -37,6 +37,7 @@ import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SpanRed
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -45,6 +46,7 @@ import java.time.format.DateTimeFormatter
 fun HomeScreen(
     onNavigateToFavorites: () -> Unit,
     onNavigateToGoals: () -> Unit,
+    onNavigateToMenu: (String, String) -> Unit,
     onLogout: () -> Unit = {},
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
@@ -263,7 +265,7 @@ fun HomeScreen(
                                         }
 
                                     items(mergedMenus) { menu ->
-                                        val mealsText = menu.meals.joinToString("") { it.name }
+                                        val mealsText = menu.meals.joinToString(", ") { it.name }
                                         val totalPrice = menu.meals.sumOf { it.price }
 
                                         MenuCard(
@@ -272,7 +274,10 @@ fun HomeScreen(
                                             price = "%.2f EUR".format(totalPrice),
                                             imageRes = R.drawable.hrenovke,
                                             modifier = Modifier.fillMaxWidth(),
-                                            onClick = {}
+                                            onClick = {
+                                                val mealsJson = Gson().toJson(menu.meals)
+                                                onNavigateToMenu(menu.name, mealsJson)
+                                            }
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))
                                     }

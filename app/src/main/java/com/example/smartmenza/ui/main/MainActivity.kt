@@ -18,6 +18,7 @@ import com.example.smartmenza.ui.auth.register.RegisterScreen
 import com.example.smartmenza.ui.home.FavouriteScreen
 import com.example.smartmenza.ui.home.GoalScreen
 import com.example.smartmenza.ui.home.HomeScreen
+import com.example.smartmenza.ui.home.MenuScreen
 import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import kotlinx.coroutines.runBlocking
@@ -59,6 +60,9 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 onNavigateToFavorites = { navController.navigate(Route.Favourite.route) },
                                 onNavigateToGoals = { navController.navigate(Route.Goal.route) },
+                                onNavigateToMenu = { menuName, mealsJson ->
+                                    navController.navigate("menu/$menuName/$mealsJson")
+                                },
                                 onLogout = {
                                     runBlocking {
                                         prefs.logout()
@@ -76,6 +80,16 @@ class MainActivity : ComponentActivity() {
 
                         composable(Route.Goal.route) {
                             GoalScreen(onNavigateBack = { navController.popBackStack() })
+                        }
+
+                        composable(Route.Menu.route) { backStackEntry ->
+                            val menuName = backStackEntry.arguments?.getString("menuName") ?: ""
+                            val mealsJson = backStackEntry.arguments?.getString("mealsJson") ?: ""
+                            MenuScreen(
+                                menuName = menuName,
+                                mealsJson = mealsJson,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
                     }
                 }
