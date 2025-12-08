@@ -133,6 +133,37 @@ namespace SmartMenza.Business.Services
             return result;
         }
 
+        // NEW: returns all meals for a specific menu by id.
+        // Returns null if menu doesn't exist; returns empty list if menu exists but has no meals.
+        public List<MealDto>? GetMealsByMenuId(int menuId)
+        {
+            var menu = _context.Menu
+                .AsNoTracking()
+                .Include(m => m.MenuMeals)
+                    .ThenInclude(mm => mm.Meal)
+                .FirstOrDefault(m => m.MenuId == menuId);
+
+            if (menu == null)
+                return null;
+
+            var meals = (menu.MenuMeals ?? Enumerable.Empty<MenuMeal>())
+                .Where(mm => mm.Meal != null)
+                .Select(mm => new MealDto
+                {
+                    MealId = mm.Meal!.MealId,
+                    Name = mm.Meal.Name,
+                    Description = mm.Meal.Description,
+                    Price = mm.Meal.Price,
+                    Calories = mm.Meal.Calories,
+                    Protein = mm.Meal.Protein,
+                    Carbohydrates = mm.Meal.Carbohydrates,
+                    Fat = mm.Meal.Fat
+                })
+                .ToList();
+
+            return meals;
+        }
+
         public (bool Success, string? ErrorMessage, int? MenuId) CreateMenuForDate(CreateMenuDto dto)
         {
             if (!DateTime.TryParseExact(
