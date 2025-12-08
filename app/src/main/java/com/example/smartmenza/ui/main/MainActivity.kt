@@ -15,6 +15,8 @@ import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.navigation.Route
 import com.example.smartmenza.ui.auth.login.LoginScreen
 import com.example.smartmenza.ui.auth.register.RegisterScreen
+import com.example.smartmenza.ui.home.FavouriteScreen
+import com.example.smartmenza.ui.home.GoalScreen
 import com.example.smartmenza.ui.home.HomeScreen
 import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
@@ -55,6 +57,8 @@ class MainActivity : ComponentActivity() {
 
                         composable(Route.StudentHome.route) {
                             HomeScreen(
+                                onNavigateToFavorites = { navController.navigate(Route.Favourite.route) },
+                                onNavigateToGoals = { navController.navigate(Route.Goal.route) },
                                 onLogout = {
                                     runBlocking {
                                         prefs.logout()
@@ -64,6 +68,14 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
+                        }
+
+                        composable(Route.Favourite.route) {
+                            FavouriteScreen(onNavigateBack = { navController.popBackStack() })
+                        }
+
+                        composable(Route.Goal.route) {
+                            GoalScreen(onNavigateBack = { navController.popBackStack() })
                         }
                     }
                 }

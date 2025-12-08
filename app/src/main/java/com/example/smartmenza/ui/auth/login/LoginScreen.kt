@@ -127,7 +127,7 @@ fun LoginScreen(
                                             if (response.isSuccessful) {
                                                 val body = response.body()
                                                 val ime = body?.username ?: "Korisnik"
-                                                val uloga = body?.roleName ?: "Student"
+                                                val uloga = body?.uloga ?: "Student"
                                                 val emailRes = body?.email ?: email
 
                                                 prefs.saveUser(ime, emailRes, uloga)
