@@ -50,6 +50,8 @@ fun GoalScreen(
 
                     if (response.isSuccessful) {
                         goals = response.body() ?: emptyList()
+                    } else if (response.code() == 404) {
+                        goals = emptyList() // Treat 404 as no goals
                     } else {
                         errorMessage = "Greška ${response.code()} pri dohvaćanju ciljeva."
                     }
@@ -118,9 +120,19 @@ fun GoalScreen(
                         when {
                             isLoading -> item { CircularProgressIndicator() }
                             errorMessage != null -> item { Text(text = errorMessage!!, color = Color.Red) }
-                            goals.isEmpty() -> item { Text("Nemate postavljenih ciljeva.") }
+                            goals.isEmpty() -> item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 32.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("Nemate spremljenih ciljeva.")
+                                }
+                            }
                             else -> {
-                                items(goals) { goal ->
+                                items(goals) {
+                                    goal ->
                                     GoalCard(goal = goal)
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }

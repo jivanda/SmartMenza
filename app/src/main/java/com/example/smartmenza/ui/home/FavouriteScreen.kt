@@ -51,6 +51,8 @@ fun FavouriteScreen(
 
                     if (response.isSuccessful) {
                         favoriteMenus = response.body() ?: emptyList()
+                    } else if (response.code() == 404) {
+                        favoriteMenus = emptyList() // Treat 404 as no favorites
                     } else {
                         errorMessage = "Greška ${response.code()} pri dohvaćanju favorita."
                     }
@@ -119,7 +121,16 @@ fun FavouriteScreen(
                         when {
                             isLoading -> item { CircularProgressIndicator() }
                             errorMessage != null -> item { Text(text = errorMessage!!, color = Color.Red) }
-                            favoriteMenus.isEmpty() -> item { Text("Nemate spremljenih favorita.") }
+                            favoriteMenus.isEmpty() -> item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 32.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("Nemate spremljenih favorita.")
+                                }
+                            }
                             else -> {
                                 items(favoriteMenus) { menu ->
                                     val mealsText = menu.meals.joinToString("") { it.name }
