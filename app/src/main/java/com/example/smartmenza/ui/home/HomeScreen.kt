@@ -45,6 +45,7 @@ import java.time.format.DateTimeFormatter
 fun HomeScreen(
     onLogout: () -> Unit = {},
     onAllMeals: () -> Unit = {},
+    onOffers: () -> Unit = {},
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     SmartMenzaTheme {
@@ -190,14 +191,14 @@ fun HomeScreen(
                                     GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {onAllMeals()}),
                                     GridItem(Icons.Filled.Flag, "Ciljevi", onClick = {}),
                                     GridItem(Icons.Filled.Favorite, "Favoriti", onClick = {}),
-                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {})
+                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {onOffers()})
                                 )
 
                                 "Employee" -> listOf(
                                     GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {onAllMeals()}),
                                     GridItem(Icons.Filled.RestaurantMenu, "Meniji", onClick = {}),
                                     GridItem(Icons.Filled.ShowChart, "Statistika", onClick = {}),
-                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {})
+                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {onOffers()})
                                 )
 
                                 else -> emptyList()
