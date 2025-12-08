@@ -1,14 +1,17 @@
 package com.example.smartmenza.ui.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -101,6 +104,8 @@ fun MenuScreen(
 
 @Composable
 fun MealListItem(meal: MealDto) {
+    var isFavorite by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -118,7 +123,8 @@ fun MealListItem(meal: MealDto) {
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontFamily = Montserrat,
                     fontWeight = FontWeight.Medium
-                )
+                ),
+                modifier = Modifier.weight(1f)
             )
             Text(
                 text = "%.2f EUR".format(meal.price),
@@ -127,6 +133,14 @@ fun MealListItem(meal: MealDto) {
                     fontWeight = FontWeight.Bold,
                     color = SpanRed
                 )
+            )
+            Icon(
+                imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                contentDescription = "Favorite",
+                tint = if (isFavorite) Color.Yellow else Color.Gray,
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .clickable { isFavorite = !isFavorite }
             )
         }
     }
