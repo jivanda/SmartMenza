@@ -1,5 +1,6 @@
 package com.example.smartmenza.data.remote
 
+import com.google.gson.annotations.SerializedName
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -35,10 +36,14 @@ data class GoalDto(
 )
 
 data class GoalCreateDto(
+    @SerializedName("Calories")
     val calories: Int,
-    val targetProteins: Int,
-    val targetCarbohydrates: Int,
-    val targetFat: Int
+    @SerializedName("TargetProteins")
+    val targetProteins: Double,
+    @SerializedName("TargetCarbs")
+    val targetCarbs: Double,
+    @SerializedName("TargetFats")
+    val targetFats: Double
 )
 
 data class CreateGoalResponse(
@@ -65,9 +70,6 @@ interface SmartMenzaApi {
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
     // --- Menus ---
-    @GET("api/menu")
-    suspend fun getMenuByDate(@Query("date") date: String): Response<MenuResponseDto>
-
     @GET("api/menu/all")
     suspend fun getMenusByDate(@Query("date") date: String): Response<List<MenuResponseDto>>
 

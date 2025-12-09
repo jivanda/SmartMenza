@@ -1,13 +1,16 @@
 package com.example.smartmenza.ui.home
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,10 +24,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smartmenza.R
 import com.example.smartmenza.data.local.UserPreferences
+import com.example.smartmenza.data.remote.GoalCreateDto
 import com.example.smartmenza.data.remote.GoalDto
 import com.example.smartmenza.data.remote.RetrofitInstance
 import com.example.smartmenza.ui.theme.BackgroundBeige
@@ -42,29 +47,29 @@ fun GoalScreen(
         var isLoading by remember { mutableStateOf(true) }
         var errorMessage by remember { mutableStateOf<String?>(null) }
         var goals by remember { mutableStateOf<List<GoalDto>>(emptyList()) }
+        var showCreateGoalDialog by remember { mutableStateOf(false) }
 
         val coroutineScope = rememberCoroutineScope()
         val context = LocalContext.current
         val prefs = remember { UserPreferences(context) }
         val userId by prefs.userId.collectAsState(initial = null)
 
-        LaunchedEffect(userId) {
+        fun fetchGoals() {
             val currentUserId = userId
             if (currentUserId != null) {
                 coroutineScope.launch {
                     isLoading = true
                     try {
                         val response = RetrofitInstance.api.getMyGoals(currentUserId)
-
                         if (response.isSuccessful) {
                             goals = response.body() ?: emptyList()
                         } else if (response.code() == 404) {
-                            goals = emptyList() // Treat 404 as no goals
+                            goals = emptyList()
                         } else {
-                            errorMessage = "Greška ${'$'}{response.code()} pri dohvaćanju ciljeva."
+                            errorMessage = "Greška ${response.code()} pri dohvaćanju ciljeva."
                         }
                     } catch (e: Exception) {
-                        errorMessage = "Greška pri dohvaćanju ciljeva: ${'$'}{e.message}"
+                        errorMessage = "Greška pri dohvaćanju ciljeva: ${e.message}"
                     } finally {
                         isLoading = false
                     }
@@ -75,12 +80,56 @@ fun GoalScreen(
             }
         }
 
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = BackgroundBeige
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+        fun createGoal(calories: Int, proteins: Double, carbs: Double, fat: Double) {
+            val currentUserId = userId
+            if (currentUserId == null) {
+                Toast.makeText(context, "Morate biti prijavljeni", Toast.LENGTH_SHORT).show()
+                return
+            }
+            coroutineScope.launch {
+                try {
+                    val request = GoalCreateDto(
+                        calories = calories,
+                        targetProteins = proteins,
+                        targetCarbs = carbs,
+                        targetFats = fat
+                    )
+                    val response = RetrofitInstance.api.createGoal(currentUserId, request)
+                    if (response.isSuccessful) {
+                        Toast.makeText(context, "Cilj uspješno kreiran!", Toast.LENGTH_SHORT).show()
+                        fetchGoals()
+                        showCreateGoalDialog = false
+                    } else {
+                        Toast.makeText(context, "Greška pri kreiranju cilja: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Greška: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
+        LaunchedEffect(userId) {
+            fetchGoals()
+        }
+
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { showCreateGoalDialog = true },
+                    containerColor = SpanRed,
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Dodaj cilj")
+                }
+            },
+            containerColor = BackgroundBeige
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
                 // Header
                 Box(
                     modifier = Modifier
@@ -114,8 +163,6 @@ fun GoalScreen(
                 }
 
                 Box(modifier = Modifier.fillMaxSize()) {
-
-                    // Background pattern
                     Image(
                         painter = subtlePattern,
                         contentDescription = null,
@@ -135,12 +182,10 @@ fun GoalScreen(
                         }
                     } else if (goals.isEmpty()) {
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 32.dp),
+                            modifier = Modifier.fillMaxSize().padding(16.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("Nemate spremljenih ciljeva.")
+                            Text("Nemate spremljenih ciljeva. Dodajte novi cilj klikom na '+' gumb.")
                         }
                     } else {
                         LazyColumn(
@@ -157,7 +202,61 @@ fun GoalScreen(
                 }
             }
         }
+
+        if (showCreateGoalDialog) {
+            CreateGoalDialog(
+                onDismiss = { showCreateGoalDialog = false },
+                onSave = { cal, pro, carb, fat ->
+                    createGoal(cal, pro, carb, fat)
+                }
+            )
+        }
     }
+}
+
+@Composable
+fun CreateGoalDialog(
+    onDismiss: () -> Unit,
+    onSave: (calories: Int, proteins: Double, carbs: Double, fat: Double) -> Unit
+) {
+    var calories by remember { mutableStateOf("") }
+    var proteins by remember { mutableStateOf("") }
+    var carbs by remember { mutableStateOf("") }
+    var fat by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Postavi novi cilj") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = calories, onValueChange = { calories = it }, label = { Text("Kalorije (kcal)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                OutlinedTextField(value = proteins, onValueChange = { proteins = it }, label = { Text("Proteini (g)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+                OutlinedTextField(value = carbs, onValueChange = { carbs = it }, label = { Text("Ugljikohidrati (g)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+                OutlinedTextField(value = fat, onValueChange = { fat = it }, label = { Text("Masti (g)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                val cal = calories.toIntOrNull()
+                val pro = proteins.toDoubleOrNull()
+                val car = carbs.toDoubleOrNull()
+                val f = fat.toDoubleOrNull()
+                if (cal != null && pro != null && car != null && f != null) {
+                    onSave(cal, pro, car, f)
+                } else {
+                    Toast.makeText(context, "Molimo unesite ispravne vrijednosti", Toast.LENGTH_SHORT).show()
+                }
+            }) {
+                Text("Spremi")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Odustani")
+            }
+        }
+    )
 }
 
 @Composable
@@ -169,7 +268,7 @@ fun GoalCard(goal: GoalDto) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Cilj postavljen: ${'$'}{goal.dateSet.substringBefore('T')}",
+                text = "Cilj postavljen: ${goal.dateSet.substringBefore('T')}",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontFamily = Montserrat,
                     fontWeight = FontWeight.Bold,
@@ -178,31 +277,23 @@ fun GoalCard(goal: GoalDto) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Kalorije: ${'$'}{goal.calories} kcal",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = Montserrat
-                )
+                text = "Kalorije: ${goal.calories} kcal",
+                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Montserrat)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Proteini: ${'$'}{goal.protein} g",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = Montserrat
-                )
+                text = "Proteini: ${goal.protein} g",
+                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Montserrat)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Ugljikohidrati: ${'$'}{goal.carbohydrates} g",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = Montserrat
-                )
+                text = "Ugljikohidrati: ${goal.carbohydrates} g",
+                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Montserrat)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Masti: ${'$'}{goal.fat} g",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = Montserrat
-                )
+                text = "Masti: ${goal.fat} g",
+                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Montserrat)
             )
         }
     }
