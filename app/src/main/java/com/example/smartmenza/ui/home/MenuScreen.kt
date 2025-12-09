@@ -1,32 +1,34 @@
 package com.example.smartmenza.ui.home
 
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.smartmenza.data.local.UserPreferences
+import com.example.smartmenza.data.remote.FavoriteToggleDto
 import com.example.smartmenza.data.remote.MealDto
-import com.example.smartmenza.ui.theme.BackgroundBeige
-import com.example.smartmenza.ui.theme.Montserrat
-import com.example.smartmenza.ui.theme.SpanRed
-import com.example.smartmenza.ui.theme.SmartMenzaTheme
+import com.example.smartmenza.data.remote.RetrofitInstance
+import com.example.smartmenza.ui.theme.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.launch
 
 @Composable
 fun MenuScreen(
@@ -39,6 +41,65 @@ fun MenuScreen(
         Gson().fromJson(mealsJson, type)
     } catch (e: Exception) {
         emptyList()
+    }
+
+    val context = LocalContext.current
+    val prefs = remember { UserPreferences(context) }
+    val userId by prefs.userId.collectAsState(initial = null)
+    val coroutineScope = rememberCoroutineScope()
+
+    var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
+
+    fun fetchFavorites() {
+        val currentUserId = userId
+        if (currentUserId != null) {
+            coroutineScope.launch {
+                try {
+                    val response = RetrofitInstance.api.getMyFavorites(currentUserId)
+                    if (response.isSuccessful) {
+                        favoriteMealIds = response.body()?.map { it.mealId }?.toSet() ?: emptySet()
+                    }
+                } catch (e: Exception) {
+                    // Handle error silently
+                }
+            }
+        }
+    }
+
+    fun toggleFavorite(mealId: Int) {
+        val currentUserId = userId
+        if (currentUserId == null) {
+            Toast.makeText(context, "Morate biti prijavljeni", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val isCurrentlyFavorite = favoriteMealIds.contains(mealId)
+
+        coroutineScope.launch {
+            try {
+                val response = if (isCurrentlyFavorite) {
+                    RetrofitInstance.api.removeFavorite(currentUserId, FavoriteToggleDto(mealId))
+                } else {
+                    RetrofitInstance.api.addFavorite(currentUserId, FavoriteToggleDto(mealId))
+                }
+
+                if (response.isSuccessful) {
+                    if (isCurrentlyFavorite) {
+                        favoriteMealIds = favoriteMealIds - mealId
+                    } else {
+                        favoriteMealIds = favoriteMealIds + mealId
+                    }
+                } else {
+                    Toast.makeText(context, "Greška: ${response.code()}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Greška: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    LaunchedEffect(userId) {
+        fetchFavorites()
     }
 
     SmartMenzaTheme {
@@ -62,7 +123,7 @@ fun MenuScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                         }
                         Text(
                             text = menuName,
@@ -85,7 +146,10 @@ fun MenuScreen(
                             .padding(16.dp)
                     ) {
                         items(meals) { meal ->
-                            MealListItem(meal = meal)
+                            MealListItem(
+                                meal = meal,
+                                isFavorite = favoriteMealIds.contains(meal.mealId),
+                                onToggleFavorite = { toggleFavorite(meal.mealId) })
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
@@ -103,9 +167,7 @@ fun MenuScreen(
 }
 
 @Composable
-fun MealListItem(meal: MealDto) {
-    var isFavorite by remember { mutableStateOf(false) }
-
+fun MealListItem(meal: MealDto, isFavorite: Boolean, onToggleFavorite: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -114,7 +176,7 @@ fun MealListItem(meal: MealDto) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -126,22 +188,23 @@ fun MealListItem(meal: MealDto) {
                 ),
                 modifier = Modifier.weight(1f)
             )
-            Text(
-                text = "%.2f EUR".format(meal.price),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = Montserrat,
-                    fontWeight = FontWeight.Bold,
-                    color = SpanRed
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "%.2f EUR".format(meal.price),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontFamily = Montserrat,
+                        fontWeight = FontWeight.Bold,
+                        color = SpanRed
+                    )
                 )
-            )
-            Icon(
-                imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                contentDescription = "Favorite",
-                tint = if (isFavorite) Color.Yellow else Color.Gray,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .clickable { isFavorite = !isFavorite }
-            )
+                IconButton(onClick = onToggleFavorite) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                        contentDescription = "Favorite",
+                        tint = if (isFavorite) Color.Yellow else Color.Gray
+                    )
+                }
+            }
         }
     }
 }
