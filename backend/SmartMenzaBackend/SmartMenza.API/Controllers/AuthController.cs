@@ -45,7 +45,8 @@ namespace SmartMenza.API.Controllers
                 poruka = "Prijava uspješna!",
                 korisnik.Username,
                 korisnik.Email,
-                uloga = korisnik.Role.RoleName
+                userId = korisnik.UserId,
+                uloga = korisnik.Role?.RoleName
             });
         }
     }
