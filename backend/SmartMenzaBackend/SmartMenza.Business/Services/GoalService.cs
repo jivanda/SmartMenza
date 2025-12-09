@@ -112,5 +112,11 @@ namespace SmartMenza.Business.Services
                 .OrderByDescending(g => g.DateSet)
                 .ToList();
         }
+
+        public bool UserHasGoalForToday(int userId)
+        {
+            var today = DateTime.UtcNow.Date;
+            return _context.NutritionGoal.Any(g => g.UserId == userId && g.DateSet.HasValue && g.DateSet.Value.Date == today);
+        }
     }
 }

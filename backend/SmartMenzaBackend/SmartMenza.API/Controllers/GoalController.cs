@@ -21,17 +21,34 @@ namespace SmartMenza.API.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult CreateGoal(
-            [FromBody] GoalCreateDto goalDto,
-            [FromHeader(Name = "UserId")] int userId)
+        [FromBody] GoalCreateDto goalDto,
+        [FromHeader(Name = "UserId")] int userId)
         {
-            if (goalDto.Calories <= 0 || goalDto.TargetProteins <= 0)
-            {
-                return BadRequest(new { message = "Vrijednosti cilja moraju biti veće od 0." });
-            }
-
             var user = _userService.GetUserById(userId);
             if (user == null)
-                return Unauthorized("Korisnik nije pronađen.");
+                return Unauthorized(new { message = "Korisnik nije pronađen." });
+
+            if (goalDto.Calories <= 0 ||
+                goalDto.TargetProteins <= 0 ||
+                goalDto.TargetCarbs <= 0 ||
+                goalDto.TargetFats <= 0)
+            {
+                return BadRequest(new { message = "Sve vrijednosti cilja moraju biti veće od 0." });
+            }
+
+            if (goalDto.Calories > 50000 ||
+                goalDto.TargetProteins > 50000 ||
+                goalDto.TargetCarbs > 50000 ||
+                goalDto.TargetFats > 50000)
+            {
+                return BadRequest(new { message = "Vrijednosti ciljeva su nerealno velike." });
+            }
+
+            var alreadySetToday = _goalService.UserHasGoalForToday(userId);
+            if (alreadySetToday)
+            {
+                return BadRequest(new { message = "Cilj za današnji dan je već postavljen." });
+            }
 
             var createdGoal = _goalService.CreateGoal(goalDto, userId);
 
@@ -46,7 +63,11 @@ namespace SmartMenza.API.Controllers
                 createdGoal.UserId
             };
 
-            return Ok(new { message = "Cilj je uspješno kreiran.", goal = goalResult });
+            return Ok(new
+            {
+                message = "Cilj je uspješno kreiran.",
+                goal = goalResult
+            });
         }
 
         [HttpPost("validate")]
@@ -83,13 +104,29 @@ namespace SmartMenza.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult UpdateGoal(
-            int goalId,
-            [FromBody] GoalUpdateDto dto,
-            [FromHeader(Name = "UserId")] int userId)
+        int goalId,
+        [FromBody] GoalUpdateDto dto,
+        [FromHeader(Name = "UserId")] int userId)
         {
             var user = _userService.GetUserById(userId);
             if (user == null)
-                return Unauthorized("Korisnik nije pronađen.");
+                return Unauthorized(new { message = "Korisnik nije pronađen." });
+
+            if (dto.Calories <= 0 ||
+                dto.TargetProteins <= 0 ||
+                dto.TargetCarbs <= 0 ||
+                dto.TargetFats <= 0)
+            {
+                return BadRequest(new { message = "Sve vrijednosti cilja moraju biti veće od 0." });
+            }
+
+            if (dto.Calories > 50000 ||
+                dto.TargetProteins > 50000 ||
+                dto.TargetCarbs > 50000 ||
+                dto.TargetFats > 50000)
+            {
+                return BadRequest(new { message = "Vrijednosti ciljeva su nerealno velike." });
+            }
 
             var result = _goalService.UpdateGoal(goalId, userId, dto);
 
