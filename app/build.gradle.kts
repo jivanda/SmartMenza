@@ -72,5 +72,5 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     kapt("com.google.dagger:hilt-compiler:2.52")
     implementation("androidx.compose.material:material-icons-extended")
-
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

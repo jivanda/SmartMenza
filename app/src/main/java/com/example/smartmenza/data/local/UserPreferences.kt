@@ -3,6 +3,7 @@ package com.example.smartmenza.data.local
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +18,7 @@ class UserPreferences(private val context: Context) {
         private val KEY_NAME = stringPreferencesKey("ime")
         private val KEY_ROLE = stringPreferencesKey("uloga")
         private val KEY_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+        private val KEY_USER_ID = intPreferencesKey("user_id")
     }
 
     val isLoggedIn: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -31,11 +33,16 @@ class UserPreferences(private val context: Context) {
         prefs[KEY_ROLE]
     }
 
-    suspend fun saveUser(ime: String, email: String, uloga: String) {
+    val userId: Flow<Int?> = context.dataStore.data.map { prefs ->
+        prefs[KEY_USER_ID]
+    }
+
+    suspend fun saveUser(ime: String, email: String, uloga: String, userId: Int) {
         context.dataStore.edit { prefs ->
             prefs[KEY_EMAIL] = email
             prefs[KEY_NAME] = ime
             prefs[KEY_ROLE] = uloga
+            prefs[KEY_USER_ID] = userId
             prefs[KEY_LOGGED_IN] = true
         }
     }

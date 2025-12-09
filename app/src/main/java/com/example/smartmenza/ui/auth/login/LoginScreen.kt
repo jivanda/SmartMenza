@@ -126,17 +126,24 @@ fun LoginScreen(
 
                                             if (response.isSuccessful) {
                                                 val body = response.body()
-                                                val ime = body?.username ?: "Korisnik"
-                                                val uloga = body?.uloga ?: "Student"
-                                                val emailRes = body?.email ?: email
+                                                val userId = body?.userId
 
-                                                prefs.saveUser(ime, emailRes, uloga)
+                                                if (body != null && userId != null) {
+                                                    val ime = body.username ?: "Korisnik"
+                                                    val uloga = body.uloga ?: "Student"
+                                                    val emailRes = body.email ?: email
 
-                                                Log.d("LOGIN", "Uspjeh: ${body?.poruka}")
+                                                    prefs.saveUser(ime, emailRes, uloga, userId)
 
-                                                isLoading = false
-                                                navController.navigate(Route.StudentHome.route) {
-                                                    popUpTo(Route.Login.route) { inclusive = true }
+                                                    Log.d("LOGIN", "Uspjeh: ${body.poruka}")
+
+                                                    isLoading = false
+                                                    navController.navigate(Route.StudentHome.route) {
+                                                        popUpTo(Route.Login.route) { inclusive = true }
+                                                    }
+                                                } else {
+                                                    errorMessage = "Greška: Korisnički ID nije primljen."
+                                                    isLoading = false
                                                 }
                                             } else {
                                                 errorMessage = "Neispravni podaci (${response.code()})"

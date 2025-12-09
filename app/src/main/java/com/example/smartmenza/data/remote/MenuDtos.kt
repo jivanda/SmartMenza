@@ -19,3 +19,19 @@ data class MenuResponseDto(
     val menuTypeName: String?,
     val meals: List<MealDto>
 )
+
+data class FavoriteMealDto(
+    val mealId: Int,
+    val mealName: String,
+    val calories: Double,
+    val protein: Double,
+    val imageUrl: String?
+)
+
+data class FavoriteToggleDto(
+    val mealId: Int
+)
+
+data class FavoriteStatusDto(
+    val isFavorite: Boolean
+)

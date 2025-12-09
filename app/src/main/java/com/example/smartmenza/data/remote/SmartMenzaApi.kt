@@ -1,11 +1,9 @@
 package com.example.smartmenza.data.remote
 
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.POST
-import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.*
 
+// --- Auth ---
 data class RegisterRequest(
     val username: String,
     val email: String,
@@ -22,14 +20,40 @@ data class AuthResponse(
     val poruka: String,
     val username: String?,
     val email: String?,
-    val uloga: String?
+    val uloga: String?,
+    val userId: Int?
 )
 
+// --- Goals ---
 data class GoalDto(
-    val id: Int,
-    val name: String,
-    val description: String,
-    val progress: Float // 0.0 to 1.0
+    val goalId: Int,
+    val calories: Int,
+    val protein: Double,
+    val carbohydrates: Double,
+    val fat: Double,
+    val dateSet: String
+)
+
+data class GoalCreateDto(
+    val calories: Int,
+    val targetProteins: Int,
+    val targetCarbohydrates: Int,
+    val targetFat: Int
+)
+
+data class CreateGoalResponse(
+    val message: String,
+    val goal: GoalResult
+)
+
+data class GoalResult(
+    val goalId: Int,
+    val calories: Int,
+    val protein: Double,
+    val carbohydrates: Double,
+    val fat: Double,
+    val dateSet: String,
+    val userId: Int
 )
 
 interface SmartMenzaApi {
@@ -40,20 +64,30 @@ interface SmartMenzaApi {
     @POST("api/Auth/login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
+    // --- Menus ---
     @GET("api/menu")
-    suspend fun getMenuByDate(
-        @Query("date") date: String
-    ): Response<MenuResponseDto>
+    suspend fun getMenuByDate(@Query("date") date: String): Response<MenuResponseDto>
 
     @GET("api/menu/all")
-    suspend fun getMenusByDate(
-        @Query("date") date: String
-    ): Response<List<MenuResponseDto>>
+    suspend fun getMenusByDate(@Query("date") date: String): Response<List<MenuResponseDto>>
 
-    @GET("api/User/favorites")
-    suspend fun getMyFavorites(): Response<List<MenuResponseDto>>
-
+    // --- Goals ---
     @GET("api/User/goals")
-    suspend fun getMyGoals(): Response<List<GoalDto>>
+    suspend fun getMyGoals(@Header("UserId") userId: Int): Response<List<GoalDto>>
 
+    @POST("api/User/goals")
+    suspend fun createGoal(@Header("UserId") userId: Int, @Body request: GoalCreateDto): Response<CreateGoalResponse>
+
+    // --- Favorites ---
+    @GET("api/Favorite/my")
+    suspend fun getMyFavorites(@Header("UserId") userId: Int): Response<List<FavoriteMealDto>>
+
+    @POST("api/Favorite/add")
+    suspend fun addFavorite(@Header("UserId") userId: Int, @Body dto: FavoriteToggleDto): Response<Unit>
+
+    @HTTP(method = "DELETE", path = "api/Favorite/remove", hasBody = true)
+    suspend fun removeFavorite(@Header("UserId") userId: Int, @Body dto: FavoriteToggleDto): Response<Unit>
+
+    @GET("api/Favorite/status/{mealId}")
+    suspend fun getFavoriteStatus(@Path("mealId") mealId: Int, @Header("UserId") userId: Int): Response<FavoriteStatusDto>
 }
