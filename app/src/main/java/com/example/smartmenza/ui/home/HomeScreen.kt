@@ -48,6 +48,8 @@ fun HomeScreen(
     onNavigateToGoals: () -> Unit,
     onNavigateToMenu: (String, String) -> Unit,
     onLogout: () -> Unit = {},
+    onAllMeals: () -> Unit = {},
+    onOffers: () -> Unit = {},
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     SmartMenzaTheme {
@@ -190,17 +192,17 @@ fun HomeScreen(
 
                             val menuItems = when (userRole) {
                                 "Student" -> listOf(
-                                    GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {}),
+                                    GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {onAllMeals()}),
                                     GridItem(Icons.Filled.Flag, "Ciljevi", onClick = onNavigateToGoals),
                                     GridItem(Icons.Filled.Favorite, "Favoriti", onClick = onNavigateToFavorites),
-                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {})
+                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {onOffers()})
                                 )
 
                                 "Employee" -> listOf(
-                                    GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {}),
+                                    GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {onAllMeals()}),
                                     GridItem(Icons.Filled.RestaurantMenu, "Meniji", onClick = {}),
                                     GridItem(Icons.Filled.ShowChart, "Statistika", onClick = {}),
-                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {})
+                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {onOffers()})
                                 )
 
                                 else -> emptyList()
