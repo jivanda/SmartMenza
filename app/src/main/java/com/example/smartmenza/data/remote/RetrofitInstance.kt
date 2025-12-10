@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 import javax.net.ssl.*
 
 object RetrofitInstance {
-    private const val BASE_URL = "https://10.0.2.2:7070/"
+    private const val BASE_URL = "http://10.0.2.2:5246/"
 
     private fun getUnsafeOkHttpClient(): OkHttpClient {
         val trustAllCerts = arrayOf<TrustManager>(

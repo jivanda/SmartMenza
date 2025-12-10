@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartMenza.Business.Services;
 using SmartMenza.Domain.DTOs;
+using Google.Apis.Auth;
 
 namespace SmartMenza.API.Controllers
 
@@ -48,6 +49,38 @@ namespace SmartMenza.API.Controllers
                 userId = korisnik.UserId,
                 uloga = korisnik.Role?.RoleName
             });
+        }
+
+        [HttpPost("google")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+        {
+            try
+            {
+                var payload = await GoogleJsonWebSignature.ValidateAsync(
+                    dto.IdToken,
+                    new GoogleJsonWebSignature.ValidationSettings
+                    {
+                        Audience = new[]
+                        {
+                    "35432297091-5kpm784irvq6n8hl2u3aiq10vj6b996l.apps.googleusercontent.com"
+                        }
+                    });
+
+                var user = _userService.GetOrCreateGoogleUser(payload);
+
+                return Ok(new
+                {
+                    poruka = "Google prijava uspješna!",
+                    username = user.Username,
+                    email = user.Email,
+                    uloga = user.Role.RoleName,
+                    userId = user.UserId
+                });
+            }
+            catch
+            {
+                return Unauthorized("Google token nije valjan.");
+            }
         }
     }
 }

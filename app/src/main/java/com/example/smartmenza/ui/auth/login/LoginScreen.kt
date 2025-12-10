@@ -32,6 +32,13 @@ import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.smartmenza.ui.theme.SpanRed
 import kotlinx.coroutines.launch
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.example.smartmenza.data.remote.GoogleLoginRequest
+
 
 @Composable
 fun LoginScreen(
@@ -46,6 +53,58 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken(context.getString(R.string.default_web_client_id))
+        .requestEmail()
+        .build()
+
+    val googleSignInClient = GoogleSignIn.getClient(context, gso)
+
+    val googleLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val idToken = account.idToken
+
+            if (idToken != null) {
+                scope.launch {
+                    try {
+                        val response = RetrofitInstance.api.googleLogin(GoogleLoginRequest(idToken))
+
+                        if (response.isSuccessful) {
+                            val body = response.body()
+                            val userId = body?.userId
+
+                            if (body != null && userId != null) {
+                                prefs.saveUser(
+                                    ime = body.username!!,
+                                    email = body.email!!,
+                                    uloga = body.uloga!!,
+                                    userId = userId
+                                )
+
+                                navController.navigate(Route.StudentHome.route) {
+                                    popUpTo(Route.Login.route) { inclusive = true }
+                                }
+                            } else {
+                                errorMessage = "Neispravan odgovor servera."
+                            }
+                        } else {
+                            errorMessage = "Google prijava neuspješna (${response.code()})"
+                        }
+                    } catch (e: Exception) {
+                        errorMessage = "Greška: ${e.message}"
+                    }
+                }
+            }
+        } catch (e: ApiException) {
+            errorMessage = "Google error: ${e.message}"
+        }
+    }
+
 
     SmartMenzaTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
@@ -181,6 +240,25 @@ fun LoginScreen(
                                 )
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = {
+                                googleLauncher.launch(googleSignInClient.signInIntent)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = Color.Black
+                            )
+                        ) {
+                            Text("Prijava putem Googlea")
+                        }
+
 
                         errorMessage?.let {
                             Spacer(modifier = Modifier.height(12.dp))

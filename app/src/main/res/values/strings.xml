@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SmartMenza</string>
+    <string name="default_web_client_id">35432297091-5kpm784irvq6n8hl2u3aiq10vj6b996l.apps.googleusercontent.com</string>
+
 </resources>

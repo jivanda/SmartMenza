@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartMenza.Data.Context;
 using SmartMenza.Domain.DTOs;
 using SmartMenza.Domain.Entities;
+using Google.Apis.Auth;
 
 namespace SmartMenza.Business.Services
 {
@@ -58,6 +59,34 @@ namespace SmartMenza.Business.Services
         public UserAccount? GetUserById(int userId)
         {
             return _context.UserAccount.FirstOrDefault(u => u.UserId == userId);
+        }
+
+        public UserAccount GetOrCreateGoogleUser(GoogleJsonWebSignature.Payload payload)
+        {
+
+            var user = _context.UserAccount
+                .Include(u => u.Role)
+                .FirstOrDefault(u => u.Email == payload.Email);
+
+            if (user != null)
+                return user;
+
+
+            user = new UserAccount
+            {
+                Username = payload.Name ?? payload.Email.Split('@')[0],
+                Email = payload.Email,
+                GoogleId = payload.Subject,
+                PasswordHash = "",
+                RoleId = 1
+            };
+
+            _context.UserAccount.Add(user);
+            _context.SaveChanges();
+
+            return _context.UserAccount
+                .Include(u => u.Role)
+                .First(u => u.UserId == user.UserId);
         }
     }
 }

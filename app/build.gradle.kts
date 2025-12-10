@@ -73,4 +73,5 @@ dependencies {
     kapt("com.google.dagger:hilt-compiler:2.52")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("com.google.android.gms:play-services-auth:21.1.0")
 }

@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SmartMenza.Data\SmartMenza.Data.csproj" />
     <ProjectReference Include="..\SmartMenza.Domain\SmartMenza.Domain.csproj" />
   </ItemGroup>

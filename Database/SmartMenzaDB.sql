@@ -41,6 +41,7 @@ CREATE TABLE UserAccount (
     RoleId INT NOT NULL,
     Username NVARCHAR(50) NOT NULL,
     Email NVARCHAR(50) NOT NULL,
+	GoogleId NVARCHAR(255) NULL,
     PasswordHash NVARCHAR(255) NOT NULL,
     CONSTRAINT FK_User_Role
         FOREIGN KEY (RoleId)

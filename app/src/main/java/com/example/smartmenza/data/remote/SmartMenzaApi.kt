@@ -61,6 +61,8 @@ data class GoalResult(
     val userId: Int
 )
 
+data class GoogleLoginRequest(val idToken: String)
+
 interface SmartMenzaApi {
 
     @POST("api/Auth/registration")
@@ -92,4 +94,7 @@ interface SmartMenzaApi {
 
     @GET("api/Favorite/status/{mealId}")
     suspend fun getFavoriteStatus(@Path("mealId") mealId: Int, @Header("UserId") userId: Int): Response<FavoriteStatusDto>
+
+    @POST("api/Auth/google")
+    suspend fun googleLogin(@Body request: GoogleLoginRequest): Response<AuthResponse>
 }

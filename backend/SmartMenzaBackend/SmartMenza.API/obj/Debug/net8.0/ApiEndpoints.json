@@ -1,6 +1,22 @@
 [
   {
     "ContainingType": "SmartMenza.API.Controllers.AuthController",
+    "Method": "GoogleLogin",
+    "RelativePath": "api/Auth/google",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "SmartMenza.Domain.DTOs.GoogleLoginDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.AuthController",
     "Method": "Login",
     "RelativePath": "api/Auth/login",
     "HttpMethod": "POST",
@@ -379,6 +395,32 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "SmartMenza.API.Controllers.MealController",
+    "Method": "GetAllMeals",
+    "RelativePath": "api/Meal",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.MealController",
+    "Method": "GetMealById",
+    "RelativePath": "api/Meal/{mealId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "mealId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "SmartMenza.API.Controllers.MenuController",
     "Method": "GetByDate",
     "RelativePath": "api/Menu",
@@ -390,6 +432,22 @@
         "Name": "date",
         "Type": "System.String",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.MenuController",
+    "Method": "GetMealsByMenuId",
+    "RelativePath": "api/Menu/{menuId}/meals",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "menuId",
+        "Type": "System.Int32",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -456,6 +514,22 @@
       },
       {
         "Name": "Uloga",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.MenuController",
+    "Method": "GetAllByDate",
+    "RelativePath": "api/Menu/all",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "date",
         "Type": "System.String",
         "IsRequired": false
       }

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {}
+    "C:\\Users\\jakov\\Desktop\\proj\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
+    "C:\\Users\\jakov\\Desktop\\proj\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\jakov\\Desktop\\proj\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj",
         "projectName": "SmartMenza.Domain",
-        "projectPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj",
-        "packagesPath": "C:\\Users\\karlo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\karlo\\Desktop\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\obj\\",
+        "projectPath": "C:\\Users\\jakov\\Desktop\\proj\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\SmartMenza.Domain.csproj",
+        "packagesPath": "C:\\Users\\jakov\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jakov\\Desktop\\proj\\SmartMenza\\backend\\SmartMenzaBackend\\SmartMenza.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\karlo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\jakov\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
