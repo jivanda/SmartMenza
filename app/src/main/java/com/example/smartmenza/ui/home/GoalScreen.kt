@@ -49,6 +49,7 @@ fun GoalScreen(
         var errorMessage by remember { mutableStateOf<String?>(null) }
         var goals by remember { mutableStateOf<List<GoalDto>>(emptyList()) }
         var showCreateGoalDialog by remember { mutableStateOf(false) }
+        var goalToDelete by remember { mutableStateOf<GoalDto?>(null) }
 
         val snackbarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
@@ -100,17 +101,18 @@ fun GoalScreen(
                     if (response.isSuccessful) {
                         snackbarHostState.showSnackbar("Cilj uspješno kreiran!")
                         fetchGoals()
-                        showCreateGoalDialog = false
                     } else {
-                        Toast.makeText(context, "Greška pri kreiranju cilja: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        snackbarHostState.showSnackbar("Greška pri kreiranju cilja: ${response.code()}")
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(context, "Greška: ${e.message}", Toast.LENGTH_SHORT).show()
+                    snackbarHostState.showSnackbar("Greška: ${e.message}")
+                } finally {
+                    showCreateGoalDialog = false
                 }
             }
         }
 
-        fun deleteGoal(goalId: Int) {
+        fun deleteGoal(goal: GoalDto) {
             val currentUserId = userId
             if (currentUserId == null) {
                 Toast.makeText(context, "Morate biti prijavljeni", Toast.LENGTH_SHORT).show()
@@ -118,15 +120,15 @@ fun GoalScreen(
             }
             coroutineScope.launch {
                 try {
-                    val response = RetrofitInstance.api.deleteGoal(goalId, currentUserId)
+                    val response = RetrofitInstance.api.deleteGoal(goal.goalId, currentUserId)
                     if (response.isSuccessful) {
-                        Toast.makeText(context, "Cilj uspješno izbrisan!", Toast.LENGTH_SHORT).show()
+                        snackbarHostState.showSnackbar("Cilj uspješno izbrisan!")
                         fetchGoals() // Refresh the list
                     } else {
-                        Toast.makeText(context, "Greška pri brisanju cilja: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        snackbarHostState.showSnackbar("Greška pri brisanju cilja: ${response.code()}")
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(context, "Greška: ${e.message}", Toast.LENGTH_SHORT).show()
+                    snackbarHostState.showSnackbar("Greška: ${e.message}")
                 }
             }
         }
@@ -220,7 +222,7 @@ fun GoalScreen(
                             items(goals) { goal ->
                                 GoalCard(
                                     goal = goal,
-                                    onDelete = { deleteGoal(goal.goalId) }
+                                    onDelete = { goalToDelete = goal }
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                             }
@@ -236,6 +238,16 @@ fun GoalScreen(
                 onSave = { cal, pro, carb, fat ->
                     createGoal(cal, pro, carb, fat)
                 }
+            )
+        }
+
+        goalToDelete?.let { goal ->
+            DeleteConfirmationDialog(
+                onConfirm = {
+                    deleteGoal(goal)
+                    goalToDelete = null
+                },
+                onDismiss = { goalToDelete = null }
             )
         }
     }
@@ -276,6 +288,31 @@ fun CreateGoalDialog(
                 }
             }) {
                 Text("Spremi")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Odustani")
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Potvrda brisanja") },
+        text = { Text("Jeste li sigurni da želite izbrisati ovaj cilj?") },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = SpanRed)
+            ) {
+                Text("Izbriši")
             }
         },
         dismissButton = {
