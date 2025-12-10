@@ -39,6 +39,14 @@ import com.example.smartmenza.ui.theme.SpanRed
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import kotlinx.coroutines.launch
 
+private data class PendingGoalUpdate(
+    val goalId: Int,
+    val calories: Int,
+    val proteins: Double,
+    val carbs: Double,
+    val fat: Double
+)
+
 @Composable
 fun GoalScreen(
     onNavigateBack: () -> Unit,
@@ -51,6 +59,7 @@ fun GoalScreen(
         var showCreateGoalDialog by remember { mutableStateOf(false) }
         var goalToDelete by remember { mutableStateOf<GoalDto?>(null) }
         var goalToEdit by remember { mutableStateOf<GoalDto?>(null) }
+        var pendingGoalUpdate by remember { mutableStateOf<PendingGoalUpdate?>(null) }
 
         val snackbarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
@@ -277,8 +286,25 @@ fun GoalScreen(
                 goal = goal,
                 onDismiss = { goalToEdit = null },
                 onSave = { cal, pro, carb, fat ->
-                    updateGoal(goal.goalId, cal, pro, carb, fat)
+                    pendingGoalUpdate = PendingGoalUpdate(goal.goalId, cal, pro, carb, fat)
+                    goalToEdit = null
                 }
+            )
+        }
+
+        pendingGoalUpdate?.let { pendingUpdate ->
+            EditConfirmationDialog(
+                onConfirm = {
+                    updateGoal(
+                        goalId = pendingUpdate.goalId,
+                        calories = pendingUpdate.calories,
+                        proteins = pendingUpdate.proteins,
+                        carbs = pendingUpdate.carbs,
+                        fat = pendingUpdate.fat
+                    )
+                    pendingGoalUpdate = null
+                },
+                onDismiss = { pendingGoalUpdate = null }
             )
         }
 
@@ -400,6 +426,30 @@ fun DeleteConfirmationDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = SpanRed)
             ) {
                 Text("Izbriši")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Odustani")
+            }
+        }
+    )
+}
+
+@Composable
+fun EditConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Potvrda izmjene") },
+        text = { Text("Jeste li sigurni da želite spremiti promjene?") },
+        confirmButton = {
+            Button(
+                onClick = onConfirm
+            ) {
+                Text("Spremi")
             }
         },
         dismissButton = {
