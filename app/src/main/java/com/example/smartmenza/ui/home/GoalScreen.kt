@@ -32,6 +32,7 @@ import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.GoalCreateDto
 import com.example.smartmenza.data.remote.GoalDto
 import com.example.smartmenza.data.remote.RetrofitInstance
+import com.example.smartmenza.ui.components.GoalCard
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SpanRed
@@ -101,6 +102,27 @@ fun GoalScreen(
                         showCreateGoalDialog = false
                     } else {
                         Toast.makeText(context, "Greška pri kreiranju cilja: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Greška: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        fun deleteGoal(goalId: Int) {
+            val currentUserId = userId
+            if (currentUserId == null) {
+                Toast.makeText(context, "Morate biti prijavljeni", Toast.LENGTH_SHORT).show()
+                return
+            }
+            coroutineScope.launch {
+                try {
+                    val response = RetrofitInstance.api.deleteGoal(goalId, currentUserId)
+                    if (response.isSuccessful) {
+                        Toast.makeText(context, "Cilj uspješno izbrisan!", Toast.LENGTH_SHORT).show()
+                        fetchGoals() // Refresh the list
+                    } else {
+                        Toast.makeText(context, "Greška pri brisanju cilja: ${response.code()}", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
                     Toast.makeText(context, "Greška: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -194,7 +216,10 @@ fun GoalScreen(
                                 .padding(16.dp)
                         ) {
                             items(goals) { goal ->
-                                GoalCard(goal = goal)
+                                GoalCard(
+                                    goal = goal,
+                                    onDelete = { deleteGoal(goal.goalId) }
+                                )
                                 Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
@@ -257,44 +282,4 @@ fun CreateGoalDialog(
             }
         }
     )
-}
-
-@Composable
-fun GoalCard(goal: GoalDto) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Cilj postavljen: ${goal.dateSet.substringBefore('T')}",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontFamily = Montserrat,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Kalorije: ${goal.calories} kcal",
-                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Montserrat)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Proteini: ${goal.protein} g",
-                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Montserrat)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Ugljikohidrati: ${goal.carbohydrates} g",
-                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Montserrat)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Masti: ${goal.fat} g",
-                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Montserrat)
-            )
-        }
-    }
 }

@@ -36,13 +36,13 @@ data class GoalDto(
 )
 
 data class GoalCreateDto(
-    @SerializedName("Calories")
+    @SerializedName("calories")
     val calories: Int,
-    @SerializedName("TargetProteins")
+    @SerializedName("targetProteins")
     val targetProteins: Double,
-    @SerializedName("TargetCarbs")
+    @SerializedName("targetCarbs")
     val targetCarbs: Double,
-    @SerializedName("TargetFats")
+    @SerializedName("targetFats")
     val targetFats: Double
 )
 
@@ -76,11 +76,14 @@ interface SmartMenzaApi {
     suspend fun getMenusByDate(@Query("date") date: String): Response<List<MenuResponseDto>>
 
     // --- Goals ---
-    @GET("api/User/goals")
+    @GET("api/Goal/myGoal")
     suspend fun getMyGoals(@Header("UserId") userId: Int): Response<List<GoalDto>>
 
-    @POST("api/User/goals")
+    @POST("api/Goal/create")
     suspend fun createGoal(@Header("UserId") userId: Int, @Body request: GoalCreateDto): Response<CreateGoalResponse>
+
+    @DELETE("api/Goal/{goalId}")
+    suspend fun deleteGoal(@Path("goalId") goalId: Int, @Header("UserId") userId: Int): Response<Unit>
 
     // --- Favorites ---
     @GET("api/Favorite/my")
