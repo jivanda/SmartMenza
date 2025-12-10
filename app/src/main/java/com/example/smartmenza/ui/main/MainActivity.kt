@@ -23,6 +23,7 @@ import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.smartmenza.ui.features.AllMealsScreen
 import com.example.smartmenza.ui.features.OfferScreen
+import com.example.smartmenza.ui.features.AllMenusScreen
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
@@ -74,7 +75,8 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 onAllMeals = { navController.navigate(Route.AllMeals.route) },
-                                onOffers = { navController.navigate(Route.Offers.route) }
+                                onOffers = { navController.navigate(Route.Offers.route) },
+                                onAllMenus = { navController.navigate(Route.AllMenus.route) }
                             )
                         }
 
@@ -86,6 +88,12 @@ class MainActivity : ComponentActivity() {
 
                         composable(Route.Offers.route) {
                             OfferScreen(
+                                navController = navController
+                            )
+                        }
+
+                        composable(Route.AllMenus.route) {
+                            AllMenusScreen(
                                 navController = navController
                             )
                         }

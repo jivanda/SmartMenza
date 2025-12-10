@@ -75,6 +75,9 @@ interface SmartMenzaApi {
     @GET("api/menu/all")
     suspend fun getMenusByDate(@Query("date") date: String): Response<List<MenuResponseDto>>
 
+    @GET("api/menu/by-type")
+    suspend fun getMenusByType(@Query("menuTypeId") menuTypeId: Int): Response<List<MenuResponseDto>>
+
     // --- Goals ---
     @GET("api/Goal/myGoal")
     suspend fun getMyGoals(@Header("UserId") userId: Int): Response<List<GoalDto>>
