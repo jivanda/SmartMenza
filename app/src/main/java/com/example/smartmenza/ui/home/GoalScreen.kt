@@ -50,6 +50,7 @@ fun GoalScreen(
         var goals by remember { mutableStateOf<List<GoalDto>>(emptyList()) }
         var showCreateGoalDialog by remember { mutableStateOf(false) }
         var goalToDelete by remember { mutableStateOf<GoalDto?>(null) }
+        var goalToEdit by remember { mutableStateOf<GoalDto?>(null) }
 
         val snackbarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
@@ -86,7 +87,7 @@ fun GoalScreen(
         fun createGoal(calories: Int, proteins: Double, carbs: Double, fat: Double) {
             val currentUserId = userId
             if (currentUserId == null) {
-                Toast.makeText(context, "Morate biti prijavljeni", Toast.LENGTH_SHORT).show()
+                coroutineScope.launch { snackbarHostState.showSnackbar("Morate biti prijavljeni") }
                 return
             }
             coroutineScope.launch {
@@ -112,10 +113,39 @@ fun GoalScreen(
             }
         }
 
+        fun updateGoal(goalId: Int, calories: Int, proteins: Double, carbs: Double, fat: Double) {
+            val currentUserId = userId
+            if (currentUserId == null) {
+                coroutineScope.launch { snackbarHostState.showSnackbar("Morate biti prijavljeni") }
+                return
+            }
+            coroutineScope.launch {
+                try {
+                    val request = GoalCreateDto(
+                        calories = calories,
+                        targetProteins = proteins,
+                        targetCarbs = carbs,
+                        targetFats = fat
+                    )
+                    val response = RetrofitInstance.api.updateGoal(goalId, currentUserId, request)
+                    if (response.isSuccessful) {
+                        snackbarHostState.showSnackbar("Cilj uspješno ažuriran!")
+                        fetchGoals()
+                    } else {
+                        snackbarHostState.showSnackbar("Greška pri ažuriranju cilja: ${response.code()}")
+                    }
+                } catch (e: Exception) {
+                    snackbarHostState.showSnackbar("Greška: ${e.message}")
+                } finally {
+                    goalToEdit = null
+                }
+            }
+        }
+
         fun deleteGoal(goal: GoalDto) {
             val currentUserId = userId
             if (currentUserId == null) {
-                Toast.makeText(context, "Morate biti prijavljeni", Toast.LENGTH_SHORT).show()
+                coroutineScope.launch { snackbarHostState.showSnackbar("Morate biti prijavljeni") }
                 return
             }
             coroutineScope.launch {
@@ -123,7 +153,7 @@ fun GoalScreen(
                     val response = RetrofitInstance.api.deleteGoal(goal.goalId, currentUserId)
                     if (response.isSuccessful) {
                         snackbarHostState.showSnackbar("Cilj uspješno izbrisan!")
-                        fetchGoals() // Refresh the list
+                        fetchGoals()
                     } else {
                         snackbarHostState.showSnackbar("Greška pri brisanju cilja: ${response.code()}")
                     }
@@ -184,7 +214,7 @@ fun GoalScreen(
                                 color = Color.White
                             )
                         )
-                        Spacer(modifier = Modifier.width(48.dp)) // To balance the back button
+                        Spacer(modifier = Modifier.width(48.dp))
                     }
                 }
 
@@ -222,7 +252,8 @@ fun GoalScreen(
                             items(goals) { goal ->
                                 GoalCard(
                                     goal = goal,
-                                    onDelete = { goalToDelete = goal }
+                                    onDelete = { goalToDelete = goal },
+                                    onEdit = { goalToEdit = goal }
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                             }
@@ -237,6 +268,16 @@ fun GoalScreen(
                 onDismiss = { showCreateGoalDialog = false },
                 onSave = { cal, pro, carb, fat ->
                     createGoal(cal, pro, carb, fat)
+                }
+            )
+        }
+
+        goalToEdit?.let { goal ->
+            EditGoalDialog(
+                goal = goal,
+                onDismiss = { goalToEdit = null },
+                onSave = { cal, pro, carb, fat ->
+                    updateGoal(goal.goalId, cal, pro, carb, fat)
                 }
             )
         }
@@ -267,6 +308,52 @@ fun CreateGoalDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Postavi novi cilj") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = calories, onValueChange = { calories = it }, label = { Text("Kalorije (kcal)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                OutlinedTextField(value = proteins, onValueChange = { proteins = it }, label = { Text("Proteini (g)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+                OutlinedTextField(value = carbs, onValueChange = { carbs = it }, label = { Text("Ugljikohidrati (g)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+                OutlinedTextField(value = fat, onValueChange = { fat = it }, label = { Text("Masti (g)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                val cal = calories.toIntOrNull()
+                val pro = proteins.toDoubleOrNull()
+                val car = carbs.toDoubleOrNull()
+                val f = fat.toDoubleOrNull()
+                if (cal != null && pro != null && car != null && f != null) {
+                    onSave(cal, pro, car, f)
+                } else {
+                    Toast.makeText(context, "Molimo unesite ispravne vrijednosti", Toast.LENGTH_SHORT).show()
+                }
+            }) {
+                Text("Spremi")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Odustani")
+            }
+        }
+    )
+}
+
+@Composable
+fun EditGoalDialog(
+    goal: GoalDto,
+    onDismiss: () -> Unit,
+    onSave: (calories: Int, proteins: Double, carbs: Double, fat: Double) -> Unit
+) {
+    var calories by remember { mutableStateOf(goal.calories.toString()) }
+    var proteins by remember { mutableStateOf(goal.protein.toString()) }
+    var carbs by remember { mutableStateOf(goal.carbohydrates.toString()) }
+    var fat by remember { mutableStateOf(goal.fat.toString()) }
+    val context = LocalContext.current
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Uredi cilj") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(value = calories, onValueChange = { calories = it }, label = { Text("Kalorije (kcal)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))

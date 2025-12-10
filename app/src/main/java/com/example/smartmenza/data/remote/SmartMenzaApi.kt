@@ -85,6 +85,9 @@ interface SmartMenzaApi {
     @DELETE("api/Goal/{goalId}")
     suspend fun deleteGoal(@Path("goalId") goalId: Int, @Header("UserId") userId: Int): Response<Unit>
 
+    @PUT("api/Goal/{goalId}")
+    suspend fun updateGoal(@Path("goalId") goalId: Int, @Header("UserId") userId: Int, @Body request: GoalCreateDto): Response<Unit>
+
     // --- Favorites ---
     @GET("api/Favorite/my")
     suspend fun getMyFavorites(@Header("UserId") userId: Int): Response<List<FavoriteMealDto>>
