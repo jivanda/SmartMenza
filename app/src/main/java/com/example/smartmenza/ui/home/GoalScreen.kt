@@ -50,6 +50,7 @@ fun GoalScreen(
         var goals by remember { mutableStateOf<List<GoalDto>>(emptyList()) }
         var showCreateGoalDialog by remember { mutableStateOf(false) }
 
+        val snackbarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
         val context = LocalContext.current
         val prefs = remember { UserPreferences(context) }
@@ -97,7 +98,7 @@ fun GoalScreen(
                     )
                     val response = RetrofitInstance.api.createGoal(currentUserId, request)
                     if (response.isSuccessful) {
-                        Toast.makeText(context, "Cilj uspješno kreiran!", Toast.LENGTH_SHORT).show()
+                        snackbarHostState.showSnackbar("Cilj uspješno kreiran!")
                         fetchGoals()
                         showCreateGoalDialog = false
                     } else {
@@ -136,6 +137,7 @@ fun GoalScreen(
 
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { showCreateGoalDialog = true },
