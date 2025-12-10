@@ -65,6 +65,26 @@ namespace SmartMenza.API.Controllers
             return Ok(menus);
         }
 
+        [HttpGet("by-type")]
+        public IActionResult GetAllByType([FromQuery] int menuTypeId)
+        {
+            if (menuTypeId <= 0)
+            {
+                return BadRequest(new
+                {
+                    message = "Neispravan tip menija. Očekivan je pozitivan ID tipa menija."
+                });
+            }
+
+            var menus = _menuService.GetMenusByType(menuTypeId);
+
+            if (menus == null || !menus.Any())
+                return NotFound(new { message = "Nema menija za traženi tip." });
+
+            return Ok(menus);
+        }
+
+
         [HttpGet("{menuId}/meals")]
         public IActionResult GetMealsByMenuId(int menuId)
         {

@@ -133,6 +133,46 @@ namespace SmartMenza.Business.Services
             return result;
         }
 
+        public List<MenuResponseDto> GetMenusByType(int menuTypeId)
+        {
+            var menus = _context.Menu
+                .Include(m => m.MenuType)
+                .Include(m => m.MenuMeals)
+                    .ThenInclude(mm => mm.Meal)
+                .Where(m => m.MenuTypeId == menuTypeId)
+                .ToList();
+
+            var result = menus
+                .Select(menu => new MenuResponseDto
+                {
+                    MenuId = menu.MenuId,
+                    Name = menu.Name,
+                    Description = menu.Description,
+                    // If Date in MenuResponseDto is nullable (DateTime?),
+                    // you can explicitly set it to null because dates are irrelevant here:
+                    // Date = null,
+                    MenuTypeName = menu.MenuType?.Name,
+                    Meals = (menu.MenuMeals ?? Enumerable.Empty<MenuMeal>())
+                        .Where(mm => mm.Meal != null)
+                        .Select(mm => new MealDto
+                        {
+                            MealId = mm.Meal.MealId,
+                            Name = mm.Meal.Name,
+                            Description = mm.Meal.Description,
+                            Price = mm.Meal.Price,
+                            Calories = mm.Meal.Calories,
+                            Protein = mm.Meal.Protein,
+                            Carbohydrates = mm.Meal.Carbohydrates,
+                            Fat = mm.Meal.Fat
+                        })
+                        .ToList()
+                })
+                .ToList();
+
+            return result;
+        }
+
+
         // NEW: returns all meals for a specific menu by id.
         // Returns null if menu doesn't exist; returns empty list if menu exists but has no meals.
         public List<MealDto>? GetMealsByMenuId(int menuId)
