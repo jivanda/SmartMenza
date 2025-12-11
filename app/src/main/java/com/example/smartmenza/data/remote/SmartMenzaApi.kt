@@ -61,6 +61,11 @@ data class GoalResult(
     val userId: Int
 )
 
+data class SimpleResponse(
+    val message: String?
+)
+
+
 data class GoogleLoginRequest(val idToken: String)
 
 interface SmartMenzaApi {
@@ -106,4 +111,10 @@ interface SmartMenzaApi {
 
     @POST("api/Auth/google")
     suspend fun googleLogin(@Body request: GoogleLoginRequest): Response<AuthResponse>
+
+    @DELETE("api/Menu/admin/{menuId}")
+    suspend fun deleteMenu(
+        @Path("menuId") menuId: Int,
+        @Header("Uloga") role: String
+    ): retrofit2.Response<SimpleResponse>
 }

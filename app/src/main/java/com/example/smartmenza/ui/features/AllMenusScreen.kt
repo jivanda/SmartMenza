@@ -25,7 +25,7 @@ import androidx.navigation.NavController
 import com.example.smartmenza.R
 import com.example.smartmenza.data.remote.MenuResponseDto
 import com.example.smartmenza.data.remote.RetrofitInstance
-import com.example.smartmenza.ui.components.MenuCard
+import com.example.smartmenza.ui.components.MenuSelectableCard
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
@@ -46,7 +46,11 @@ fun AllMenusScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var menus by remember { mutableStateOf<List<MenuResponseDto>>(emptyList()) }
 
-    // Available menu types (ID must match your DB/MenuTypeId)
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var menuToDelete by remember { mutableStateOf<MenuResponseDto?>(null) }
+
+    val scope = rememberCoroutineScope()
+
     val menuTypeOptions = listOf(
         MenuTypeOption(1, "Doručak"),
         MenuTypeOption(2, "Ručak"),
@@ -56,14 +60,10 @@ fun AllMenusScreen(
     var expanded by remember { mutableStateOf(false) }
     var selectedType by remember { mutableStateOf(menuTypeOptions.first()) }
 
-    val scope = rememberCoroutineScope()
-
-    // Fetch menus whenever selected type changes
     LaunchedEffect(selectedType.id) {
         isLoading = true
         errorMessage = null
         try {
-            // Adjust this call name / query param to match your backend
             val response = RetrofitInstance.api.getMenusByType(menuTypeId = selectedType.id)
 
             if (response.isSuccessful) {
@@ -84,6 +84,7 @@ fun AllMenusScreen(
         Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
             Column(modifier = Modifier.fillMaxSize()) {
 
+                // Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -106,6 +107,7 @@ fun AllMenusScreen(
                 Spacer(modifier = Modifier.height(50.dp))
 
                 Box(modifier = Modifier.fillMaxSize()) {
+                    // Background pattern
                     Image(
                         painter = subtlePattern,
                         contentDescription = null,
@@ -130,52 +132,53 @@ fun AllMenusScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
+                        // 🔹 FIXED FILTER ROW (not scrollable)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Odaberi tip menija:",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Box {
+                                Text(
+                                    text = selectedType.label,
+                                    modifier = Modifier
+                                        .clickable { expanded = true }
+                                        .padding(8.dp),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    menuTypeOptions.forEach { option ->
+                                        DropdownMenuItem(
+                                            text = { Text(option.label) },
+                                            onClick = {
+                                                expanded = false
+                                                selectedType = option
+                                                // LaunchedEffect will trigger fetch
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // 🔹 SCROLLABLE LIST ONLY
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
                         ) {
-                            item {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Odaberi tip menija:",
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-
-                                    Spacer(modifier = Modifier.width(12.dp))
-
-                                    Box {
-                                        Text(
-                                            text = selectedType.label,
-                                            modifier = Modifier
-                                                .clickable { expanded = true }
-                                                .padding(8.dp),
-                                            style = MaterialTheme.typography.bodyLarge
-                                        )
-
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            menuTypeOptions.forEach { option ->
-                                                DropdownMenuItem(
-                                                    text = { Text(option.label) },
-                                                    onClick = {
-                                                        expanded = false
-                                                        selectedType = option
-                                                        // LaunchedEffect will trigger fetch
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
-
                             when {
                                 isLoading -> item {
                                     CircularProgressIndicator()
@@ -190,8 +193,6 @@ fun AllMenusScreen(
                                 }
 
                                 else -> {
-                                    // If your API returns multiple rows per menu (e.g. per date),
-                                    // you can still merge them by name to ignore dates:
                                     val mergedMenus = menus.groupBy { it.name }
                                         .map { (_, menusWithSameName) ->
                                             val allMeals =
@@ -203,15 +204,16 @@ fun AllMenusScreen(
                                         val mealsText = menu.meals.joinToString("") { it.name }
                                         val totalPrice = menu.meals.sumOf { it.price }
 
-                                        MenuCard(
+                                        MenuSelectableCard(
                                             meals = mealsText,
                                             menuType = menu.name,
                                             price = "%.2f EUR".format(totalPrice),
                                             imageRes = R.drawable.hrenovke,
                                             modifier = Modifier.fillMaxWidth(),
-                                            onClick = {
-                                                // here you'll later navigate to an "edit menu" screen
-                                                // navController.navigate(...)
+                                            onInfoClick = {},
+                                            onDeleteClick = {
+                                                menuToDelete = menu
+                                                showDeleteDialog = true
                                             }
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))
@@ -229,6 +231,67 @@ fun AllMenusScreen(
                             .padding(bottom = 24.dp)
                     )
                 }
+            }
+
+            if (showDeleteDialog && menuToDelete != null) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showDeleteDialog = false
+                        menuToDelete = null
+                    },
+                    title = {
+                        Text("Brisanje menija")
+                    },
+                    text = {
+                        Text("Jeste li sigurni da želite obrisati '${menuToDelete!!.name}'?")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val menu = menuToDelete
+                                if (menu != null) {
+                                    scope.launch {
+                                        try {
+                                            val response = RetrofitInstance.api
+                                                .deleteMenu(menu.menuId, "Employee")
+
+                                            if (response.isSuccessful) {
+                                                menus = menus.filter { it.menuId != menu.menuId }
+                                            } else {
+                                                errorMessage = when (response.code()) {
+                                                    401, 403 -> "Nemate ovlasti za brisanje ovog menija."
+                                                    400 -> response.body()?.message
+                                                        ?: "Greška pri brisanju menija."
+                                                    else -> "Greška pri brisanju menija: ${response.code()}"
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            errorMessage = "Greška pri brisanju menija: ${e.message}"
+                                        } finally {
+                                            showDeleteDialog = false
+                                            menuToDelete = null
+                                        }
+                                    }
+                                } else {
+                                    showDeleteDialog = false
+                                    menuToDelete = null
+                                }
+                            }
+                        ) {
+                            Text("Obriši", color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showDeleteDialog = false
+                                menuToDelete = null
+                            }
+                        ) {
+                            Text("Odustani")
+                        }
+                    }
+                )
             }
         }
     }
