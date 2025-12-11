@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import com.example.smartmenza.R
 import com.example.smartmenza.data.remote.MenuResponseDto
 import com.example.smartmenza.data.remote.RetrofitInstance
+import com.example.smartmenza.navigation.Route
 import com.example.smartmenza.ui.components.MenuSelectableCard
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
@@ -132,7 +133,6 @@ fun AllMenusScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // 🔹 FIXED FILTER ROW (not scrollable)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -168,6 +168,26 @@ fun AllMenusScreen(
                                         )
                                     }
                                 }
+                            }
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Button(
+                                onClick = { navController.navigate(Route.MenuEditor.route + "/-1") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = SpanRed,
+                                    contentColor = Color.White
+                                ),
+                                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
+                            ) {
+                                Text(
+                                    text = "+ Dodaj novi",
+                                    style = MaterialTheme.typography.labelLarge.copy(color = Color.White)
+                                )
                             }
                         }
 

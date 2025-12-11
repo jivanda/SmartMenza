@@ -65,7 +65,6 @@ data class SimpleResponse(
     val message: String?
 )
 
-
 data class GoogleLoginRequest(val idToken: String)
 
 interface SmartMenzaApi {
@@ -117,4 +116,8 @@ interface SmartMenzaApi {
         @Path("menuId") menuId: Int,
         @Header("Uloga") role: String
     ): retrofit2.Response<SimpleResponse>
+
+    @GET("api/Meal")
+    suspend fun getAllMeals(): Response<List<MealDto>>
+
 }
