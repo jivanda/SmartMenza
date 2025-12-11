@@ -20,7 +20,6 @@ captures/
 
 # Keystore files
 *.jks
-*.keystore
 
 # DOTNET / C#
 # build folders
@@ -64,3 +63,7 @@ _ReSharper*/
 *.7z
 *.tar
 *.gz
+
+
+!keystore/debug.keystore
+!keystore/
