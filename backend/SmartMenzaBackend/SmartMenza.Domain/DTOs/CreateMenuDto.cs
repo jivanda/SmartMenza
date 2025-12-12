@@ -19,4 +19,12 @@ namespace SmartMenza.Domain.DTOs
         public int MenuTypeId { get; set; }
         public List<MenuMealItemDto> Meals { get; set; } = new();
     }
+
+    public class CreateMenuDtoNoDate
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int MenuTypeId { get; set; }
+        public List<MenuMealItemDto> Meals { get; set; } = new();
+    }
 }

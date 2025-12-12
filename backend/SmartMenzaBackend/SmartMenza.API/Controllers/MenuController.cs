@@ -41,6 +41,17 @@ namespace SmartMenza.API.Controllers
             return Ok(menu);
         }
 
+        [HttpGet("by_id")]
+        public IActionResult GetMenuById([FromQuery]int menuId)
+        {
+            var menu = _menuService.GetMenuById(menuId);
+
+            if (menu == null)
+                return NotFound(new { message = "Meni sa tim id-jem ne postoji." });
+
+            return Ok(menu);
+        }
+
         [HttpGet("all")]
         public IActionResult GetAllByDate([FromQuery] string date)
         {
@@ -111,6 +122,36 @@ namespace SmartMenza.API.Controllers
             }
 
             var result = _menuService.CreateMenuForDate(dto);
+
+            if (!result.Success)
+            {
+                return BadRequest(new
+                {
+                    message = result.ErrorMessage
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Meni je uspješno spremljen.",
+                menuId = result.MenuId
+            });
+        }
+
+        [HttpPost("admin/nodate")]
+        public IActionResult CreateMenuNoDate(
+            [FromBody] CreateMenuDtoNoDate dto,
+            [FromHeader(Name = "Uloga")] string? roleHeader)
+        {
+            if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    message = "Nemate ovlasti za kreiranje menija."
+                });
+            }
+
+            var result = _menuService.CreateMenu(dto);
 
             if (!result.Success)
             {
