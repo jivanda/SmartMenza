@@ -160,6 +160,7 @@ fun MenuEditScreen(
     fun buildWriteDto(): MenuWriteDto {
         val mealItems = mealSelections
             .filterNotNull()
+            .distinctBy { it.mealId }
             .map { MenuMealItemDto(mealId = it.mealId) }
 
         return MenuWriteDto(

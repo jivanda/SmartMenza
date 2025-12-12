@@ -65,6 +65,7 @@ data class SimpleResponse(
     val message: String?
 )
 
+
 data class GoogleLoginRequest(val idToken: String)
 
 interface SmartMenzaApi {
@@ -79,8 +80,8 @@ interface SmartMenzaApi {
     @GET("api/menu/all")
     suspend fun getMenusByDate(@Query("date") date: String): Response<List<MenuResponseDto>>
 
-    @GET("api/menu/by-id")
-    suspend fun getMenuById(@Query("menuId") menuTypeId: Int): Response<MenuResponseDtoNoDate>
+    @GET("api/menu/{menuId}")
+    suspend fun getMenuById(@Path("menuId") menuId: Int): Response<MenuResponseDtoNoDate>
 
     @GET("api/menu/by-type")
     suspend fun getMenusByType(@Query("menuTypeId") menuTypeId: Int): Response<List<MenuResponseDto>>
