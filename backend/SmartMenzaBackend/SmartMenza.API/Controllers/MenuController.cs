@@ -52,6 +52,17 @@ namespace SmartMenza.API.Controllers
             return Ok(menu);
         }
 
+        [HttpGet("{menuId}")]
+        public IActionResult GetMenuByIdByRoute([FromRoute] int menuId)
+        {
+            var menu = _menuService.GetMenuById(menuId);
+
+            if (menu == null)
+                return NotFound(new { message = "Meni sa tim id-jem ne postoji." });
+
+            return Ok(menu);
+        }
+
         [HttpGet("all")]
         public IActionResult GetAllByDate([FromQuery] string date)
         {
