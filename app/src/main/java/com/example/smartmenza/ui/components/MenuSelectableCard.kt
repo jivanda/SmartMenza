@@ -35,13 +35,13 @@ fun MenuSelectableCard(
 ) {
     val shape = RoundedCornerShape(16.dp)
 
+
     Card(
         shape = shape,
         modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Column {
-            // Top content (same as MenuCard)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

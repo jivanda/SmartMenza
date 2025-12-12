@@ -221,7 +221,7 @@ fun AllMenusScreen(
                                         }
 
                                     items(mergedMenus) { menu ->
-                                        val mealsText = menu.meals.joinToString("") { it.name }
+                                        val mealsText = menu.meals.joinToString("\n") { it.name }
                                         val totalPrice = menu.meals.sumOf { it.price }
 
                                         MenuSelectableCard(
@@ -231,6 +231,7 @@ fun AllMenusScreen(
                                             imageRes = R.drawable.hrenovke,
                                             modifier = Modifier.fillMaxWidth(),
                                             onInfoClick = {},
+                                            onEditClick = {navController.navigate(Route.MenuEditor.route + "/${menu.menuId}")},
                                             onDeleteClick = {
                                                 menuToDelete = menu
                                                 showDeleteDialog = true

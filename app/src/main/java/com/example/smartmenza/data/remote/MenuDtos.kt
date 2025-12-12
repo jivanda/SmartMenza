@@ -9,6 +9,24 @@ data class MenuResponseDto(
     val meals: List<MealDto>
 )
 
+data class MenuResponseDtoNoDate(
+    val menuId: Int,
+    val name: String,
+    val description: String?,
+    val menuTypeName: String?,
+    val meals: List<MealDto>
+)
+
+data class MenuMealItemDto(
+    val mealId: Int
+)
+data class MenuWriteDto(
+    val name: String,
+    val description: String?,
+    val menuTypeId: Int,
+    val meals: List<MenuMealItemDto>
+)
+
 data class FavoriteMealDto(
     val mealId: Int,
     val mealName: String,

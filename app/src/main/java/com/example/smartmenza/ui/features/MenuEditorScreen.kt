@@ -7,9 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +24,9 @@ import androidx.navigation.NavController
 import com.example.smartmenza.R
 import com.example.smartmenza.data.remote.MealDto
 import com.example.smartmenza.data.remote.RetrofitInstance
+import com.example.smartmenza.data.remote.MenuMealItemDto
+import com.example.smartmenza.data.remote.MenuWriteDto
+import com.example.smartmenza.data.remote.MenuResponseDtoNoDate
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
@@ -44,7 +44,6 @@ fun MenuEditScreen(
     navController: NavController,
     mode: MenuEditMode,
     menuTypeOptions: List<MenuTypeOption>,
-
     initialName: String = "",
     initialDescription: String = "",
     initialMenuTypeId: Int? = null,
@@ -57,7 +56,12 @@ fun MenuEditScreen(
 
     val scope = rememberCoroutineScope()
 
-    // -------- Form state: name, description, type --------
+    // --- NEW: edit-prefill states ---
+    var menuLoading by remember { mutableStateOf(false) }
+    var menuLoadError by remember { mutableStateOf<String?>(null) }
+    var pendingSelectedMeals by remember { mutableStateOf<List<MealDto>>(emptyList()) }
+
+    // --- Form state ---
     var name by remember { mutableStateOf(initialName) }
     var description by remember { mutableStateOf(initialDescription) }
 
@@ -66,22 +70,22 @@ fun MenuEditScreen(
     }
     var menuTypeExpanded by remember { mutableStateOf(false) }
 
-    // -------- Meals state: fetched from backend --------
+    // --- Meals list from backend ---
     var allMeals by remember { mutableStateOf<List<MealDto>>(emptyList()) }
     var mealsLoading by remember { mutableStateOf(true) }
     var mealsError by remember { mutableStateOf<String?>(null) }
 
-    // Normalize initial selected meals to exactly 5 slots
+    // Exactly 5 slots
     val normalizedInitialMeals = remember(initialSelectedMeals) {
         (initialSelectedMeals + List(5) { null }).take(5)
     }
-
     val mealSelections = remember {
-        mutableStateListOf<MealDto?>().apply {
-            clear()
-            addAll(normalizedInitialMeals)
-        }
+        mutableStateListOf<MealDto?>().apply { addAll(normalizedInitialMeals) }
     }
+
+    var saving by remember { mutableStateOf(false) }
+    var saveError by remember { mutableStateOf<String?>(null) }
+    var validationMessage by remember { mutableStateOf<String?>(null) }
 
     // Fetch all meals once
     LaunchedEffect(Unit) {
@@ -101,19 +105,75 @@ fun MenuEditScreen(
         }
     }
 
-    // -------- Validation --------
-    val selectedMealsCount = mealSelections.count { it != null }
-    val isFormValid = name.isNotBlank() &&
-            selectedMenuTypeId != 0 &&
-            selectedMealsCount >= 3
+    // --- NEW: Fetch menu when editing (prefill name/desc/type + store meals) ---
+    LaunchedEffect(mode) {
+        if (mode is MenuEditMode.Edit) {
+            menuLoading = true
+            menuLoadError = null
+            try {
+                val res = RetrofitInstance.api.getMenuById(mode.menuId) // <-- add to SmartMenzaApi
+                if (res.isSuccessful) {
+                    val menu: MenuResponseDtoNoDate = res.body()!!
 
-    var validationMessage by remember { mutableStateOf<String?>(null) }
+                    name = menu.name
+                    description = menu.description.orEmpty()
+
+                    // Map menuTypeName -> id using menuTypeOptions labels
+                    val matchedType = menuTypeOptions.firstOrNull {
+                        it.label.equals(menu.menuTypeName ?: "", ignoreCase = true)
+                    }
+                    selectedMenuTypeId = matchedType?.id ?: (menuTypeOptions.firstOrNull()?.id ?: 0)
+
+                    pendingSelectedMeals = menu.meals
+                } else {
+                    menuLoadError = when (res.code()) {
+                        404 -> "Meni nije pronađen."
+                        else -> "Greška (${res.code()}) pri dohvaćanju menija."
+                    }
+                }
+            } catch (e: Exception) {
+                menuLoadError = "Greška pri dohvaćanju menija: ${e.message}"
+            } finally {
+                menuLoading = false
+            }
+        }
+    }
+
+    // --- NEW: Once allMeals is loaded, map pending meals into the 5 slots ---
+    LaunchedEffect(allMeals, pendingSelectedMeals) {
+        if (allMeals.isNotEmpty() && pendingSelectedMeals.isNotEmpty()) {
+            val selected = pendingSelectedMeals
+                .mapNotNull { sel -> allMeals.firstOrNull { it.mealId == sel.mealId } }
+                .take(5)
+
+            for (i in 0 until 5) {
+                mealSelections[i] = selected.getOrNull(i)
+            }
+
+            pendingSelectedMeals = emptyList()
+        }
+    }
+
+    val selectedMealsCount = mealSelections.count { it != null }
+    val isFormValid = name.isNotBlank() && selectedMenuTypeId != 0 && selectedMealsCount >= 3
+
+    fun buildWriteDto(): MenuWriteDto {
+        val mealItems = mealSelections
+            .filterNotNull()
+            .map { MenuMealItemDto(mealId = it.mealId) }
+
+        return MenuWriteDto(
+            name = name.trim(),
+            description = description.trim().ifBlank { null },
+            menuTypeId = selectedMenuTypeId,
+            meals = mealItems
+        )
+    }
 
     SmartMenzaTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // Header bar
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -136,17 +196,13 @@ fun MenuEditScreen(
                 Spacer(modifier = Modifier.height(50.dp))
 
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // Background pattern
                     Image(
                         painter = subtlePattern,
                         contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .alpha(0.06f),
+                        modifier = Modifier.fillMaxSize().alpha(0.06f),
                         contentScale = ContentScale.Crop
                     )
 
-                    // Main content
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -156,14 +212,28 @@ fun MenuEditScreen(
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = pageTitle,
-                            style = MaterialTheme.typography.headlineLarge
-                        )
+                        Text(text = pageTitle, style = MaterialTheme.typography.headlineLarge)
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        // NEW: menu load indicator / error
+                        if (menuLoading) {
+                            CircularProgressIndicator()
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                        menuLoadError?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.error
+                                ),
+                                modifier = Modifier.align(Alignment.Start)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
 
-                        // -------- Naziv menija --------
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Naziv
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -184,7 +254,7 @@ fun MenuEditScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // -------- Opis --------
+                        // Opis
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.Top
@@ -192,24 +262,20 @@ fun MenuEditScreen(
                             Text(
                                 text = "Opis:",
                                 style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier
-                                    .widthIn(min = 120.dp)
-                                    .padding(top = 8.dp)
+                                modifier = Modifier.widthIn(min = 120.dp).padding(top = 8.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedTextField(
                                 value = description,
                                 onValueChange = { description = it },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(min = 100.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
                                 maxLines = 4
                             )
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // -------- Tip menija (dropdown) --------
+                        // Tip menija
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -234,18 +300,14 @@ fun MenuEditScreen(
                                     value = currentTypeLabel,
                                     onValueChange = {},
                                     readOnly = true,
-                                    modifier = Modifier
-                                        .menuAnchor()
-                                        .fillMaxWidth(),
+                                    modifier = Modifier.menuAnchor().fillMaxWidth(),
                                     trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(
-                                            expanded = menuTypeExpanded
-                                        )
+                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuTypeExpanded)
                                     },
+                                    enabled = false,
                                     colors = TextFieldDefaults.colors(
                                         disabledTextColor = LocalContentColor.current
-                                    ),
-                                    enabled = false
+                                    )
                                 )
 
                                 ExposedDropdownMenu(
@@ -267,29 +329,23 @@ fun MenuEditScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // -------- 5 dropdowns for meals --------
                         Text(
                             text = "Odaberi jela (minimalno 3):",
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.align(Alignment.Start)
                         )
-
                         Spacer(modifier = Modifier.height(8.dp))
 
                         when {
-                            mealsLoading -> {
-                                CircularProgressIndicator()
-                            }
+                            mealsLoading -> CircularProgressIndicator()
 
-                            mealsError != null -> {
-                                Text(
-                                    text = mealsError!!,
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        color = MaterialTheme.colorScheme.error
-                                    ),
-                                    modifier = Modifier.align(Alignment.Start)
-                                )
-                            }
+                            mealsError != null -> Text(
+                                text = mealsError!!,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.error
+                                ),
+                                modifier = Modifier.align(Alignment.Start)
+                            )
 
                             else -> {
                                 mealSelections.forEachIndexed { index, selectedMeal ->
@@ -304,10 +360,21 @@ fun MenuEditScreen(
                             }
                         }
 
-                        if (validationMessage != null) {
+                        validationMessage?.let {
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = validationMessage!!,
+                                text = it,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.error
+                                ),
+                                modifier = Modifier.align(Alignment.Start)
+                            )
+                        }
+
+                        saveError?.let {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = it,
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     color = MaterialTheme.colorScheme.error
                                 ),
@@ -317,13 +384,13 @@ fun MenuEditScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // -------- Buttons --------
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
                         ) {
                             OutlinedButton(
-                                onClick = { navController.popBackStack() }
+                                onClick = { navController.popBackStack() },
+                                enabled = !saving
                             ) {
                                 Text("Odustani")
                             }
@@ -335,26 +402,66 @@ fun MenuEditScreen(
                                     if (!isFormValid) {
                                         validationMessage =
                                             "Naziv mora biti unesen i minimalno 3 jela moraju biti odabrana."
-                                    } else {
-                                        validationMessage = null
-                                        val selectedMeals =
-                                            mealSelections.filterNotNull()
+                                        return@Button
+                                    }
 
-                                        // TODO: build DTO and call backend:
-                                        // val mealIds = selectedMeals.map { it.mealId }
-                                        // if (mode is MenuEditMode.Create) -> POST api/Menu/admin
-                                        // if (mode is MenuEditMode.Edit)   -> PUT api/Menu/admin/{mode.menuId}
-                                        //
-                                        // On success: navController.popBackStack()
+                                    validationMessage = null
+                                    saveError = null
+
+                                    scope.launch {
+                                        saving = true
+                                        try {
+                                            val roleHeader = "Employee"
+                                            val dto = buildWriteDto()
+
+                                            val response = when (mode) {
+                                                is MenuEditMode.Create ->
+                                                    RetrofitInstance.api.createMenu(role = roleHeader, dto = dto)
+
+                                                is MenuEditMode.Edit ->
+                                                    RetrofitInstance.api.updateMenu(
+                                                        menuId = mode.menuId,
+                                                        role = roleHeader,
+                                                        dto = dto
+                                                    )
+                                            }
+
+                                            if (response.isSuccessful) {
+                                                navController.popBackStack()
+                                            } else {
+                                                saveError = when (response.code()) {
+                                                    403 -> "Nemate ovlasti za ovu radnju."
+                                                    400 -> response.errorBody()?.string() ?: "Podaci nisu ispravni."
+                                                    else -> "Greška (${response.code()}) pri spremanju menija."
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            saveError = "Greška pri spremanju menija: ${e.message}"
+                                        } finally {
+                                            saving = false
+                                        }
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = SpanRed,
                                     contentColor = Color.White
                                 ),
-                                enabled = isFormValid && !mealsLoading && mealsError == null
+                                enabled = isFormValid &&
+                                        !saving &&
+                                        !menuLoading &&
+                                        menuLoadError == null &&
+                                        !mealsLoading &&
+                                        mealsError == null
                             ) {
-                                Text(saveButtonLabel)
+                                if (saving) {
+                                    CircularProgressIndicator(
+                                        color = Color.White,
+                                        strokeWidth = 2.dp,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                } else {
+                                    Text(saveButtonLabel)
+                                }
                             }
                         }
 
@@ -364,9 +471,7 @@ fun MenuEditScreen(
                     Text(
                         text = "Powered by SPAN",
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 24.dp)
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 24.dp)
                     )
                 }
             }
@@ -384,17 +489,16 @@ private fun MealDropdownRow(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    val label = "Jelo ${index + 1}:"
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = label,
+            text = "Jelo ${index + 1}:",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.widthIn(min = 80.dp)
         )
+
         Spacer(modifier = Modifier.width(8.dp))
 
         ExposedDropdownMenuBox(
@@ -406,23 +510,18 @@ private fun MealDropdownRow(
                 value = selectedMeal?.name ?: "Nije odabrano",
                 onValueChange = {},
                 readOnly = true,
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth(),
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
+                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                enabled = false,
                 colors = TextFieldDefaults.colors(
                     disabledTextColor = LocalContentColor.current
-                ),
-                enabled = false
+                )
             )
 
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                // Option to clear selection
                 DropdownMenuItem(
                     text = { Text("— Nijedno —") },
                     onClick = {
@@ -430,6 +529,7 @@ private fun MealDropdownRow(
                         expanded = false
                     }
                 )
+
                 allMeals.forEach { meal ->
                     DropdownMenuItem(
                         text = { Text(meal.name) },
