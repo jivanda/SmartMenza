@@ -29,4 +29,14 @@ namespace SmartMenza.Domain.DTOs
 
         public List<MealDto> Meals { get; set; } = new();
     }
+
+    public class MenuResponseDtoNoDate
+    {
+        public int MenuId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string? MenuTypeName { get; set; }
+
+        public List<MealDto> Meals { get; set; } = new();
+    }
 }

@@ -41,6 +41,28 @@ namespace SmartMenza.API.Controllers
             return Ok(menu);
         }
 
+        [HttpGet("by_id")]
+        public IActionResult GetMenuById([FromQuery]int menuId)
+        {
+            var menu = _menuService.GetMenuById(menuId);
+
+            if (menu == null)
+                return NotFound(new { message = "Meni sa tim id-jem ne postoji." });
+
+            return Ok(menu);
+        }
+
+        [HttpGet("{menuId}")]
+        public IActionResult GetMenuByIdByRoute([FromRoute] int menuId)
+        {
+            var menu = _menuService.GetMenuById(menuId);
+
+            if (menu == null)
+                return NotFound(new { message = "Meni sa tim id-jem ne postoji." });
+
+            return Ok(menu);
+        }
+
         [HttpGet("all")]
         public IActionResult GetAllByDate([FromQuery] string date)
         {
@@ -64,6 +86,26 @@ namespace SmartMenza.API.Controllers
 
             return Ok(menus);
         }
+
+        [HttpGet("by-type")]
+        public IActionResult GetAllByType([FromQuery] int menuTypeId)
+        {
+            if (menuTypeId <= 0)
+            {
+                return BadRequest(new
+                {
+                    message = "Neispravan tip menija. Očekivan je pozitivan ID tipa menija."
+                });
+            }
+
+            var menus = _menuService.GetMenusByType(menuTypeId);
+
+            if (menus == null || !menus.Any())
+                return NotFound(new { message = "Nema menija za traženi tip." });
+
+            return Ok(menus);
+        }
+
 
         [HttpGet("{menuId}/meals")]
         public IActionResult GetMealsByMenuId(int menuId)
@@ -91,6 +133,36 @@ namespace SmartMenza.API.Controllers
             }
 
             var result = _menuService.CreateMenuForDate(dto);
+
+            if (!result.Success)
+            {
+                return BadRequest(new
+                {
+                    message = result.ErrorMessage
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Meni je uspješno spremljen.",
+                menuId = result.MenuId
+            });
+        }
+
+        [HttpPost("admin/nodate")]
+        public IActionResult CreateMenuNoDate(
+            [FromBody] CreateMenuDtoNoDate dto,
+            [FromHeader(Name = "Uloga")] string? roleHeader)
+        {
+            if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    message = "Nemate ovlasti za kreiranje menija."
+                });
+            }
+
+            var result = _menuService.CreateMenu(dto);
 
             if (!result.Success)
             {

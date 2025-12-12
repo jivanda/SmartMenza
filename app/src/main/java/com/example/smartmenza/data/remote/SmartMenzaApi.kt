@@ -61,6 +61,11 @@ data class GoalResult(
     val userId: Int
 )
 
+data class SimpleResponse(
+    val message: String?
+)
+
+
 data class GoogleLoginRequest(val idToken: String)
 
 interface SmartMenzaApi {
@@ -74,6 +79,12 @@ interface SmartMenzaApi {
     // --- Menus ---
     @GET("api/menu/all")
     suspend fun getMenusByDate(@Query("date") date: String): Response<List<MenuResponseDto>>
+
+    @GET("api/menu/{menuId}")
+    suspend fun getMenuById(@Path("menuId") menuId: Int): Response<MenuResponseDtoNoDate>
+
+    @GET("api/menu/by-type")
+    suspend fun getMenusByType(@Query("menuTypeId") menuTypeId: Int): Response<List<MenuResponseDto>>
 
     // --- Goals ---
     @GET("api/Goal/myGoal")
@@ -103,4 +114,26 @@ interface SmartMenzaApi {
 
     @POST("api/Auth/google")
     suspend fun googleLogin(@Body request: GoogleLoginRequest): Response<AuthResponse>
+
+    @DELETE("api/Menu/admin/{menuId}")
+    suspend fun deleteMenu(
+        @Path("menuId") menuId: Int,
+        @Header("Uloga") role: String
+    ): retrofit2.Response<SimpleResponse>
+
+    @GET("api/Meal")
+    suspend fun getAllMeals(): Response<List<MealDto>>
+
+    @POST("api/Menu/admin/nodate")
+    suspend fun createMenu(
+        @Header("Uloga") role: String,
+        @Body dto: MenuWriteDto
+    ): Response<SimpleResponse>
+
+    @PUT("api/Menu/admin/{menuId}")
+    suspend fun updateMenu(
+        @Path("menuId") menuId: Int,
+        @Header("Uloga") role: String,
+        @Body dto: MenuWriteDto
+    ): Response<SimpleResponse>
 }

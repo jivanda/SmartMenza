@@ -88,6 +88,41 @@ namespace SmartMenza.Business.Services
             return GetMenusByDate(parsedDate);
         }
 
+        public MenuResponseDtoNoDate? GetMenuById(int id)
+        {
+            var menu = _context.Menu
+                .AsNoTracking()
+                .Include(m => m.MenuType)
+                .Include(m => m.MenuMeals)
+                    .ThenInclude(mm => mm.Meal)
+                .FirstOrDefault(m => m.MenuId == id);
+
+            if (menu == null)
+                return null;
+
+            return new MenuResponseDtoNoDate
+            {
+                MenuId = menu.MenuId,
+                Name = menu.Name,
+                Description = menu.Description,
+                MenuTypeName = menu.MenuType?.Name,
+                Meals = menu.MenuMeals
+                    .Where(mm => mm.Meal != null)
+                    .Select(mm => new MealDto
+                    {
+                        MealId = mm.Meal!.MealId,
+                        Name = mm.Meal!.Name,
+                        Description = mm.Meal!.Description,
+                        Price = mm.Meal!.Price,
+                        Calories = mm.Meal!.Calories,
+                        Protein = mm.Meal!.Protein,
+                        Carbohydrates = mm.Meal!.Carbohydrates,
+                        Fat = mm.Meal!.Fat
+                    })
+                    .ToList()
+            };
+        }
+
         // Returns all menus for the given date. Returns an empty list when none found.
         public List<MenuResponseDto> GetMenusByDate(DateTime date)
         {
@@ -132,6 +167,46 @@ namespace SmartMenza.Business.Services
 
             return result;
         }
+
+        public List<MenuResponseDto> GetMenusByType(int menuTypeId)
+        {
+            var menus = _context.Menu
+                .Include(m => m.MenuType)
+                .Include(m => m.MenuMeals)
+                    .ThenInclude(mm => mm.Meal)
+                .Where(m => m.MenuTypeId == menuTypeId)
+                .ToList();
+
+            var result = menus
+                .Select(menu => new MenuResponseDto
+                {
+                    MenuId = menu.MenuId,
+                    Name = menu.Name,
+                    Description = menu.Description,
+                    // If Date in MenuResponseDto is nullable (DateTime?),
+                    // you can explicitly set it to null because dates are irrelevant here:
+                    // Date = null,
+                    MenuTypeName = menu.MenuType?.Name,
+                    Meals = (menu.MenuMeals ?? Enumerable.Empty<MenuMeal>())
+                        .Where(mm => mm.Meal != null)
+                        .Select(mm => new MealDto
+                        {
+                            MealId = mm.Meal.MealId,
+                            Name = mm.Meal.Name,
+                            Description = mm.Meal.Description,
+                            Price = mm.Meal.Price,
+                            Calories = mm.Meal.Calories,
+                            Protein = mm.Meal.Protein,
+                            Carbohydrates = mm.Meal.Carbohydrates,
+                            Fat = mm.Meal.Fat
+                        })
+                        .ToList()
+                })
+                .ToList();
+
+            return result;
+        }
+
 
         // NEW: returns all meals for a specific menu by id.
         // Returns null if menu doesn't exist; returns empty list if menu exists but has no meals.
@@ -205,6 +280,44 @@ namespace SmartMenza.Business.Services
                 Date = parsedDate
             };
             _context.MenuDate.Add(menuDate);
+
+            foreach (var mealDto in dto.Meals)
+            {
+                var menuMeal = new Domain.Entities.MenuMeal
+                {
+                    MenuId = menu.MenuId,
+                    MealId = mealDto.MealId
+                };
+                _context.MenuMeal.Add(menuMeal);
+            }
+
+            _context.SaveChanges();
+
+            return (true, null, menu.MenuId);
+        }
+
+        public (bool Success, string? ErrorMessage, int? MenuId) CreateMenu(CreateMenuDtoNoDate dto)
+        {
+            if (dto.Meals == null || !dto.Meals.Any())
+            {
+                return (false, "Jelovnik mora sadržavati barem jedno jelo", null);
+            }
+
+            //var existsForDate = _context.MenuDate.Any(md => md.Date == parsedDate);
+            //if (existsForDate)
+            //{
+            //    return (false, "Jelovnik za odabrani datum već postoji", null);
+            //}
+
+            var menu = new Domain.Entities.Menu
+            {
+                Name = dto.Name,
+                Description = dto.Description,
+                MenuTypeId = dto.MenuTypeId
+            };
+
+            _context.Menu.Add(menu);
+            _context.SaveChanges();
 
             foreach (var mealDto in dto.Meals)
             {
