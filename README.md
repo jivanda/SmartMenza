@@ -3,7 +3,7 @@
 
 ## Projektni tim
 
-Ime i prezime | E-mail adresa (FOI) | JMBAG | GitHub korisničko ime
+Ime i prezime | E-mail adresa (FOI) | JMBAG | GitHub korisničko imee
 ------------  | ------------------- | ----- | ---------------------
 Jurica Ivanda | jivanda@student.foi.hr | 0016143019 | jivanda
 Karlo Mišić | kmisic22@student.foi.hr | 0016158466 | kmisic22
