@@ -1,59 +1,52 @@
-﻿using SmartMenza.Data.Context;
-using SmartMenza.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using SmartMenza.Data.Entities;
+using SmartMenza.Data.Repositories.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartMenza.Business.Services
 {
     public class FavoriteService
     {
-        private readonly SmartMenzaContext _context;
+        private readonly IFavoriteRepository _favoriteRepository;
 
-        public FavoriteService(SmartMenzaContext context)
+        public FavoriteService(IFavoriteRepository favoriteRepository)
         {
-            _context = context;
+            _favoriteRepository = favoriteRepository;
         }
 
         public bool AddFavorite(int userId, int mealId)
         {
-            var exists = _context.Set<Favorite>().Any(f => f.UserId == userId && f.MealId == mealId);
-            if (exists) return false;
+            if (_favoriteRepository.Exists(userId, mealId))
+                return false;
 
-            _context.Set<Favorite>().Add(new Favorite
+            _favoriteRepository.Add(new Favorite
             {
                 UserId = userId,
                 MealId = mealId
             });
 
-            _context.SaveChanges();
+            _favoriteRepository.Save();
             return true;
         }
 
         public bool RemoveFavorite(int userId, int mealId)
         {
-            var fav = _context.Set<Favorite>().FirstOrDefault(f => f.UserId == userId && f.MealId == mealId);
-            if (fav == null) return false;
+            var favorite = _favoriteRepository.Get(userId, mealId);
+            if (favorite == null)
+                return false;
 
-            _context.Set<Favorite>().Remove(fav);
-            _context.SaveChanges();
+            _favoriteRepository.Remove(favorite);
+            _favoriteRepository.Save();
             return true;
         }
 
         public List<Favorite> GetFavorites(int userId)
         {
-            return _context.Set<Favorite>()
-                .Include(f => f.Meal)
-                .Where(f => f.UserId == userId)
-                .ToList();
+            return _favoriteRepository.GetByUser(userId);
         }
 
         public bool IsFavorite(int userId, int mealId)
         {
-            return _context.Set<Favorite>().Any(f => f.UserId == userId && f.MealId == mealId);
+            return _favoriteRepository.Exists(userId, mealId);
         }
     }
 }

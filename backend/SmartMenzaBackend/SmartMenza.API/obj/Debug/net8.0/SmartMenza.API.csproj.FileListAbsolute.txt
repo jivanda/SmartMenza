@@ -892,3 +892,9 @@ C:\Users\jakov\Desktop\proj\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\
 C:\Users\jakov\Desktop\proj\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\SmartMenza.API.pdb
 C:\Users\jakov\Desktop\proj\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\SmartMenza.API.genruntimeconfig.cache
 C:\Users\jakov\Desktop\proj\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\obj\Debug\net8.0\ref\SmartMenza.API.dll
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\bin\Debug\net8.0\Google.Apis.dll
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\bin\Debug\net8.0\Google.Apis.Auth.dll
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\bin\Debug\net8.0\Google.Apis.Core.dll
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\bin\Debug\net8.0\System.Management.dll
+C:\Users\karlo\Desktop\SmartMenza\backend\SmartMenzaBackend\SmartMenza.API\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Management.dll

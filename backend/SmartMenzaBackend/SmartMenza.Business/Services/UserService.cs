@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using SmartMenza.Data.Context;
 using SmartMenza.Domain.DTOs;
-using SmartMenza.Domain.Entities;
+using SmartMenza.Data.Entities;
 using Google.Apis.Auth;
 
 namespace SmartMenza.Business.Services

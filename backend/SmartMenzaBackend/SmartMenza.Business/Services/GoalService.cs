@@ -1,19 +1,19 @@
-﻿using System;
-using System.Linq;
-using SmartMenza.Data.Context;
+﻿using SmartMenza.Data.Entities;
+using SmartMenza.Data.Repositories.Interfaces;
 using SmartMenza.Domain.DTOs;
-using SmartMenza.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SmartMenza.Business.Services
 {
     public class GoalService
     {
-        private readonly SmartMenzaContext _context;
+        private readonly IGoalRepository _goalRepository;
 
-        public GoalService(SmartMenzaContext context)
+        public GoalService(IGoalRepository goalRepository)
         {
-            _context = context;
+            _goalRepository = goalRepository;
         }
 
         public NutritionGoal CreateGoal(GoalCreateDto dto, int userId)
@@ -25,24 +25,24 @@ namespace SmartMenza.Business.Services
                 Carbohydrates = dto.TargetCarbs,
                 Fat = dto.TargetFats,
                 UserId = userId,
-                DateSet = DateTime.UtcNow
+                DateSet = DateOnly.FromDateTime(DateTime.UtcNow)
             };
 
-            _context.NutritionGoal.Add(goal);
-            _context.SaveChanges();
+            _goalRepository.Add(goal);
+            _goalRepository.Save();
 
             return goal;
         }
 
         public NutritionGoal? GetGoalById(int goalId)
         {
-            return _context.NutritionGoal.FirstOrDefault(g => g.GoalId == goalId);
+            return _goalRepository.GetById(goalId);
         }
 
         public (bool Success, string? ErrorMessage, NutritionGoal? UpdatedGoal)
             UpdateGoal(int goalId, int userId, GoalUpdateDto dto)
         {
-            var goal = _context.NutritionGoal.FirstOrDefault(g => g.GoalId == goalId);
+            var goal = _goalRepository.GetById(goalId);
 
             if (goal == null)
                 return (false, "Cilj nije pronađen.", null);
@@ -57,18 +57,16 @@ namespace SmartMenza.Business.Services
             goal.Protein = dto.TargetProteins;
             goal.Carbohydrates = dto.TargetCarbs;
             goal.Fat = dto.TargetFats;
-            goal.DateSet = DateTime.UtcNow;
+            goal.DateSet = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            _context.SaveChanges();
+            _goalRepository.Save();
 
             return (true, null, goal);
         }
 
-        public (bool Success, string? ErrorMessage)
-
-        DeleteGoal(int goalId, int userId)
+        public (bool Success, string? ErrorMessage) DeleteGoal(int goalId, int userId)
         {
-            var goal = _context.NutritionGoal.FirstOrDefault(g => g.GoalId == goalId);
+            var goal = _goalRepository.GetById(goalId);
 
             if (goal == null)
                 return (false, "Cilj nije pronađen.");
@@ -76,47 +74,40 @@ namespace SmartMenza.Business.Services
             if (goal.UserId != userId)
                 return (false, "Cilj ne pripada prijavljenom korisniku.");
 
-            _context.NutritionGoal.Remove(goal);
-            _context.SaveChanges();
+            _goalRepository.Remove(goal);
+            _goalRepository.Save();
 
             return (true, null);
         }
 
         public List<NutritionGoal> GetGoalsForUser(int userId)
         {
-            return _context.NutritionGoal
-                .Where(g => g.UserId == userId)
-                .OrderByDescending(g => g.DateSet)
-                .ToList();
+            return _goalRepository.GetByUser(userId);
         }
 
         public List<GoalSummaryDto> GetGoalSummariesForUser(int userId)
         {
-            return _context.NutritionGoal
-                .Where(g => g.UserId == userId)
-                .OrderByDescending(g => g.DateSet)
+            return _goalRepository
+                .GetByUser(userId)
                 .Select(g => new GoalSummaryDto
                 {
                     Calories = g.Calories,
                     Protein = g.Protein,
                     Carbohydrates = g.Carbohydrates,
-                    Fat = g.Fat,
+                    Fat = g.Fat
                 })
                 .ToList();
         }
 
         public List<NutritionGoal> GetGoalsByUser(int userId)
         {
-            return _context.NutritionGoal
-                .Where(g => g.UserId == userId)
-                .OrderByDescending(g => g.DateSet)
-                .ToList();
+            return _goalRepository.GetByUser(userId);
         }
 
         public bool UserHasGoalForToday(int userId)
         {
-            var today = DateTime.UtcNow.Date;
-            return _context.NutritionGoal.Any(g => g.UserId == userId && g.DateSet.HasValue && g.DateSet.Value.Date == today);
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            return _goalRepository.ExistsForToday(userId, today);
         }
     }
 }

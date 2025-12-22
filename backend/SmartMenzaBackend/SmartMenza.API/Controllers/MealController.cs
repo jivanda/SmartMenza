@@ -27,7 +27,12 @@ namespace SmartMenza.API.Controllers
         {
             var meal = _mealService.GetMealById(mealId);
             if (meal == null)
-                return NotFound(new { message = "Jelo nije pronađeno." });
+            {
+                return NotFound(new SimpleMessageDto
+                {
+                    Message = "Jelo nije pronađeno."
+                });
+            }
 
             return Ok(meal);
         }

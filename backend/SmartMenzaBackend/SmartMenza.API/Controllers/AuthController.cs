@@ -4,7 +4,6 @@ using SmartMenza.Domain.DTOs;
 using Google.Apis.Auth;
 
 namespace SmartMenza.API.Controllers
-
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -23,31 +22,42 @@ namespace SmartMenza.API.Controllers
             var uspjeh = _userService.RegisterUser(dto);
 
             if (!uspjeh)
-                return BadRequest(new { poruka = "Korisnik s tom email adresom već postoji." });
-
-            return Ok(new
             {
-                poruka = "Registracija uspješna!",
-                ime = dto.Username,
-                email = dto.Email,
-                uloga = dto.RoleName
+                return BadRequest(new ErrorResponseDto
+                {
+                    Message = "Korisnik s tom email adresom već postoji."
+                });
+            }
+
+            return Ok(new AuthResponseDto
+            {
+                Message = "Registracija uspješna!",
+                Username = dto.Username,
+                Email = dto.Email,
+                Role = dto.RoleName
             });
         }
 
         [HttpPost("login")]
-        public IActionResult Login(UserLoginDto dto)
+        public IActionResult Login([FromBody] UserLoginDto dto)
         {
             var korisnik = _userService.LoginUser(dto);
-            if (korisnik == null)
-                return Unauthorized("Pogrešan email ili lozinka.");
 
-            return Ok(new
+            if (korisnik == null)
             {
-                poruka = "Prijava uspješna!",
-                korisnik.Username,
-                korisnik.Email,
-                userId = korisnik.UserId,
-                uloga = korisnik.Role?.RoleName
+                return Unauthorized(new ErrorResponseDto
+                {
+                    Message = "Pogrešan email ili lozinka."
+                });
+            }
+
+            return Ok(new AuthResponseDto
+            {
+                Message = "Prijava uspješna!",
+                UserId = korisnik.UserId,
+                Username = korisnik.Username,
+                Email = korisnik.Email,
+                Role = korisnik.Role?.RoleName ?? string.Empty
             });
         }
 
@@ -62,24 +72,27 @@ namespace SmartMenza.API.Controllers
                     {
                         Audience = new[]
                         {
-                    "35432297091-5kpm784irvq6n8hl2u3aiq10vj6b996l.apps.googleusercontent.com"
+                            "35432297091-5kpm784irvq6n8hl2u3aiq10vj6b996l.apps.googleusercontent.com"
                         }
                     });
 
                 var user = _userService.GetOrCreateGoogleUser(payload);
 
-                return Ok(new
+                return Ok(new AuthResponseDto
                 {
-                    poruka = "Google prijava uspješna!",
-                    username = user.Username,
-                    email = user.Email,
-                    uloga = user.Role.RoleName,
-                    userId = user.UserId
+                    Message = "Google prijava uspješna!",
+                    UserId = user.UserId,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Role = user.Role.RoleName
                 });
             }
             catch
             {
-                return Unauthorized("Google token nije valjan.");
+                return Unauthorized(new ErrorResponseDto
+                {
+                    Message = "Google token nije valjan."
+                });
             }
         }
     }

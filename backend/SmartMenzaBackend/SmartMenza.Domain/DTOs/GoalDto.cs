@@ -13,6 +13,6 @@ namespace SmartMenza.Domain.DTOs
         public decimal Protein { get; set; }
         public decimal Carbohydrates { get; set; }
         public decimal Fat { get; set; }
-        public DateTime? DateSet { get; set; }
+        public DateOnly DateSet { get; set; }
     }
 }

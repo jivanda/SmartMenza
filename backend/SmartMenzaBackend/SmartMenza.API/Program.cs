@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using SmartMenza.Business.Services;
 using SmartMenza.Data.Context;
+using SmartMenza.Data.Repositories.Interfaces;
+using SmartMenza.Data.Repositories.Implementations;
 
 namespace SmartMenza.API
 {
@@ -32,6 +34,11 @@ namespace SmartMenza.API
 
             builder.Services.AddDbContext<SmartMenzaContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+            builder.Services.AddScoped<IGoalRepository, GoalRepository>();
+            builder.Services.AddScoped<IMealRepository, MealRepository>();
+            builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<MenuService>();

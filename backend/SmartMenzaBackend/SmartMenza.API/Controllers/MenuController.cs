@@ -2,7 +2,6 @@
 using SmartMenza.Business.Services;
 using SmartMenza.Domain.DTOs;
 using System.Globalization;
-using System.Linq;
 
 namespace SmartMenza.API.Controllers
 {
@@ -21,102 +20,43 @@ namespace SmartMenza.API.Controllers
         public IActionResult GetByDate([FromQuery] string date)
         {
             if (!DateTime.TryParseExact(
-                    date,
-                    "dd/MM/yyyy",
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.None,
-                    out var parsedDate))
+                date,
+                "dd/MM/yyyy",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var parsedDate))
             {
-                return BadRequest(new
+                return BadRequest(new SimpleMessageDto
                 {
-                    message = "Neispravan format datuma. Očekivan format je dd/MM/yyyy (npr. 03/11/2025)."
+                    Message = "Neispravan format datuma. Očekivan format je dd/MM/yyyy."
                 });
             }
 
-            var menu = _menuService.GetMenuByDate(parsedDate);
-
+            var menu = _menuService.GetMenuByDate(DateOnly.FromDateTime(parsedDate));
             if (menu == null)
-                return NotFound(new { message = "Meni za traženi datum ne postoji." });
-
-            return Ok(menu);
-        }
-
-        [HttpGet("by_id")]
-        public IActionResult GetMenuById([FromQuery]int menuId)
-        {
-            var menu = _menuService.GetMenuById(menuId);
-
-            if (menu == null)
-                return NotFound(new { message = "Meni sa tim id-jem ne postoji." });
+            {
+                return NotFound(new SimpleMessageDto
+                {
+                    Message = "Meni za traženi datum ne postoji."
+                });
+            }
 
             return Ok(menu);
         }
 
         [HttpGet("{menuId}")]
-        public IActionResult GetMenuByIdByRoute([FromRoute] int menuId)
+        public IActionResult GetMenuById(int menuId)
         {
             var menu = _menuService.GetMenuById(menuId);
-
             if (menu == null)
-                return NotFound(new { message = "Meni sa tim id-jem ne postoji." });
+            {
+                return NotFound(new SimpleMessageDto
+                {
+                    Message = "Meni s traženim ID-jem ne postoji."
+                });
+            }
 
             return Ok(menu);
-        }
-
-        [HttpGet("all")]
-        public IActionResult GetAllByDate([FromQuery] string date)
-        {
-            if (!DateTime.TryParseExact(
-                    date,
-                    "dd/MM/yyyy",
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.None,
-                    out var parsedDate))
-            {
-                return BadRequest(new
-                {
-                    message = "Neispravan format datuma. Očekivan format je dd/MM/yyyy (npr. 03/11/2025)."
-                });
-            }
-
-            var menus = _menuService.GetMenusByDate(parsedDate);
-
-            if (menus == null || !menus.Any())
-                return NotFound(new { message = "Nema menija za traženi datum." });
-
-            return Ok(menus);
-        }
-
-        [HttpGet("by-type")]
-        public IActionResult GetAllByType([FromQuery] int menuTypeId)
-        {
-            if (menuTypeId <= 0)
-            {
-                return BadRequest(new
-                {
-                    message = "Neispravan tip menija. Očekivan je pozitivan ID tipa menija."
-                });
-            }
-
-            var menus = _menuService.GetMenusByType(menuTypeId);
-
-            if (menus == null || !menus.Any())
-                return NotFound(new { message = "Nema menija za traženi tip." });
-
-            return Ok(menus);
-        }
-
-
-        [HttpGet("{menuId}/meals")]
-        public IActionResult GetMealsByMenuId(int menuId)
-        {
-            var meals = _menuService.GetMealsByMenuId(menuId);
-
-            if (meals == null)
-                return NotFound(new { message = "Meni nije pronađen." });
-
-            // return empty list if there are no meals
-            return Ok(meals);
         }
 
         [HttpPost("admin")]
@@ -126,26 +66,23 @@ namespace SmartMenza.API.Controllers
         {
             if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
             {
-                return StatusCode(StatusCodes.Status403Forbidden, new
-                {
-                    message = "Nemate ovlasti za kreiranje menija."
-                });
+                return StatusCode(StatusCodes.Status403Forbidden,
+                    new SimpleMessageDto { Message = "Nemate ovlasti za kreiranje menija." });
             }
 
             var result = _menuService.CreateMenuForDate(dto);
-
             if (!result.Success)
             {
-                return BadRequest(new
+                return BadRequest(new SimpleMessageDto
                 {
-                    message = result.ErrorMessage
+                    Message = result.ErrorMessage ?? "Greška pri kreiranju menija."
                 });
             }
 
-            return Ok(new
+            return Ok(new CreateMenuResponseDto
             {
-                message = "Meni je uspješno spremljen.",
-                menuId = result.MenuId
+                Message = "Meni je uspješno spremljen.",
+                MenuId = result.MenuId!.Value
             });
         }
 
@@ -156,26 +93,23 @@ namespace SmartMenza.API.Controllers
         {
             if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
             {
-                return StatusCode(StatusCodes.Status403Forbidden, new
-                {
-                    message = "Nemate ovlasti za kreiranje menija."
-                });
+                return StatusCode(StatusCodes.Status403Forbidden,
+                    new SimpleMessageDto { Message = "Nemate ovlasti za kreiranje menija." });
             }
 
             var result = _menuService.CreateMenu(dto);
-
             if (!result.Success)
             {
-                return BadRequest(new
+                return BadRequest(new SimpleMessageDto
                 {
-                    message = result.ErrorMessage
+                    Message = result.ErrorMessage ?? "Greška pri kreiranju menija."
                 });
             }
 
-            return Ok(new
+            return Ok(new CreateMenuResponseDto
             {
-                message = "Meni je uspješno spremljen.",
-                menuId = result.MenuId
+                Message = "Meni je uspješno spremljen.",
+                MenuId = result.MenuId!.Value
             });
         }
 
@@ -186,13 +120,26 @@ namespace SmartMenza.API.Controllers
             [FromHeader(Name = "Uloga")] string? roleHeader)
         {
             if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
-                return Unauthorized("Nedovoljna dopuštenja");
+            {
+                return Unauthorized(new SimpleMessageDto
+                {
+                    Message = "Nedovoljna dopuštenja."
+                });
+            }
 
             var result = _menuService.UpdateMenu(menuId, dto);
             if (!result.Success)
-                return BadRequest(new { message = result.ErrorMessage });
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = result.ErrorMessage ?? "Greška pri ažuriranju menija."
+                });
+            }
 
-            return Ok(new { message = "Meni je uspješno ažuriran" });
+            return Ok(new SimpleMessageDto
+            {
+                Message = "Meni je uspješno ažuriran."
+            });
         }
 
         [HttpDelete("admin/{menuId}")]
@@ -201,14 +148,26 @@ namespace SmartMenza.API.Controllers
             [FromHeader(Name = "Uloga")] string? roleHeader)
         {
             if (!string.Equals(roleHeader, "Employee", StringComparison.OrdinalIgnoreCase))
-                return Unauthorized("Nedovoljna dopuštenja");
+            {
+                return Unauthorized(new SimpleMessageDto
+                {
+                    Message = "Nedovoljna dopuštenja."
+                });
+            }
 
             var result = _menuService.DeleteMenu(menuId);
             if (!result.Success)
-                return BadRequest(new { message = result.ErrorMessage });
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = result.ErrorMessage ?? "Greška pri brisanju menija."
+                });
+            }
 
-            return Ok(new { message = "Meni je uspješno obrisan" });
+            return Ok(new SimpleMessageDto
+            {
+                Message = "Meni je uspješno obrisan."
+            });
         }
-
     }
 }

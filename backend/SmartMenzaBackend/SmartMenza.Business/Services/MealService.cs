@@ -1,7 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-using SmartMenza.Data.Context;
+using SmartMenza.Data.Repositories.Interfaces;
 using SmartMenza.Domain.DTOs;
-using SmartMenza.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,18 +7,16 @@ namespace SmartMenza.Business.Services
 {
     public class MealService
     {
-        private readonly SmartMenzaContext _context;
+        private readonly IMealRepository _mealRepository;
 
-        public MealService(SmartMenzaContext context)
+        public MealService(IMealRepository mealRepository)
         {
-            _context = context;
+            _mealRepository = mealRepository;
         }
 
         public List<MealDto> GetAllMeals()
         {
-            return _context.Meal
-                .AsNoTracking()
-                .OrderBy(m => m.Name)
+            return _mealRepository.GetAll()
                 .Select(m => new MealDto
                 {
                     MealId = m.MealId,
@@ -37,9 +33,7 @@ namespace SmartMenza.Business.Services
 
         public MealDto? GetMealById(int mealId)
         {
-            var m = _context.Meal
-                .AsNoTracking()
-                .FirstOrDefault(x => x.MealId == mealId);
+            var m = _mealRepository.GetById(mealId);
 
             if (m == null)
                 return null;

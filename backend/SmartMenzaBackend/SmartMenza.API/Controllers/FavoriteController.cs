@@ -18,38 +18,42 @@ namespace SmartMenza.API.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddFavorite([FromHeader(Name = "UserId")] int userId, [FromBody] FavoriteToggleDto dto)
+        public IActionResult AddFavorite(
+            [FromHeader(Name = "UserId")] int userId,
+            [FromBody] FavoriteToggleDto dto)
         {
             if (_userService.GetUserById(userId) == null)
-                return Unauthorized("Korisnik nije pronađen");
+                return Unauthorized(new SimpleMessageDto { Message = "Korisnik nije pronađen." });
 
             bool added = _favoriteService.AddFavorite(userId, dto.MealId);
 
             if (!added)
-                return BadRequest("Jelo je već u favoritima");
+                return BadRequest(new SimpleMessageDto { Message = "Jelo je već u favoritima." });
 
-            return Ok(new { message = "Jelo dodano u favorite." });
+            return Ok(new SimpleMessageDto { Message = "Jelo dodano u favorite." });
         }
 
         [HttpDelete("remove")]
-        public IActionResult RemoveFavorite([FromHeader(Name = "UserId")] int userId, [FromBody] FavoriteToggleDto dto)
+        public IActionResult RemoveFavorite(
+            [FromHeader(Name = "UserId")] int userId,
+            [FromBody] FavoriteToggleDto dto)
         {
             if (_userService.GetUserById(userId) == null)
-                return Unauthorized("Korisnik nije pronađen");
+                return Unauthorized(new SimpleMessageDto { Message = "Korisnik nije pronađen." });
 
             bool removed = _favoriteService.RemoveFavorite(userId, dto.MealId);
 
             if (!removed)
-                return NotFound("Jelo nije u favoritima");
+                return NotFound(new SimpleMessageDto { Message = "Jelo nije u favoritima." });
 
-            return Ok(new { message = "Jelo uklonjeno iz favorita." });
+            return Ok(new SimpleMessageDto { Message = "Jelo uklonjeno iz favorita." });
         }
 
         [HttpGet("my")]
         public IActionResult GetMyFavorites([FromHeader(Name = "UserId")] int userId)
         {
             if (_userService.GetUserById(userId) == null)
-                return Unauthorized("Korisnik nije pronađen");
+                return Unauthorized(new SimpleMessageDto { Message = "Korisnik nije pronađen." });
 
             var favorites = _favoriteService.GetFavorites(userId);
 
@@ -66,14 +70,20 @@ namespace SmartMenza.API.Controllers
         }
 
         [HttpGet("status/{mealId}")]
-        public IActionResult GetFavoriteStatus(int mealId, [FromHeader(Name = "UserId")] int userId)
+        public IActionResult GetFavoriteStatus(
+            int mealId,
+            [FromHeader(Name = "UserId")] int userId)
         {
             if (_userService.GetUserById(userId) == null)
-                return Unauthorized("Korisnik nije pronađen");
+                return Unauthorized(new SimpleMessageDto { Message = "Korisnik nije pronađen." });
 
             bool isFav = _favoriteService.IsFavorite(userId, mealId);
 
-            return Ok(new { mealId, isFavorite = isFav });
+            return Ok(new FavoriteStatusDto
+            {
+                MealId = mealId,
+                IsFavorite = isFav
+            });
         }
     }
 }
