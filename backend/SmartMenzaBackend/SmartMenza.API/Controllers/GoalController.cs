@@ -97,14 +97,27 @@ namespace SmartMenza.API.Controllers
                 });
             }
 
-            if (goalDto.TargetCalories > 50000 ||
-                goalDto.TargetProteins > 50000 ||
-                goalDto.TargetCarbs > 50000 ||
-                goalDto.TargetFats > 50000)
+            if (goalDto.TargetProteins == 0 &&
+                goalDto.TargetCarbs == 0 &&
+                goalDto.TargetFats == 0)
             {
                 return BadRequest(new SimpleMessageDto
                 {
-                    Message = "Vrijednosti ciljeva su nerealno velike."
+                    Message = "Baremi jedan makronutrijent mora biti veći od 0."
+                });
+            }
+
+            const decimal MAX_CALORIES = 10000;
+            const decimal MAX_MACRO = 1000;
+
+            if (goalDto.TargetCalories > MAX_CALORIES ||
+                goalDto.TargetProteins > MAX_MACRO ||
+                goalDto.TargetCarbs > MAX_MACRO ||
+                goalDto.TargetFats > MAX_MACRO)
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Vrijednosti ciljeva su izvan realnih granica."
                 });
             }
 
@@ -113,12 +126,12 @@ namespace SmartMenza.API.Controllers
                 goalDto.TargetCarbs * 4 +
                 goalDto.TargetFats * 9;
 
-            if (calculatedCalories > goalDto.TargetCalories * 1.2m ||
-                calculatedCalories < goalDto.TargetCalories * 0.8m)
+            if (Math.Abs(calculatedCalories - goalDto.TargetCalories)
+                > goalDto.TargetCalories * 0.2m)
             {
                 return BadRequest(new SimpleMessageDto
                 {
-                    Message = "Makronutrijenti nisu u realnom odnosu s kalorijama."
+                    Message = "Makronutrijenti nisu u realnom odnosu s ukupnim kalorijama."
                 });
             }
 
