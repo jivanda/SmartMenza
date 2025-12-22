@@ -77,8 +77,11 @@ interface SmartMenzaApi {
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
     // --- Menus ---
-    @GET("api/menu/all")
-    suspend fun getMenusByDate(@Query("date") date: String): Response<List<MenuResponseDto>>
+    @GET("api/Menu")
+    suspend fun getMenusByDate(
+        @Query("date") date: String
+    ): Response<List<MenuResponseDto>>
+
 
     @GET("api/menu/{menuId}")
     suspend fun getMenuById(@Path("menuId") menuId: Int): Response<MenuResponseDtoNoDate>

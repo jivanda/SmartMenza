@@ -32,16 +32,17 @@ namespace SmartMenza.API.Controllers
                 });
             }
 
-            var menu = _menuService.GetMenuByDate(DateOnly.FromDateTime(parsedDate));
-            if (menu == null)
+            var menus = _menuService.GetMenusByDate(DateOnly.FromDateTime(parsedDate));
+
+            if (menus == null || !menus.Any())
             {
                 return NotFound(new SimpleMessageDto
                 {
-                    Message = "Meni za traženi datum ne postoji."
+                    Message = "Za traženi datum ne postoji nijedan meni."
                 });
             }
 
-            return Ok(menu);
+            return Ok(menus);
         }
 
         [HttpGet("{menuId}")]
