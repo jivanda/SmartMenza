@@ -19,9 +19,9 @@ namespace SmartMenza.API.Controllers
         [HttpPost("registration")]
         public IActionResult Registration([FromBody] UserRegisterDto dto)
         {
-            var uspjeh = _userService.RegisterUser(dto);
+            var user = _userService.RegisterUser(dto);
 
-            if (!uspjeh)
+            if (user == null)
             {
                 return BadRequest(new ErrorResponseDto
                 {
@@ -32,8 +32,9 @@ namespace SmartMenza.API.Controllers
             return Ok(new AuthResponseDto
             {
                 Message = "Registracija uspješna!",
-                Username = dto.Username,
-                Email = dto.Email,
+                UserId = user.UserId,
+                Username = user.Username,
+                Email = user.Email,
                 Role = dto.RoleName
             });
         }

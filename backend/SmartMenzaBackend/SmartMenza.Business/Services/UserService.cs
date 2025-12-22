@@ -19,10 +19,10 @@ namespace SmartMenza.Business.Services
             _context = context;
         }
 
-        public bool RegisterUser(UserRegisterDto dto)
+        public UserAccount? RegisterUser(UserRegisterDto dto)
         {
             if (_context.UserAccount.Any(u => u.Email == dto.Email))
-                return false;
+                return null;
 
             var user = new UserAccount
             {
@@ -34,7 +34,8 @@ namespace SmartMenza.Business.Services
 
             _context.UserAccount.Add(user);
             _context.SaveChanges();
-            return true;
+
+            return user;
         }
 
         public UserAccount? LoginUser(UserLoginDto dto)
