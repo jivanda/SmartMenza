@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SmartMenza.Domain.Entities;
+using SmartMenza.Data.Entities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
 
 namespace SmartMenza.Data.Context
 {
@@ -21,12 +23,19 @@ namespace SmartMenza.Data.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            var dateOnlyConverter = new ValueConverter<DateOnly, DateTime>(
+                d => d.ToDateTime(TimeOnly.MinValue),
+                d => DateOnly.FromDateTime(d)
+            );
+
             modelBuilder.Entity<NutritionGoal>(entity =>
             {
                 entity.ToTable("NutritionGoal");
                 entity.HasKey(e => e.GoalId);
 
-                entity.Property(e => e.DateSet).HasColumnName("DateSet");
+                entity.Property(e => e.DateSet)
+                      .HasConversion(dateOnlyConverter)
+                      .HasColumnName("DateSet");
 
                 entity.HasOne(e => e.User)
                       .WithMany(u => u.Goals)
@@ -38,11 +47,15 @@ namespace SmartMenza.Data.Context
             {
                 entity.HasKey(e => new { e.MenuId, e.Date });
 
+                entity.Property(e => e.Date)
+                      .HasConversion(dateOnlyConverter);
+
                 entity.HasOne(e => e.Menu)
                       .WithMany(m => m.MenuDates)
                       .HasForeignKey(e => e.MenuId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
 
             modelBuilder.Entity<MenuMeal>(entity =>
             {

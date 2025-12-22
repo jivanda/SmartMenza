@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using SmartMenza.Data.Entities;
 
-namespace SmartMenza.Domain.Entities
+namespace SmartMenza.Data.Entities
 {
     public class UserAccount
     {

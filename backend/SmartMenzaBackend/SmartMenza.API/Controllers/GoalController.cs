@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartMenza.Business.Services;
 using SmartMenza.Domain.DTOs;
+using System.Linq;
 
 namespace SmartMenza.API.Controllers
 {
@@ -18,22 +19,28 @@ namespace SmartMenza.API.Controllers
         }
 
         [HttpPost("create")]
-        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult CreateGoal(
-        [FromBody] GoalCreateDto goalDto,
-        [FromHeader(Name = "UserId")] int userId)
+            [FromBody] GoalCreateDto goalDto,
+            [FromHeader(Name = "UserId")] int userId)
         {
             var user = _userService.GetUserById(userId);
             if (user == null)
-                return Unauthorized(new { message = "Korisnik nije pronađen." });
+            {
+                return Unauthorized(new SimpleMessageDto
+                {
+                    Message = "Korisnik nije pronađen."
+                });
+            }
 
             if (goalDto.Calories <= 0 ||
                 goalDto.TargetProteins <= 0 ||
                 goalDto.TargetCarbs <= 0 ||
                 goalDto.TargetFats <= 0)
             {
-                return BadRequest(new { message = "Sve vrijednosti cilja moraju biti veće od 0." });
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Sve vrijednosti cilja moraju biti veće od 0."
+                });
             }
 
             if (goalDto.Calories > 50000 ||
@@ -41,44 +48,84 @@ namespace SmartMenza.API.Controllers
                 goalDto.TargetCarbs > 50000 ||
                 goalDto.TargetFats > 50000)
             {
-                return BadRequest(new { message = "Vrijednosti ciljeva su nerealno velike." });
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Vrijednosti ciljeva su nerealno velike."
+                });
             }
 
-            var alreadySetToday = _goalService.UserHasGoalForToday(userId);
-            if (alreadySetToday)
+            if (_goalService.UserHasGoalForToday(userId))
             {
-                return BadRequest(new { message = "Cilj za današnji dan je već postavljen." });
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Cilj za današnji dan je već postavljen."
+                });
             }
 
-            var createdGoal = _goalService.CreateGoal(goalDto, userId);
+            var created = _goalService.CreateGoal(goalDto, userId);
 
-            var goalResult = new
+            return Ok(new GoalDto
             {
-                createdGoal.GoalId,
-                createdGoal.Calories,
-                Protein = createdGoal.Protein,
-                Carbohydrates = createdGoal.Carbohydrates,
-                Fat = createdGoal.Fat,
-                createdGoal.DateSet,
-                createdGoal.UserId
-            };
-
-            return Ok(new
-            {
-                message = "Cilj je uspješno kreiran.",
-                goal = goalResult
+                GoalId = created.GoalId,
+                Calories = created.Calories,
+                Protein = created.Protein,
+                Carbohydrates = created.Carbohydrates,
+                Fat = created.Fat,
+                DateSet = created.DateSet
             });
         }
 
         [HttpPost("validate")]
         public IActionResult ValidateGoal([FromBody] GoalValidationDto goalDto)
         {
-            if (goalDto.TargetCalories <= 0 || goalDto.TargetProteins <= 0)
+            if (goalDto == null)
             {
-                return BadRequest(new { message = "Vrijednosti moraju biti pozitivne i realne." });
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Podaci nisu poslani."
+                });
             }
 
-            return Ok(new { message = "Cilj je valjan." });
+            if (goalDto.TargetCalories <= 0 ||
+                goalDto.TargetProteins <= 0 ||
+                goalDto.TargetCarbs <= 0 ||
+                goalDto.TargetFats <= 0)
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Sve vrijednosti moraju biti veće od 0."
+                });
+            }
+
+            if (goalDto.TargetCalories > 50000 ||
+                goalDto.TargetProteins > 50000 ||
+                goalDto.TargetCarbs > 50000 ||
+                goalDto.TargetFats > 50000)
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Vrijednosti ciljeva su nerealno velike."
+                });
+            }
+
+            var calculatedCalories =
+                goalDto.TargetProteins * 4 +
+                goalDto.TargetCarbs * 4 +
+                goalDto.TargetFats * 9;
+
+            if (calculatedCalories > goalDto.TargetCalories * 1.2m ||
+                calculatedCalories < goalDto.TargetCalories * 0.8m)
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Makronutrijenti nisu u realnom odnosu s kalorijama."
+                });
+            }
+
+            return Ok(new SimpleMessageDto
+            {
+                Message = "Cilj je valjan."
+            });
         }
 
         [HttpPost("check-user")]
@@ -88,36 +135,52 @@ namespace SmartMenza.API.Controllers
         {
             var user = _userService.GetUserById(userId);
             if (user == null)
-                return Unauthorized("Korisnik nije pronađen.");
+            {
+                return Unauthorized(new SimpleMessageDto
+                {
+                    Message = "Korisnik nije pronađen."
+                });
+            }
 
             var goal = _goalService.GetGoalById(checkDto.GoalId);
             if (goal == null || goal.UserId != userId)
             {
-                return Unauthorized("Ovaj cilj ne pripada trenutno prijavljenom korisniku.");
+                return Unauthorized(new SimpleMessageDto
+                {
+                    Message = "Ovaj cilj ne pripada trenutno prijavljenom korisniku."
+                });
             }
 
-            return Ok(new { message = "Vlasništvo cilja je uspješno potvrđeno." });
+            return Ok(new SimpleMessageDto
+            {
+                Message = "Vlasništvo cilja je uspješno potvrđeno."
+            });
         }
 
         [HttpPut("{goalId}")]
-        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult UpdateGoal(
-        int goalId,
-        [FromBody] GoalUpdateDto dto,
-        [FromHeader(Name = "UserId")] int userId)
+            int goalId,
+            [FromBody] GoalUpdateDto dto,
+            [FromHeader(Name = "UserId")] int userId)
         {
             var user = _userService.GetUserById(userId);
             if (user == null)
-                return Unauthorized(new { message = "Korisnik nije pronađen." });
+            {
+                return Unauthorized(new SimpleMessageDto
+                {
+                    Message = "Korisnik nije pronađen."
+                });
+            }
 
             if (dto.Calories <= 0 ||
                 dto.TargetProteins <= 0 ||
                 dto.TargetCarbs <= 0 ||
                 dto.TargetFats <= 0)
             {
-                return BadRequest(new { message = "Sve vrijednosti cilja moraju biti veće od 0." });
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Sve vrijednosti cilja moraju biti veće od 0."
+                });
             }
 
             if (dto.Calories > 50000 ||
@@ -125,73 +188,95 @@ namespace SmartMenza.API.Controllers
                 dto.TargetCarbs > 50000 ||
                 dto.TargetFats > 50000)
             {
-                return BadRequest(new { message = "Vrijednosti ciljeva su nerealno velike." });
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "Vrijednosti ciljeva su nerealno velike."
+                });
             }
 
             var result = _goalService.UpdateGoal(goalId, userId, dto);
-
             if (!result.Success)
-                return BadRequest(new { message = result.ErrorMessage });
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = result.ErrorMessage ?? "Greška pri ažuriranju cilja."
+                });
+            }
 
             var updated = result.UpdatedGoal!;
 
-            var goalResult = new
+            return Ok(new GoalDto
             {
-                updated.GoalId,
-                updated.Calories,
+                GoalId = updated.GoalId,
+                Calories = updated.Calories,
                 Protein = updated.Protein,
                 Carbohydrates = updated.Carbohydrates,
                 Fat = updated.Fat,
-                updated.DateSet,
-                updated.UserId
-            };
-
-            return Ok(new
-            {
-                message = "Cilj je uspješno ažuriran.",
-                goal = goalResult
+                DateSet = updated.DateSet
             });
         }
 
         [HttpDelete("{goalId}")]
-        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult DeleteGoal(
             int goalId,
             [FromHeader(Name = "UserId")] int userId)
         {
             var user = _userService.GetUserById(userId);
             if (user == null)
-                return Unauthorized("Korisnik nije pronađen.");
+            {
+                return Unauthorized(new SimpleMessageDto
+                {
+                    Message = "Korisnik nije pronađen."
+                });
+            }
 
             var result = _goalService.DeleteGoal(goalId, userId);
-
             if (!result.Success)
-                return BadRequest(new { message = result.ErrorMessage });
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = result.ErrorMessage ?? "Greška pri brisanju cilja."
+                });
+            }
 
-            return Ok(new { message = "Cilj je uspješno obrisan." });
+            return Ok(new SimpleMessageDto
+            {
+                Message = "Cilj je uspješno obrisan."
+            });
         }
 
         [HttpGet("myGoal")]
-        [ProducesResponseType(typeof(List<GoalDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetMyGoals([FromHeader(Name = "UserId")] int userId)
+        public IActionResult GetMyGoals()
         {
-            if (userId <= 0)
-                return BadRequest(new { message = "UserId header je obavezan." });
+            if (!Request.Headers.TryGetValue("UserId", out var userIdHeader) ||
+                !int.TryParse(userIdHeader, out var userId) ||
+                userId <= 0)
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "UserId header je obavezan."
+                });
+            }
 
             var user = _userService.GetUserById(userId);
             if (user == null)
-                return NotFound(new { message = "Korisnik nije pronađen." });
+            {
+                return NotFound(new SimpleMessageDto
+                {
+                    Message = "Korisnik nije pronađen."
+                });
+            }
 
             var goals = _goalService.GetGoalsByUser(userId);
+            if (!goals.Any())
+            {
+                return NotFound(new SimpleMessageDto
+                {
+                    Message = "Korisnik nema spremljenih ciljeva."
+                });
+            }
 
-            if (goals == null || !goals.Any())
-                return NotFound(new { message = "Korisnik nema spremljenih ciljeva." });
-
-            var mapped = goals.Select(g => new GoalDto
+            return Ok(goals.Select(g => new GoalDto
             {
                 GoalId = g.GoalId,
                 Calories = g.Calories,
@@ -199,29 +284,32 @@ namespace SmartMenza.API.Controllers
                 Carbohydrates = g.Carbohydrates,
                 Fat = g.Fat,
                 DateSet = g.DateSet
-            }).ToList();
-
-            return Ok(mapped);
+            }));
         }
 
         [HttpGet("summary")]
-        [ProducesResponseType(typeof(GoalSummaryDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetGoalSummaries([FromHeader(Name = "UserId")] int userId)
+        public IActionResult GetGoalSummaries()
         {
-            if (userId <= 0)
-                return BadRequest(new { message = "UserId header je obavezan." });
+            if (!Request.Headers.TryGetValue("UserId", out var userIdHeader) ||
+                !int.TryParse(userIdHeader, out var userId) ||
+                userId <= 0)
+            {
+                return BadRequest(new SimpleMessageDto
+                {
+                    Message = "UserId header je obavezan."
+                });
+            }
 
             var user = _userService.GetUserById(userId);
             if (user == null)
-                return NotFound(new { message = "Korisnik nije pronađen." });
+            {
+                return NotFound(new SimpleMessageDto
+                {
+                    Message = "Korisnik nije pronađen."
+                });
+            }
 
             var summaries = _goalService.GetGoalSummariesForUser(userId);
-
-            if (summaries == null)
-                return NotFound(new { message = "Nema dostupnih podataka o ciljevima." });
-
             return Ok(summaries);
         }
     }

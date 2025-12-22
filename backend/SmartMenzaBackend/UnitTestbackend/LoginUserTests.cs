@@ -6,7 +6,7 @@ using Xunit;
 using SmartMenza.Data.Context;
 using SmartMenza.Business.Services;
 using SmartMenza.Domain.DTOs;
-using SmartMenza.Domain.Entities;
+using SmartMenza.Data.Entities;
 
 namespace UnitTestbackend
 {
