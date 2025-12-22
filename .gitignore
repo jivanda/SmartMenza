@@ -1,4 +1,6 @@
+# ================================
 # ANDROID / KOTLIN (Android Studio)
+# ================================
 *.iml
 .gradle/
 local.properties
@@ -8,21 +10,30 @@ local.properties
 !/.idea/icon.svg
 !/.idea/vcs.xml
 
+# ================================
 # Build output
+# ================================
 /build/
 **/build/
 captures/
 .externalNativeBuild/
 .cxx/
 
+# ================================
 # OS junk
+# ================================
 .DS_Store
 
+# ================================
 # Keystore files
+# ================================
 *.jks
+!keystore/debug.keystore
+!keystore/
 
+# ================================
 # DOTNET / C#
-# build folders
+# ================================
 [Bb]in/
 [Oo]bj/
 [Ll]og/
@@ -38,32 +49,32 @@ captures/
 *.vsp
 *.vspx
 
-# Entity Framework migration temp
-*.db
-
-# Resharper / JetBrains Rider
+# ================================
+# ReSharper / JetBrains Rider
+# ================================
 _ReSharper*/
 *.DotSettings.user
 
+# ================================
 # LOGS / TEMP / BACKUP
+# ================================
 *.log
 *.tmp
 *.temp
 *.bak
 
-# OTHER
+# ================================
 # SQLite/Local database files
+# ================================
 *.sqlite
-*.db
+*.sqlite3
 *.db-shm
 *.db-wal
 
+# ================================
 # ZIP / package output
+# ================================
 *.zip
 *.7z
 *.tar
 *.gz
-
-
-!keystore/debug.keystore
-!keystore/
