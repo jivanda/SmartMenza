@@ -18,6 +18,7 @@ namespace SmartMenza.Data.Context
         public DbSet<MenuMeal> MenuMeal { get; set; }
         public DbSet<NutritionGoal> NutritionGoal { get; set; }
         public DbSet<Favorite> Favorite { get; set; }
+        public DbSet<RatingComment> RatingComment { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -102,6 +103,25 @@ namespace SmartMenza.Data.Context
                     .WithMany()
                     .HasForeignKey(f => f.MealId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<RatingComment>(entity =>
+            {
+                entity.ToTable("RatingComment");
+
+                entity.HasKey(rc => new { rc.UserId, rc.MealId });
+
+                entity.Property(rc => rc.Rating).IsRequired();
+
+                entity.HasOne(rc => rc.User)
+                      .WithMany()
+                      .HasForeignKey(rc => rc.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(rc => rc.Meal)
+                      .WithMany(m => m.RatingComments)
+                      .HasForeignKey(rc => rc.MealId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
