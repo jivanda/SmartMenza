@@ -35,7 +35,7 @@ namespace UnitTestbackend
 
             var result = service.RegisterUser(dto);
 
-            Assert.True(result);
+            Assert.NotNull(result);
 
             var saved = context.UserAccount.FirstOrDefault(u => u.Email == dto.Email);
             Assert.NotNull(saved);
@@ -67,8 +67,8 @@ namespace UnitTestbackend
                 RoleName = "Student"
             };
 
-            var first = service.RegisterUser(dto1);
-            var second = service.RegisterUser(dto2);
+            var first = service.RegisterUser(dto1) != null;
+            var second = service.RegisterUser(dto2) != null;
 
             Assert.True(first);
             Assert.False(second);
@@ -93,7 +93,7 @@ namespace UnitTestbackend
 
             var result = service.RegisterUser(dto);
 
-            Assert.True(result);
+            Assert.NotNull(result);
 
             var saved = context.UserAccount.FirstOrDefault(u => u.Email == dto.Email);
             Assert.NotNull(saved);
@@ -122,8 +122,8 @@ namespace UnitTestbackend
                 RoleName = "Admin"
             };
 
-            Assert.True(service.RegisterUser(dto1));
-            Assert.True(service.RegisterUser(dto2));
+            Assert.NotNull(service.RegisterUser(dto1));
+            Assert.NotNull(service.RegisterUser(dto2));
 
             var total = context.UserAccount.Count();
             Assert.Equal(2, total);

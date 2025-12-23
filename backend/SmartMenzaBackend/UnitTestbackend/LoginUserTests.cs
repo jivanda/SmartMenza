@@ -36,8 +36,8 @@ namespace UnitTestbackend
             SeedRole(context, roleId, roleName);
 
             var service = new UserService(context);
-            var ok = service.RegisterUser(dto);
-            if (!ok)
+            var user = service.RegisterUser(dto);
+            if (user == null)
                 throw new InvalidOperationException("Failed to seed user: email already exists.");
         }
 
