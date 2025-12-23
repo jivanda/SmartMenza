@@ -397,5 +397,105 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.RatingCommentController",
+    "Method": "Create",
+    "RelativePath": "api/RatingComment",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "dto",
+        "Type": "SmartMenza.Domain.DTOs.RatingCommentCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.RatingCommentController",
+    "Method": "Update",
+    "RelativePath": "api/RatingComment/meal/{mealId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "mealId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "dto",
+        "Type": "SmartMenza.Domain.DTOs.RatingCommentUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.RatingCommentController",
+    "Method": "Delete",
+    "RelativePath": "api/RatingComment/meal/{mealId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "mealId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.RatingCommentController",
+    "Method": "GetByMeal",
+    "RelativePath": "api/RatingComment/meal/{mealId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "mealId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartMenza.API.Controllers.RatingCommentController",
+    "Method": "GetSummary",
+    "RelativePath": "api/RatingComment/meal/{mealId}/summary",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "mealId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

@@ -1,0 +1,83 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using SmartMenza.Business.Services;
+using SmartMenza.Domain.DTOs;
+using System.Linq;
+
+namespace SmartMenza.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class RatingCommentController : ControllerBase
+    {
+        private readonly RatingCommentService _service;
+        private readonly UserService _userService;
+
+        public RatingCommentController(RatingCommentService service, UserService userService)
+        {
+            _service = service;
+            _userService = userService;
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromHeader(Name = "UserId")] int userId, [FromBody] RatingCommentCreateDto dto)
+        {
+            if (_userService.GetUserById(userId) == null)
+                return Unauthorized(new SimpleMessageDto { Message = "Korisnik nije pronađen." });
+
+            var result = _service.Create(userId, dto);
+            if (!result.Success)
+                return BadRequest(new SimpleMessageDto { Message = result.ErrorMessage ?? "Greška." });
+
+            return Ok(new SimpleMessageDto { Message = "Recenzija je spremljena." });
+        }
+
+        [HttpPut("meal/{mealId}")]
+        public IActionResult Update(int mealId, [FromHeader(Name = "UserId")] int userId, [FromBody] RatingCommentUpdateDto dto)
+        {
+            if (_userService.GetUserById(userId) == null)
+                return Unauthorized(new SimpleMessageDto { Message = "Korisnik nije pronađen." });
+
+            var result = _service.Update(userId, mealId, dto);
+            if (!result.Success)
+                return BadRequest(new SimpleMessageDto { Message = result.ErrorMessage ?? "Greška." });
+
+            return Ok(new SimpleMessageDto { Message = "Recenzija je ažurirana." });
+        }
+
+        [HttpDelete("meal/{mealId}")]
+        public IActionResult Delete(int mealId, [FromHeader(Name = "UserId")] int userId)
+        {
+            if (_userService.GetUserById(userId) == null)
+                return Unauthorized(new SimpleMessageDto { Message = "Korisnik nije pronađen." });
+
+            var result = _service.Delete(userId, mealId);
+            if (!result.Success)
+                return BadRequest(new SimpleMessageDto { Message = result.ErrorMessage ?? "Greška." });
+
+            return Ok(new SimpleMessageDto { Message = "Recenzija je obrisana." });
+        }
+
+        [HttpGet("meal/{mealId}")]
+        public IActionResult GetByMeal(int mealId)
+        {
+            var list = _service.GetByMeal(mealId);
+
+            var mapped = list.Select(r => new RatingCommentDto
+            {
+                MealId = r.MealId,
+                UserId = r.UserId,
+                Username = r.User?.Username ?? string.Empty,
+                Rating = r.Rating,
+                Comment = r.Comment
+            });
+
+            return Ok(mapped);
+        }
+
+        [HttpGet("meal/{mealId}/summary")]
+        public IActionResult GetSummary(int mealId)
+        {
+            return Ok(_service.GetSummary(mealId));
+        }
+    }
+}

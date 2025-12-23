@@ -29,9 +29,7 @@ namespace SmartMenza.Data.Entities
         public decimal? Fat { get; set; }
         public string? ImageUrl { get; set; }
         public List<MenuMeal> MenuMeals { get; set; } = new();
-        public decimal AverageRating { get; set; }
-        public int RatingsCount { get; set; }
-        public List<MealReview> Reviews { get; set; } = new();
+        public List<RatingComment> RatingComments { get; set; } = new();
     }
     public class MenuType
     {

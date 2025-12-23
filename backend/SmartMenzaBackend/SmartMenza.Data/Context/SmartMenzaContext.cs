@@ -18,7 +18,7 @@ namespace SmartMenza.Data.Context
         public DbSet<MenuMeal> MenuMeal { get; set; }
         public DbSet<NutritionGoal> NutritionGoal { get; set; }
         public DbSet<Favorite> Favorite { get; set; }
-        public DbSet<MealReview> MealReview { get; set; }
+        public DbSet<RatingComment> RatingComment { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -105,32 +105,23 @@ namespace SmartMenza.Data.Context
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<MealReview>(entity =>
+            modelBuilder.Entity<RatingComment>(entity =>
             {
-                entity.ToTable("MealReview");
-                entity.HasKey(r => r.MealReviewId);
+                entity.ToTable("RatingComment");
 
-                entity.Property(r => r.Rating).IsRequired();
-                entity.Property(r => r.CreatedAt).HasColumnType("datetime2");
-                entity.Property(r => r.UpdatedAt).HasColumnType("datetime2");
+                entity.HasKey(rc => new { rc.UserId, rc.MealId });
 
-                entity.HasIndex(r => new { r.UserId, r.MealId }).IsUnique();
+                entity.Property(rc => rc.Rating).IsRequired();
 
-                entity.HasOne(r => r.User)
+                entity.HasOne(rc => rc.User)
                       .WithMany()
-                      .HasForeignKey(r => r.UserId)
+                      .HasForeignKey(rc => rc.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(r => r.Meal)
-                      .WithMany(m => m.Reviews)
-                      .HasForeignKey(r => r.MealId)
+                entity.HasOne(rc => rc.Meal)
+                      .WithMany(m => m.RatingComments)
+                      .HasForeignKey(rc => rc.MealId)
                       .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            modelBuilder.Entity<Meal>(entity =>
-            {
-                entity.Property(m => m.AverageRating).HasColumnType("decimal(10,2)");
-                entity.Property(m => m.RatingsCount).HasColumnType("int");
             });
         }
     }

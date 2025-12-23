@@ -10,37 +10,35 @@ using System.Threading.Tasks;
 
 namespace SmartMenza.Data.Repositories.Implementations
 {
-    public class MealReviewRepository : IMealReviewRepository
+    public class RatingCommentRepository : IRatingCommentRepository
     {
         private readonly SmartMenzaContext _context;
 
-        public MealReviewRepository(SmartMenzaContext context)
+        public RatingCommentRepository(SmartMenzaContext context)
         {
             _context = context;
         }
 
-        public MealReview? GetById(int reviewId)
-            => _context.MealReview
+        public RatingComment? Get(int userId, int mealId)
+            => _context.RatingComment
                 .Include(r => r.User)
-                .FirstOrDefault(r => r.MealReviewId == reviewId);
-
-        public MealReview? GetByUserAndMeal(int userId, int mealId)
-            => _context.MealReview
                 .FirstOrDefault(r => r.UserId == userId && r.MealId == mealId);
 
-        public List<MealReview> GetByMeal(int mealId)
-            => _context.MealReview
+        public bool Exists(int userId, int mealId)
+            => _context.RatingComment.Any(r => r.UserId == userId && r.MealId == mealId);
+
+        public List<RatingComment> GetByMeal(int mealId)
+            => _context.RatingComment
                 .Include(r => r.User)
                 .Where(r => r.MealId == mealId)
-                .OrderByDescending(r => r.UpdatedAt)
                 .ToList();
 
-        public Meal? GetMealForRatingUpdate(int mealId)
+        public Meal? GetMeal(int mealId)
             => _context.Meal.FirstOrDefault(m => m.MealId == mealId);
 
-        public void Add(MealReview review) => _context.MealReview.Add(review);
+        public void Add(RatingComment entity) => _context.RatingComment.Add(entity);
 
-        public void Remove(MealReview review) => _context.MealReview.Remove(review);
+        public void Remove(RatingComment entity) => _context.RatingComment.Remove(entity);
 
         public void Save() => _context.SaveChanges();
     }
