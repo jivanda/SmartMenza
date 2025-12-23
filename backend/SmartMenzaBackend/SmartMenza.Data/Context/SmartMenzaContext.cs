@@ -18,6 +18,7 @@ namespace SmartMenza.Data.Context
         public DbSet<MenuMeal> MenuMeal { get; set; }
         public DbSet<NutritionGoal> NutritionGoal { get; set; }
         public DbSet<Favorite> Favorite { get; set; }
+        public DbSet<MealReview> MealReview { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -102,6 +103,34 @@ namespace SmartMenza.Data.Context
                     .WithMany()
                     .HasForeignKey(f => f.MealId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<MealReview>(entity =>
+            {
+                entity.ToTable("MealReview");
+                entity.HasKey(r => r.MealReviewId);
+
+                entity.Property(r => r.Rating).IsRequired();
+                entity.Property(r => r.CreatedAt).HasColumnType("datetime2");
+                entity.Property(r => r.UpdatedAt).HasColumnType("datetime2");
+
+                entity.HasIndex(r => new { r.UserId, r.MealId }).IsUnique();
+
+                entity.HasOne(r => r.User)
+                      .WithMany()
+                      .HasForeignKey(r => r.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(r => r.Meal)
+                      .WithMany(m => m.Reviews)
+                      .HasForeignKey(r => r.MealId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Meal>(entity =>
+            {
+                entity.Property(m => m.AverageRating).HasColumnType("decimal(10,2)");
+                entity.Property(m => m.RatingsCount).HasColumnType("int");
             });
         }
     }
