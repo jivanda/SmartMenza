@@ -21,7 +21,7 @@ data class AuthResponse(
     val poruka: String,
     val username: String?,
     val email: String?,
-    val uloga: String?,
+    val role: String?,
     val userId: Int?
 )
 

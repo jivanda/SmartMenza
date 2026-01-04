@@ -1,6 +1,7 @@
 package com.example.smartmenza.data.local
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -10,6 +11,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore by preferencesDataStore("user_prefs")
+
+private const val TAG = "UserDataStore"
 
 class UserPreferences(private val context: Context) {
 
@@ -38,6 +41,14 @@ class UserPreferences(private val context: Context) {
     }
 
     suspend fun saveUser(ime: String, email: String, uloga: String, userId: Int) {
+        Log.d(TAG, """
+        Saving user:
+        name = $ime
+        email = $email
+        role = $uloga
+        userId = $userId
+    """.trimIndent())
+
         context.dataStore.edit { prefs ->
             prefs[KEY_EMAIL] = email
             prefs[KEY_NAME] = ime
