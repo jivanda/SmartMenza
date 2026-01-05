@@ -4,16 +4,17 @@
 *.iml
 .gradle/
 local.properties
-/.idea/
-/.idea/*
-!/.idea/codeStyles
-!/.idea/icon.svg
-!/.idea/vcs.xml
+
+# IntelliJ/Android Studio
+.idea/
+!.idea/codeStyles
+!.idea/icon.svg
+!.idea/vcs.xml
 
 # ================================
-# Build output
+# Build output (Android/Gradle)
 # ================================
-/build/
+build/
 **/build/
 captures/
 .externalNativeBuild/
@@ -23,6 +24,7 @@ captures/
 # OS junk
 # ================================
 .DS_Store
+Thumbs.db
 
 # ================================
 # Keystore files
@@ -32,18 +34,19 @@ captures/
 !keystore/
 
 # ================================
-# DOTNET / C#
+# DOTNET / C# (build artifacts)
 # ================================
-[Bb]in/
-[Oo]bj/
-[Ll]og/
+**/[Bb]in/
+**/[Oo]bj/
+**/[Ll]og/
+*.dll
+*.pdb
 
-# Visual Studio stuff
+# Visual Studio / MSBuild
 .vs/
 *.user
 *.suo
 *.cache
-*.config
 *.dbmdl
 *.psess
 *.vsp
@@ -54,6 +57,7 @@ captures/
 # ================================
 _ReSharper*/
 *.DotSettings.user
+.idea/.idea.*
 
 # ================================
 # LOGS / TEMP / BACKUP
@@ -68,6 +72,7 @@ _ReSharper*/
 # ================================
 *.sqlite
 *.sqlite3
+*.db
 *.db-shm
 *.db-wal
 

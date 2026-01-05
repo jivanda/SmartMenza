@@ -82,7 +82,7 @@ fun LoginScreen(
                                 prefs.saveUser(
                                     ime = body.username!!,
                                     email = body.email!!,
-                                    uloga = body.uloga!!,
+                                    uloga = body.role!!,
                                     userId = userId
                                 )
 
@@ -189,7 +189,7 @@ fun LoginScreen(
 
                                                 if (body != null && userId != null) {
                                                     val ime = body.username ?: "Korisnik"
-                                                    val uloga = body.uloga ?: "Student"
+                                                    val uloga = body.role ?: "Student"
                                                     val emailRes = body.email ?: email
 
                                                     prefs.saveUser(ime, emailRes, uloga, userId)

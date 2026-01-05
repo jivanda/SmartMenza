@@ -14,7 +14,6 @@ namespace SmartMenza.Data.Entities
 
         public List<Meal> Meals { get; set; } = new();
     }
-
     public class Meal
     {
         public int MealId { get; set; }
@@ -29,10 +28,9 @@ namespace SmartMenza.Data.Entities
         public decimal? Carbohydrates { get; set; }
         public decimal? Fat { get; set; }
         public string? ImageUrl { get; set; }
-
         public List<MenuMeal> MenuMeals { get; set; } = new();
+        public List<RatingComment> RatingComments { get; set; } = new();
     }
-
     public class MenuType
     {
         public int MenuTypeId { get; set; }
@@ -40,16 +38,13 @@ namespace SmartMenza.Data.Entities
 
         public List<Menu> Menus { get; set; } = new();
     }
-
     public class Menu
     {
         public int MenuId { get; set; }
         public int? MenuTypeId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-
         public MenuType? MenuType { get; set; }
-
         public List<MenuDate> MenuDates { get; set; } = new();
         public List<MenuMeal> MenuMeals { get; set; } = new();
     }
@@ -61,7 +56,6 @@ namespace SmartMenza.Data.Entities
 
         public Menu Menu { get; set; } = null!;
     }
-
     public class MenuMeal
     {
         public int MenuId { get; set; }
