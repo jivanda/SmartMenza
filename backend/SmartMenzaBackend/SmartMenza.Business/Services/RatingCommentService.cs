@@ -77,5 +77,10 @@ namespace SmartMenza.Business.Services
                 AverageRating = avg
             };
         }
+        public int HasUserReviewedMeal(int userId, int mealId)
+        {
+            if (userId <= 0 || mealId <= 0) return 0;
+            return _repo.Exists(userId, mealId) ? 1 : 0;
+        }
     }
 }
