@@ -79,6 +79,34 @@ namespace SmartMenza.Business.Services
                 .ToList();
         }
 
+
+        public List<MenuResponseDto> GetMenusByType(int menuTypeId)
+        {
+            return _menuRepository.GetMenusByType(menuTypeId)
+                .Select(menu => new MenuResponseDto
+                {
+                    MenuId = menu.MenuId,
+                    Name = menu.Name,
+                    Description = menu.Description,
+                    MenuTypeName = menu.MenuType?.Name,
+                    Meals = menu.MenuMeals
+                        .Where(mm => mm.Meal != null)
+                        .Select(mm => new MealDto
+                        {
+                            MealId = mm.Meal.MealId,
+                            Name = mm.Meal.Name,
+                            Description = mm.Meal.Description,
+                            Price = mm.Meal.Price,
+                            Calories = mm.Meal.Calories,
+                            Protein = mm.Meal.Protein,
+                            Carbohydrates = mm.Meal.Carbohydrates,
+                            Fat = mm.Meal.Fat
+                        })
+                        .ToList()
+                })
+                .ToList();
+        }
+
         public MenuResponseDtoNoDate? GetMenuById(int id)
         {
             var menu = _menuRepository.GetMenuById(id);
