@@ -35,6 +35,7 @@ import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SpanRed
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
+import com.google.gson.Gson
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -43,6 +44,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OfferScreen(
+    onNavigateToMenu: (String, String) -> Unit,
     navController: NavController,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
@@ -222,9 +224,9 @@ fun OfferScreen(
                                                 imageRes = R.drawable.hrenovke,
                                                 modifier = Modifier.fillMaxWidth(),
                                                 onClick = {
-                                                    // navigate to details if you want
-                                                    // navController.navigate(...)
-                                                }
+                                                    val mealsJson = Gson().toJson(menu.meals)
+                                                    onNavigateToMenu(menu.name, mealsJson)
+                                                },
                                             )
                                             Spacer(modifier = Modifier.height(16.dp))
                                         }

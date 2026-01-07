@@ -31,6 +31,7 @@ import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.smartmenza.ui.theme.SpanRed
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 data class MenuTypeOption(
@@ -40,6 +41,7 @@ data class MenuTypeOption(
 
 @Composable
 fun AllMenusScreen(
+    onNavigateToMenu: (String, String) -> Unit,
     navController: NavController,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
@@ -230,7 +232,10 @@ fun AllMenusScreen(
                                             price = "%.2f EUR".format(totalPrice),
                                             imageRes = R.drawable.hrenovke,
                                             modifier = Modifier.fillMaxWidth(),
-                                            onInfoClick = {},
+                                            onInfoClick = {
+                                                val mealsJson = Gson().toJson(menu.meals)
+                                                onNavigateToMenu(menu.name, mealsJson)
+                                                          },
                                             onEditClick = {navController.navigate(Route.MenuEditor.route + "/${menu.menuId}")},
                                             onDeleteClick = {
                                                 menuToDelete = menu
