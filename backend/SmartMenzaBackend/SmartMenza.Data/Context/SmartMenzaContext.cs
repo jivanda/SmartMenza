@@ -109,9 +109,17 @@ namespace SmartMenza.Data.Context
             {
                 entity.ToTable("RatingComment");
 
-                entity.HasKey(rc => new { rc.UserId, rc.MealId });
+                entity.HasKey(rc => rc.RatingId);
 
-                entity.Property(rc => rc.Rating).IsRequired();
+                entity.Property(rc => rc.RatingId)
+                      .ValueGeneratedOnAdd();
+
+                entity.Property(rc => rc.Rating)
+                      .IsRequired();
+
+                entity.Property(rc => rc.Date)
+                      .HasColumnName("Date")
+                      .HasColumnType("datetime");
 
                 entity.HasOne(rc => rc.User)
                       .WithMany()
@@ -122,6 +130,9 @@ namespace SmartMenza.Data.Context
                       .WithMany(m => m.RatingComments)
                       .HasForeignKey(rc => rc.MealId)
                       .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(rc => new { rc.UserId, rc.MealId })
+                      .IsUnique();
             });
         }
     }
