@@ -46,6 +46,8 @@ namespace SmartMenza.API
             builder.Services.AddScoped<MealService>();
             builder.Services.AddScoped<IRatingCommentRepository, RatingCommentRepository>();
             builder.Services.AddScoped<RatingCommentService>();
+            builder.Services.AddScoped<SmartMenza.Data.Repositories.Interfaces.IStatisticsRepository, SmartMenza.Data.Repositories.Implementations.StatisticsRepository>();
+            builder.Services.AddScoped<SmartMenza.Business.Services.StatisticsService>();
 
             var app = builder.Build();
 
