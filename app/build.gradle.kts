@@ -82,4 +82,5 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("com.google.android.gms:play-services-auth:21.1.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
 }
