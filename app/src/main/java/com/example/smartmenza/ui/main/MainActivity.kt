@@ -28,6 +28,7 @@ import com.example.smartmenza.ui.features.OfferScreen
 import com.example.smartmenza.ui.home.FavouriteScreen
 import com.example.smartmenza.ui.home.GoalScreen
 import com.example.smartmenza.ui.home.HomeScreen
+import com.example.smartmenza.ui.home.MealScreen
 import com.example.smartmenza.ui.home.MenuScreen
 import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
@@ -128,6 +129,18 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
+                        composable(
+                            route = "meal/{mealId}",
+                            arguments = listOf(navArgument("mealId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val mealId = backStackEntry.arguments?.getInt("mealId") ?: return@composable
+
+                            MealScreen(
+                                mealId = mealId,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+
                         composable(Route.Favourite.route) {
                             FavouriteScreen(onNavigateBack = { navController.popBackStack() })
                         }
@@ -150,6 +163,7 @@ class MainActivity : ComponentActivity() {
                             MenuScreen(
                                 menuName = menuName,
                                 mealsJson = mealsJson,
+                                onNavigateToMeal = actions::navigateToMeal,
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
