@@ -38,12 +38,14 @@ namespace SmartMenza.API
             builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             builder.Services.AddScoped<IGoalRepository, GoalRepository>();
             builder.Services.AddScoped<IMealRepository, MealRepository>();
+            builder.Services.AddScoped<IMealTypeRepository, MealTypeRepository>();
             builder.Services.AddScoped<IMenuRepository, MenuRepository>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<MenuService>();
             builder.Services.AddScoped<GoalService>();
             builder.Services.AddScoped<FavoriteService>();
             builder.Services.AddScoped<MealService>();
+            builder.Services.AddScoped<MealTypeService>();
             builder.Services.AddScoped<IRatingCommentRepository, RatingCommentRepository>();
             builder.Services.AddScoped<RatingCommentService>();
             builder.Services.AddScoped<SmartMenza.Data.Repositories.Interfaces.IStatisticsRepository, SmartMenza.Data.Repositories.Implementations.StatisticsRepository>();

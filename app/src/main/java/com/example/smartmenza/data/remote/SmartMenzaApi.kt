@@ -127,6 +127,9 @@ interface SmartMenzaApi {
     @GET("api/Meal")
     suspend fun getAllMeals(): Response<List<MealDto>>
 
+    @GET("api/MealType/name")
+    suspend fun getMealTypeName(@Query("mealTypeId") mealTypeId: Int): Response<String>
+
     @POST("api/Menu/admin/nodate")
     suspend fun createMenu(
         @Header("Uloga") role: String,

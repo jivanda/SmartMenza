@@ -38,6 +38,7 @@ import kotlin.Boolean
 @Composable
 fun MealCard(
     name: String,
+    typeName: String,
     price: String,
     imageRes: Int,
     modifier: Modifier = Modifier,
@@ -71,6 +72,13 @@ fun MealCard(
                             color = SpanRed,
                             fontWeight = FontWeight.Bold
                         )
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = typeName,
+                        style = MaterialTheme.typography.bodySmall
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))

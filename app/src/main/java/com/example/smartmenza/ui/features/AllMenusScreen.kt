@@ -195,7 +195,7 @@ fun AllMenusScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // 🔹 SCROLLABLE LIST ONLY
+
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()

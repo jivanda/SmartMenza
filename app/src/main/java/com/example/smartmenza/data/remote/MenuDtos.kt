@@ -29,6 +29,7 @@ data class MenuWriteDto(
 
 data class FavoriteMealDto(
     val mealId: Int,
+    val mealTypeId: Int,
     val mealName: String,
     val calories: Double,
     val protein: Double,

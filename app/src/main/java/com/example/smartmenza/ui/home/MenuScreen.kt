@@ -1,5 +1,6 @@
 package com.example.smartmenza.ui.home
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -56,6 +57,8 @@ fun MenuScreen(
     val userId by prefs.userId.collectAsState(initial = null)
     val coroutineScope = rememberCoroutineScope()
 
+    var mealTypeNameMap by remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
+
     var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
     fun fetchFavorites() {
@@ -68,7 +71,6 @@ fun MenuScreen(
                         favoriteMealIds = response.body()?.map { it.mealId }?.toSet() ?: emptySet()
                     }
                 } catch (_: Exception) {
-                    // Handle error silently
                 }
             }
         }
@@ -110,15 +112,78 @@ fun MenuScreen(
         fetchFavorites()
     }
 
+    LaunchedEffect(mealsJson) {
+        Log.d("MealTypeDebug", "mealsJson length=${mealsJson.length}")
+        Log.d("MealTypeDebug", "mealsJson preview=${mealsJson.take(400)}")
+
+        // Parse directly from mealsJson inside the effect
+        val parsedMeals: List<MealDto> = try {
+            val type = object : TypeToken<List<MealDto>>() {}.type
+            Gson().fromJson(mealsJson, type)
+        } catch (e: Exception) {
+            Log.e("MealTypeDebug", "Failed to parse mealsJson: ${e.message}", e)
+            emptyList()
+        }
+
+        // Log what you actually got
+        parsedMeals.forEach { meal ->
+            Log.d(
+                "MealTypeDebug",
+                "Parsed meal: mealId=${meal.mealId}, mealTypeId=${meal.mealTypeId}, name=${meal.name}"
+            )
+        }
+
+        val ids = parsedMeals
+            .map { it.mealTypeId }
+            .distinct()
+
+        Log.d("MealTypeDebug", "Distinct mealTypeIds (filtered) = $ids")
+
+        val map = mutableMapOf<Int, String>()
+
+        ids.forEach { id ->
+            try {
+                Log.d("MealTypeDebug", "Requesting meal type for id=$id")
+
+                val res = RetrofitInstance.api.getMealTypeName(id)
+
+                Log.d(
+                    "MealTypeDebug",
+                    "Response for id=$id → code=${res.code()} successful=${res.isSuccessful}"
+                )
+
+                if (res.isSuccessful) {
+                    val name = res.body()
+                    Log.d("MealTypeDebug", "Body for id=$id → $name")
+
+                    if (!name.isNullOrBlank()) {
+                        map[id] = name
+                    } else {
+                        Log.e("MealTypeDebug", "Body was NULL/blank for id=$id")
+                    }
+                } else {
+                    val error = res.errorBody()?.string()
+                    Log.e(
+                        "MealTypeDebug",
+                        "Error for id=$id → code=${res.code()} body=$error"
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("MealTypeDebug", "Exception for id=$id → ${e.message}", e)
+            }
+        }
+
+        Log.d("MealTypeDebug", "Final mealTypeNameMap = $map")
+        mealTypeNameMap = map
+    }
+
+
     SmartMenzaTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = BackgroundBeige
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-
-
-                // Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -179,6 +244,7 @@ fun MenuScreen(
                             meals.forEach { meal ->
                                 MealCard(
                                     name = meal.name,
+                                    typeName = mealTypeNameMap[meal.mealTypeId] ?: "—",
                                     price = "%.2f EUR".format(meal.price),
                                     imageRes = R.drawable.hrenovke,
                                     isFavorite = favoriteMealIds.contains(meal.mealId),
