@@ -1,22 +1,26 @@
 package com.example.smartmenza.ui.home
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,16 +29,20 @@ import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.FavoriteToggleDto
 import com.example.smartmenza.data.remote.MealDto
 import com.example.smartmenza.data.remote.RetrofitInstance
+import com.example.smartmenza.ui.components.MealCard
 import com.example.smartmenza.ui.theme.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
+import com.example.smartmenza.R
+
 
 @Composable
 fun MenuScreen(
     menuName: String,
     mealsJson: String,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     val meals: List<MealDto> = try {
         val type = object : TypeToken<List<MealDto>>() {}.type
@@ -59,7 +67,7 @@ fun MenuScreen(
                     if (response.isSuccessful) {
                         favoriteMealIds = response.body()?.map { it.mealId }?.toSet() ?: emptySet()
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Handle error silently
                 }
             }
@@ -84,10 +92,10 @@ fun MenuScreen(
                 }
 
                 if (response.isSuccessful) {
-                    if (isCurrentlyFavorite) {
-                        favoriteMealIds = favoriteMealIds - mealId
+                    favoriteMealIds = if (isCurrentlyFavorite) {
+                        favoriteMealIds - mealId
                     } else {
-                        favoriteMealIds = favoriteMealIds + mealId
+                        favoriteMealIds + mealId
                     }
                 } else {
                     Toast.makeText(context, "Greška: ${response.code()}", Toast.LENGTH_SHORT).show()
@@ -108,6 +116,8 @@ fun MenuScreen(
             color = BackgroundBeige
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
+
+
                 // Header
                 Box(
                     modifier = Modifier
@@ -118,12 +128,18 @@ fun MenuScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White
+                            )
                         }
                         Text(
                             text = menuName,
@@ -135,74 +151,58 @@ fun MenuScreen(
                             ),
                             maxLines = 1
                         )
-                        Spacer(modifier = Modifier.width(48.dp)) // To balance the back button
+                        Spacer(modifier = Modifier.width(48.dp))
                     }
                 }
 
-                if (meals.isNotEmpty()) {
-                    LazyColumn(
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Image(
+                        painter = subtlePattern,
+                        contentDescription = null,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        items(meals) { meal ->
-                            MealListItem(
-                                meal = meal,
-                                isFavorite = favoriteMealIds.contains(meal.mealId),
-                                onToggleFavorite = { toggleFavorite(meal.mealId) })
+                            .fillMaxSize()
+                            .alpha(0.06f),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    if (meals.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text("Jela koja ovaj meni sadrži:")
+
                             Spacer(modifier = Modifier.height(8.dp))
+
+                            meals.forEach { meal ->
+                                MealCard(
+                                    name = meal.name,
+                                    price = "%.2f EUR".format(meal.price),
+                                    imageRes = R.drawable.hrenovke,
+                                    isFavorite = favoriteMealIds.contains(meal.mealId),
+                                    onToggleFavorite = { toggleFavorite(meal.mealId) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = null
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            Spacer(modifier = Modifier.height(50.dp))
+
+                            val totalPrice = meals.sumOf { it.price }
+                            Text("Cijena menija: %.2f EUR".format(totalPrice))
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "Nema dostupnih jela za ovaj meni.")
                         }
                     }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "Nema dostupnih jela za ovaj meni.")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun MealListItem(meal: MealDto, isFavorite: Boolean, onToggleFavorite: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = meal.name,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = Montserrat,
-                    fontWeight = FontWeight.Medium
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "%.2f EUR".format(meal.price),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontFamily = Montserrat,
-                        fontWeight = FontWeight.Bold,
-                        color = SpanRed
-                    )
-                )
-                IconButton(onClick = onToggleFavorite) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                        contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Yellow else Color.Gray
-                    )
                 }
             }
         }
