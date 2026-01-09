@@ -116,7 +116,6 @@ fun MenuScreen(
         Log.d("MealTypeDebug", "mealsJson length=${mealsJson.length}")
         Log.d("MealTypeDebug", "mealsJson preview=${mealsJson.take(400)}")
 
-        // Parse directly from mealsJson inside the effect
         val parsedMeals: List<MealDto> = try {
             val type = object : TypeToken<List<MealDto>>() {}.type
             Gson().fromJson(mealsJson, type)
@@ -125,7 +124,6 @@ fun MenuScreen(
             emptyList()
         }
 
-        // Log what you actually got
         parsedMeals.forEach { meal ->
             Log.d(
                 "MealTypeDebug",
