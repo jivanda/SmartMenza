@@ -9,6 +9,7 @@ namespace SmartMenza.Domain.DTOs
     public class MealDto
     {
         public int MealId { get; set; }
+        public int MealTypeId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public decimal Price { get; set; }

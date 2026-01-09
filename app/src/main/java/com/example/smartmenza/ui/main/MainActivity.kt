@@ -2,12 +2,14 @@ package com.example.smartmenza.ui.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,9 +31,10 @@ import com.example.smartmenza.ui.home.HomeScreen
 import com.example.smartmenza.ui.home.MenuScreen
 import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,14 +42,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             SmartMenzaTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
+
                     val navController = rememberNavController()
-                    val prefs = UserPreferences(this)
+                    val actions = remember(navController) { AppActions(navController) }
+
+                    val prefs = remember { UserPreferences(this) }
                     val isLoggedIn by prefs.isLoggedIn.collectAsState(initial = false)
+
+                    val scope = rememberCoroutineScope()
 
                     NavHost(
                         navController = navController,
                         startDestination = if (isLoggedIn) Route.StudentHome.route else Route.Intro.route
                     ) {
+
                         composable(Route.Intro.route) {
                             IntroScreen(
                                 onLogin = { navController.navigate(Route.Login.route) },
@@ -59,22 +68,16 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Route.Register.route) {
-                            RegisterScreen(
-                                navController = navController
-                            )
+                            RegisterScreen(navController = navController)
                         }
 
                         composable(Route.StudentHome.route) {
                             HomeScreen(
                                 onNavigateToFavorites = { navController.navigate(Route.Favourite.route) },
                                 onNavigateToGoals = { navController.navigate(Route.Goal.route) },
-                                onNavigateToMenu = { menuName, mealsJson ->
-                                    navController.navigate("menu/$menuName/$mealsJson")
-                                },
+                                onNavigateToMenu = actions::navigateToMenu,
                                 onLogout = {
-                                    runBlocking {
-                                        prefs.logout()
-                                    }
+                                    scope.launch { prefs.logout() }
                                     navController.navigate(Route.Login.route) {
                                         popUpTo(Route.StudentHome.route) { inclusive = true }
                                     }
@@ -86,19 +89,18 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Route.AllMeals.route) {
-                            AllMealsScreen(
-                                navController = navController
-                            )
+                            AllMealsScreen(navController = navController)
                         }
 
                         composable(Route.Offers.route) {
                             OfferScreen(
-                                navController = navController
-                            )
+                                onNavigateToMenu = actions::navigateToMenu,
+                                navController = navController)
                         }
 
                         composable(Route.AllMenus.route) {
                             AllMenusScreen(
+                                onNavigateToMenu = actions::navigateToMenu,
                                 navController = navController
                             )
                         }
@@ -109,13 +111,9 @@ class MainActivity : ComponentActivity() {
                                 navArgument("menuId") { type = NavType.IntType }
                             )
                         ) { backStackEntry ->
-                            val menuId = backStackEntry.arguments?.getInt("menuId") ?: -1
 
-                            val mode = if (menuId == -1) {
-                                MenuEditMode.Create
-                            } else {
-                                MenuEditMode.Edit(menuId)
-                            }
+                            val menuId = backStackEntry.arguments?.getInt("menuId") ?: -1
+                            val mode = if (menuId == -1) MenuEditMode.Create else MenuEditMode.Edit(menuId)
 
                             val menuTypeOptions = listOf(
                                 MenuTypeOption(1, "Doručak"),
@@ -127,7 +125,6 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 mode = mode,
                                 menuTypeOptions = menuTypeOptions
-                                // for edit mode, later you can pass initialName, initialDescription, etc.
                             )
                         }
 
@@ -139,9 +136,17 @@ class MainActivity : ComponentActivity() {
                             GoalScreen(onNavigateBack = { navController.popBackStack() })
                         }
 
-                        composable(Route.Menu.route) { backStackEntry ->
-                            val menuName = backStackEntry.arguments?.getString("menuName") ?: ""
-                            val mealsJson = backStackEntry.arguments?.getString("mealsJson") ?: ""
+                        // IMPORTANT: This must match your Route.Menu.route pattern AND navArguments
+                        composable(
+                            route = Route.Menu.route,
+                            arguments = listOf(
+                                navArgument("menuName") { type = NavType.StringType },
+                                navArgument("mealsJson") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val menuName = backStackEntry.arguments?.getString("menuName").orEmpty()
+                            val mealsJson = backStackEntry.arguments?.getString("mealsJson").orEmpty()
+
                             MenuScreen(
                                 menuName = menuName,
                                 mealsJson = mealsJson,

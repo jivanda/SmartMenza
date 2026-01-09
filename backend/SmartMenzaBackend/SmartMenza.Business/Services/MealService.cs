@@ -1,7 +1,8 @@
-using SmartMenza.Data.Repositories.Interfaces;
-using SmartMenza.Domain.DTOs;
 using System.Collections.Generic;
 using System.Linq;
+using SmartMenza.Data.Entities;
+using SmartMenza.Data.Repositories.Interfaces;
+using SmartMenza.Domain.DTOs;
 
 namespace SmartMenza.Business.Services
 {
@@ -20,6 +21,7 @@ namespace SmartMenza.Business.Services
                 .Select(m => new MealDto
                 {
                     MealId = m.MealId,
+                    MealTypeId = m.MealTypeId,
                     Name = m.Name,
                     Description = m.Description,
                     Price = m.Price,
@@ -41,6 +43,7 @@ namespace SmartMenza.Business.Services
             return new MealDto
             {
                 MealId = m.MealId,
+                MealTypeId = m.MealTypeId,
                 Name = m.Name,
                 Description = m.Description,
                 Price = m.Price,

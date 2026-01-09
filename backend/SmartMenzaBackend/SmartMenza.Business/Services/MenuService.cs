@@ -43,6 +43,7 @@ namespace SmartMenza.Business.Services
                 Meals = menu.MenuMeals.Select(mm => new MealDto
                 {
                     MealId = mm.Meal.MealId,
+                    MealTypeId = mm.Meal.MealTypeId,
                     Name = mm.Meal.Name,
                     Description = mm.Meal.Description,
                     Price = mm.Meal.Price,
@@ -67,6 +68,7 @@ namespace SmartMenza.Business.Services
                     Meals = md.Menu.MenuMeals.Select(mm => new MealDto
                     {
                         MealId = mm.Meal.MealId,
+                        MealTypeId = mm.Meal.MealTypeId,
                         Name = mm.Meal.Name,
                         Description = mm.Meal.Description,
                         Price = mm.Meal.Price,
@@ -94,6 +96,7 @@ namespace SmartMenza.Business.Services
                         .Select(mm => new MealDto
                         {
                             MealId = mm.Meal.MealId,
+                            MealTypeId = mm.Meal.MealTypeId,
                             Name = mm.Meal.Name,
                             Description = mm.Meal.Description,
                             Price = mm.Meal.Price,
@@ -122,6 +125,7 @@ namespace SmartMenza.Business.Services
                 Meals = menu.MenuMeals.Select(mm => new MealDto
                 {
                     MealId = mm.Meal.MealId,
+                    MealTypeId = mm.Meal.MealTypeId,
                     Name = mm.Meal.Name,
                     Description = mm.Meal.Description,
                     Price = mm.Meal.Price,
