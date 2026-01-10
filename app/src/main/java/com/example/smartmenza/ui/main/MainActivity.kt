@@ -90,7 +90,10 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Route.AllMeals.route) {
-                            AllMealsScreen(navController = navController)
+                            AllMealsScreen(
+                                navController = navController,
+                                onNavigateToMeal = actions::navigateToMeal,
+                            )
                         }
 
                         composable(Route.Offers.route) {

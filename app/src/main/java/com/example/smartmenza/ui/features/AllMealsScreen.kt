@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AllMealsScreen(
     navController: NavController,
+    onNavigateToMeal: (Int) -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     var isLoading by remember { mutableStateOf(false) }
@@ -249,7 +250,7 @@ fun AllMealsScreen(
                                         isFavorite = favoriteMealIds.contains(meal.mealId),
                                         onToggleFavorite = { toggleFavorite(meal.mealId) },
                                         modifier = Modifier.fillMaxWidth(),
-                                        onClick = null
+                                        onClick = {onNavigateToMeal(meal.mealId)}
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }

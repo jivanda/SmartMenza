@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,6 +54,8 @@ fun MealScreen(
     var mealDto by remember { mutableStateOf<MealDto?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+    var mealTypeName by remember { mutableStateOf<String?>(null) }
+
 
     var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
@@ -127,7 +131,20 @@ fun MealScreen(
         fetchFavorites()
     }
 
+    LaunchedEffect(mealDto) {
+        val typeId = mealDto?.mealTypeId ?: return@LaunchedEffect
 
+        try {
+            val response = RetrofitInstance.api.getMealTypeName(typeId)
+            if (response.isSuccessful) {
+                mealTypeName = response.body()
+            } else {
+                mealTypeName = "—"
+            }
+        } catch (e: Exception) {
+            mealTypeName = "—"
+        }
+    }
 
     SmartMenzaTheme {
         Surface(
@@ -172,17 +189,98 @@ fun MealScreen(
                 }
 
                 Box(modifier = Modifier.fillMaxSize()) {
-                        Image(
-                            painter = subtlePattern,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .alpha(0.06f),
-                            contentScale = ContentScale.Crop
-                        )
-                        Text("Jela koja ovaj meni sadrži:")
 
-                        Spacer(modifier = Modifier.height(50.dp))
+                    // Background pattern
+                    Image(
+                        painter = subtlePattern,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(0.06f),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    // Foreground content
+                    if (mealDto != null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+
+                            // BIG MEAL IMAGE
+                            Image(
+                                painter = painterResource(id = R.drawable.hrenovke),
+                                contentDescription = mealDto!!.name,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp)
+                                    .clip(RoundedCornerShape(16.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = mealDto!!.name,
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                IconButton(onClick = { toggleFavorite(mealId) }) {
+                                    Icon(
+                                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                                        contentDescription = "Favorite",
+                                        tint = if (isFavorite) Color.Yellow else Color.Gray
+                                    )
+                                }
+                            }
+
+
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // DESCRIPTION
+                            mealDto!!.description?.let {
+                                Text(
+                                    text = it,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
+
+                            // ATTRIBUTES
+                            Text("Cijena: %.2f EUR".format(mealDto!!.price))
+                            Text("Tip jela: ${mealTypeName}")
+                            Text("Kalorije: ${mealDto!!.calories ?: "—"} kcal")
+                            Text("Proteini: ${mealDto!!.protein ?: "—"} g")
+                            Text("Ugljikohidrati: ${mealDto!!.carbohydrates ?: "—"} g")
+                            Text("Masti: ${mealDto!!.fat ?: "—"} g")
+                        }
+                    } else if (isLoading) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else if (error != null) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = error ?: "Greška",
+                                color = Color.Red
+                            )
+                        }
+                    }
                 }
             }
         }
