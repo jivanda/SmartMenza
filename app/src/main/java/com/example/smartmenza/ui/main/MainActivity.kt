@@ -25,6 +25,7 @@ import com.example.smartmenza.ui.features.MenuEditMode
 import com.example.smartmenza.ui.features.MenuEditScreen
 import com.example.smartmenza.ui.features.MenuTypeOption
 import com.example.smartmenza.ui.features.OfferScreen
+import com.example.smartmenza.ui.features.StatisticsScreen
 import com.example.smartmenza.ui.home.FavouriteScreen
 import com.example.smartmenza.ui.home.GoalScreen
 import com.example.smartmenza.ui.home.HomeScreen
@@ -85,12 +86,20 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onAllMeals = { navController.navigate(Route.AllMeals.route) },
                                 onOffers = { navController.navigate(Route.Offers.route) },
-                                onAllMenus = { navController.navigate(Route.AllMenus.route) }
+                                onAllMenus = { navController.navigate(Route.AllMenus.route) },
+                                onNavigateToStatistics = { navController.navigate(Route.StatisticsScreen.route) }
                             )
                         }
 
                         composable(Route.AllMeals.route) {
                             AllMealsScreen(
+                                navController = navController,
+                                onNavigateToMeal = actions::navigateToMeal,
+                            )
+                        }
+
+                        composable(Route.StatisticsScreen.route) {
+                            StatisticsScreen(
                                 navController = navController,
                                 onNavigateToMeal = actions::navigateToMeal,
                             )

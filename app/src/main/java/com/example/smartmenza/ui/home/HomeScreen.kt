@@ -51,6 +51,7 @@ fun HomeScreen(
     onAllMeals: () -> Unit = {},
     onOffers: () -> Unit = {},
     onAllMenus: () -> Unit = {},
+    onNavigateToStatistics: () -> Unit = {},
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     SmartMenzaTheme {
@@ -202,7 +203,7 @@ fun HomeScreen(
                                 "Employee" -> listOf(
                                     GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {onAllMeals()}),
                                     GridItem(Icons.Filled.RestaurantMenu, "Meniji", onClick = {onAllMenus()}),
-                                    GridItem(Icons.Filled.ShowChart, "Statistika", onClick = {}),
+                                    GridItem(Icons.Filled.ShowChart, "Statistika", onClick = {onNavigateToStatistics()}),
                                     GridItem(Icons.Filled.Star, "Ponuda", onClick = {onOffers()})
                                 )
 
