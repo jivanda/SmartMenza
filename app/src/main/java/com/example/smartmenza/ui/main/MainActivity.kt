@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -64,11 +65,32 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Route.Login.route) {
-                            LoginScreen(navController = navController)
+                            LoginScreen(
+                                webClientId = getString(com.example.smartmenza.R.string.default_web_client_id),
+                                subtlePattern = painterResource(id = com.example.core_ui.R.drawable.smartmenza_background_empty),
+                                onLoginSuccess = {
+                                    navController.navigate(Route.StudentHome.route) {
+                                        popUpTo(Route.Login.route) { inclusive = true }
+                                    }
+                                },
+                                onGoToRegister = {
+                                    navController.navigate(Route.Register.route)
+                                }
+                            )
                         }
 
                         composable(Route.Register.route) {
-                            RegisterScreen(navController = navController)
+                            RegisterScreen(
+                                subtlePattern = painterResource(id = com.example.core_ui.R.drawable.smartmenza_background_empty),
+                                onRegistered = {
+                                    navController.navigate(Route.Login.route) {
+                                        popUpTo(Route.Register.route) { inclusive = true }
+                                    }
+                                },
+                                onNavigateBackToLogin = {
+                                    navController.popBackStack()
+                                }
+                            )
                         }
 
                         composable(Route.StudentHome.route) {
@@ -89,19 +111,24 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Route.AllMeals.route) {
-                            AllMealsScreen(navController = navController)
+                            AllMealsScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
 
                         composable(Route.Offers.route) {
                             OfferScreen(
                                 onNavigateToMenu = actions::navigateToMenu,
-                                navController = navController)
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
 
                         composable(Route.AllMenus.route) {
                             AllMenusScreen(
                                 onNavigateToMenu = actions::navigateToMenu,
-                                navController = navController
+                                onCreateMenu = { navController.navigate(Route.MenuEditor.route + "/-1") },
+                                onEditMenu = { id -> navController.navigate(Route.MenuEditor.route + "/$id") },
+                                onNavigateBack = { navController.popBackStack() }
                             )
                         }
 
@@ -122,9 +149,10 @@ class MainActivity : ComponentActivity() {
                             )
 
                             MenuEditScreen(
-                                navController = navController,
                                 mode = mode,
-                                menuTypeOptions = menuTypeOptions
+                                menuTypeOptions = menuTypeOptions,
+                                onNavigateBack = { navController.popBackStack() },
+                                onSaved = { navController.popBackStack() }
                             )
                         }
 
