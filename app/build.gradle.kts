@@ -1,86 +1,95 @@
-plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("com.google.dagger.hilt.android") version "2.52"
-    kotlin("kapt")
-}
-
-android {
-    namespace = "com.example.smartmenza"
-    compileSdk { version = release(36) }
-
-    defaultConfig {
-        applicationId = "com.example.smartmenza"
-        minSdk = 34
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    plugins {
+        alias(libs.plugins.android.application)
+        alias(libs.plugins.kotlin.android)
+        alias(libs.plugins.kotlin.compose)
+        id("com.google.dagger.hilt.android") version "2.52"
+        kotlin("kapt")
     }
 
-    signingConfigs {
-        getByName("debug") {
-            storeFile = file("keystore/debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
-    }
+    android {
+        namespace = "com.example.smartmenza"
+        compileSdk { version = release(36) }
 
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+        defaultConfig {
+            applicationId = "com.example.smartmenza"
+            minSdk = 34
+            targetSdk = 36
+            versionCode = 1
+            versionName = "1.0"
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
 
-        getByName("debug") {
-            signingConfig = signingConfigs.getByName("debug")
+        signingConfigs {
+            getByName("debug") {
+                storeFile = file("keystore/debug.keystore")
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
         }
+
+        buildTypes {
+            getByName("release") {
+                isMinifyEnabled = false
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+            }
+
+            getByName("debug") {
+                signingConfig = signingConfigs.getByName("debug")
+            }
+        }
+
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
+        }
+        kotlinOptions { jvmTarget = "11" }
+        buildFeatures { compose = true }
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+
+    dependencies {
+        implementation(libs.androidx.core.ktx)
+        implementation(libs.androidx.lifecycle.runtime.ktx)
+        implementation(libs.androidx.activity.compose)
+        implementation(platform(libs.androidx.compose.bom))
+        implementation(libs.androidx.compose.ui)
+        implementation(libs.androidx.compose.ui.graphics)
+        implementation(libs.androidx.compose.ui.tooling.preview)
+        implementation(libs.androidx.compose.material3)
+        testImplementation(libs.junit)
+        androidTestImplementation(libs.androidx.junit)
+        androidTestImplementation(libs.androidx.espresso.core)
+        androidTestImplementation(platform(libs.androidx.compose.bom))
+        androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+        debugImplementation(libs.androidx.compose.ui.tooling)
+        debugImplementation(libs.androidx.compose.ui.test.manifest)
+        implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+        implementation("androidx.navigation:navigation-compose:2.9.5")
+        implementation("androidx.compose.ui:ui-text-google-fonts")
+        implementation("com.squareup.retrofit2:retrofit:2.11.0")
+        implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+        implementation("com.squareup.okhttp3:okhttp:5.3.0")
+        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+        implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
+        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+        implementation("com.google.dagger:hilt-android:2.52")
+        implementation("androidx.datastore:datastore-preferences:1.1.1")
+        kapt("com.google.dagger:hilt-compiler:2.52")
+        implementation("androidx.compose.material:material-icons-extended")
+        implementation("io.coil-kt:coil-compose:2.5.0")
+        implementation("com.google.android.gms:play-services-auth:21.1.0")
+        implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+
+        implementation(project(":core-ui"))
+        implementation(project(":core-model"))
+        implementation(project(":feature-shared"))
+        implementation(project(":feature-intro"))
+        implementation(project(":core-data"))
+        implementation(project(":feature-auth"))
+        implementation(project(":feature-student"))
+        implementation(project(":feature-employee"))
     }
-    kotlinOptions { jvmTarget = "11" }
-    buildFeatures { compose = true }
-}
-
-
-dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("androidx.navigation:navigation-compose:2.9.5")
-    implementation("androidx.compose.ui:ui-text-google-fonts")
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.squareup.okhttp3:okhttp:5.3.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-    implementation("com.google.dagger:hilt-android:2.52")
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-    kapt("com.google.dagger:hilt-compiler:2.52")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    implementation("com.google.android.gms:play-services-auth:21.1.0")
-    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
-}
