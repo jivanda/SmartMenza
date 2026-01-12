@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -27,6 +28,7 @@ import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.FavoriteToggleDto
 import com.example.smartmenza.data.remote.MealDto
 import com.example.smartmenza.data.remote.RetrofitInstance
+import com.example.smartmenza.navigation.Route
 import com.example.smartmenza.ui.components.MealCard
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
@@ -37,7 +39,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
 
 @Composable
-fun AllMealsScreen(
+fun StatisticsScreen(
     navController: NavController,
     onNavigateToMeal: (Int) -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
@@ -219,14 +221,68 @@ fun AllMealsScreen(
 
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.Start
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter)
+                            .offset(y = (20).dp)
+                            .padding(horizontal = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Sva jela",
-                            style = MaterialTheme.typography.headlineSmall
+                            text = "Statistika",
+                            style = MaterialTheme.typography.headlineLarge
                         )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "Ukupno jela:",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = "Prosječna ocjena: ",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = "Najveća ocjena:",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Filtriraj po vremenu:",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Button(
+                                onClick = { },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = SpanRed,
+                                    contentColor = Color.White
+                                ),
+                                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
+                            ) {
+                                Text(
+                                    text = "10.01.2025 - 10.01.2026",
+                                    style = MaterialTheme.typography.labelLarge.copy(color = Color.White)
+                                )
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(12.dp))
 

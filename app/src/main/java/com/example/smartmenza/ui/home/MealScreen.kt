@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,28 +41,28 @@ import com.example.smartmenza.R
 
 
 @Composable
-fun MenuScreen(
-    menuName: String,
-    mealsJson: String,
-    onNavigateToMeal: (Int) -> Unit,
+fun MealScreen(
+    mealId: Int,
     onNavigateBack: () -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
-    val meals: List<MealDto> = try {
-        val type = object : TypeToken<List<MealDto>>() {}.type
-        Gson().fromJson(mealsJson, type)
-    } catch (e: Exception) {
-        emptyList()
-    }
-
     val context = LocalContext.current
     val prefs = remember { UserPreferences(context) }
     val userId by prefs.userId.collectAsState(initial = null)
     val coroutineScope = rememberCoroutineScope()
 
-    var mealTypeNameMap by remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
+    var mealDto by remember { mutableStateOf<MealDto?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var mealTypeName by remember { mutableStateOf<String?>(null) }
+
 
     var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
+
+    val isFavorite by remember(favoriteMealIds, mealId) {
+        derivedStateOf { favoriteMealIds.contains(mealId) }
+    }
+
 
     fun fetchFavorites() {
         val currentUserId = userId
@@ -76,6 +78,7 @@ fun MenuScreen(
             }
         }
     }
+
 
     fun toggleFavorite(mealId: Int) {
         val currentUserId = userId
@@ -109,73 +112,39 @@ fun MenuScreen(
         }
     }
 
+    LaunchedEffect(mealId) {
+        try {
+            val response = RetrofitInstance.api.getMealById(mealId)
+            if (response.isSuccessful) {
+                mealDto = response.body()
+            } else {
+                error = "Greška: ${response.code()}"
+            }
+        } catch (e: Exception) {
+            error = e.message
+        } finally {
+            isLoading = false
+        }
+    }
+
     LaunchedEffect(userId) {
         fetchFavorites()
     }
 
-    LaunchedEffect(mealsJson) {
-        Log.d("MealTypeDebug", "mealsJson length=${mealsJson.length}")
-        Log.d("MealTypeDebug", "mealsJson preview=${mealsJson.take(400)}")
+    LaunchedEffect(mealDto) {
+        val typeId = mealDto?.mealTypeId ?: return@LaunchedEffect
 
-        val parsedMeals: List<MealDto> = try {
-            val type = object : TypeToken<List<MealDto>>() {}.type
-            Gson().fromJson(mealsJson, type)
-        } catch (e: Exception) {
-            Log.e("MealTypeDebug", "Failed to parse mealsJson: ${e.message}", e)
-            emptyList()
-        }
-
-        parsedMeals.forEach { meal ->
-            Log.d(
-                "MealTypeDebug",
-                "Parsed meal: mealId=${meal.mealId}, mealTypeId=${meal.mealTypeId}, name=${meal.name}"
-            )
-        }
-
-        val ids = parsedMeals
-            .map { it.mealTypeId }
-            .distinct()
-
-        Log.d("MealTypeDebug", "Distinct mealTypeIds (filtered) = $ids")
-
-        val map = mutableMapOf<Int, String>()
-
-        ids.forEach { id ->
-            try {
-                Log.d("MealTypeDebug", "Requesting meal type for id=$id")
-
-                val res = RetrofitInstance.api.getMealTypeName(id)
-
-                Log.d(
-                    "MealTypeDebug",
-                    "Response for id=$id → code=${res.code()} successful=${res.isSuccessful}"
-                )
-
-                if (res.isSuccessful) {
-                    val name = res.body()
-                    Log.d("MealTypeDebug", "Body for id=$id → $name")
-
-                    if (!name.isNullOrBlank()) {
-                        map[id] = name
-                    } else {
-                        Log.e("MealTypeDebug", "Body was NULL/blank for id=$id")
-                    }
-                } else {
-                    val error = res.errorBody()?.string()
-                    Log.e(
-                        "MealTypeDebug",
-                        "Error for id=$id → code=${res.code()} body=$error"
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e("MealTypeDebug", "Exception for id=$id → ${e.message}", e)
+        try {
+            val response = RetrofitInstance.api.getMealTypeName(typeId)
+            if (response.isSuccessful) {
+                mealTypeName = response.body()
+            } else {
+                mealTypeName = "—"
             }
+        } catch (e: Exception) {
+            mealTypeName = "—"
         }
-
-        Log.d("MealTypeDebug", "Final mealTypeNameMap = $map")
-        mealTypeNameMap = map
     }
-
 
     SmartMenzaTheme {
         Surface(
@@ -206,7 +175,7 @@ fun MenuScreen(
                             )
                         }
                         Text(
-                            text = menuName,
+                            text = mealDto?.name ?: "",
                             style = TextStyle(
                                 fontFamily = Montserrat,
                                 fontWeight = FontWeight.SemiBold,
@@ -220,6 +189,8 @@ fun MenuScreen(
                 }
 
                 Box(modifier = Modifier.fillMaxSize()) {
+
+                    // Background pattern
                     Image(
                         painter = subtlePattern,
                         contentDescription = null,
@@ -229,43 +200,85 @@ fun MenuScreen(
                         contentScale = ContentScale.Crop
                     )
 
-                    if (meals.isNotEmpty()) {
+                    // Foreground content
+                    if (mealDto != null) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
                             horizontalAlignment = Alignment.Start
                         ) {
-                            Text("Jela koja ovaj meni sadrži:")
+
+                            // BIG MEAL IMAGE
+                            Image(
+                                painter = painterResource(id = R.drawable.hrenovke),
+                                contentDescription = mealDto!!.name,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp)
+                                    .clip(RoundedCornerShape(16.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = mealDto!!.name,
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                IconButton(onClick = { toggleFavorite(mealId) }) {
+                                    Icon(
+                                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                                        contentDescription = "Favorite",
+                                        tint = if (isFavorite) Color.Yellow else Color.Gray
+                                    )
+                                }
+                            }
+
+
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            meals.forEach { meal ->
-                                MealCard(
-                                    name = meal.name,
-                                    typeName = mealTypeNameMap[meal.mealTypeId] ?: "—",
-                                    price = "%.2f EUR".format(meal.price),
-                                    imageRes = R.drawable.hrenovke,
-                                    isFavorite = favoriteMealIds.contains(meal.mealId),
-                                    onToggleFavorite = { toggleFavorite(meal.mealId) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    onClick = {onNavigateToMeal(meal.mealId)}
+                            // DESCRIPTION
+                            mealDto!!.description?.let {
+                                Text(
+                                    text = it,
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
-
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
                             }
 
-                            Spacer(modifier = Modifier.height(50.dp))
-
-                            val totalPrice = meals.sumOf { it.price }
-                            Text("Cijena menija: %.2f EUR".format(totalPrice))
+                            // ATTRIBUTES
+                            Text("Cijena: %.2f EUR".format(mealDto!!.price))
+                            Text("Tip jela: ${mealTypeName}")
+                            Text("Kalorije: ${mealDto!!.calories ?: "—"} kcal")
+                            Text("Proteini: ${mealDto!!.protein ?: "—"} g")
+                            Text("Ugljikohidrati: ${mealDto!!.carbohydrates ?: "—"} g")
+                            Text("Masti: ${mealDto!!.fat ?: "—"} g")
                         }
-                    } else {
+                    } else if (isLoading) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "Nema dostupnih jela za ovaj meni.")
+                            CircularProgressIndicator()
+                        }
+                    } else if (error != null) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = error ?: "Greška",
+                                color = Color.Red
+                            )
                         }
                     }
                 }

@@ -10,6 +10,7 @@ sealed interface Route { val route: String
     data object AllMeals : Route { override val route = "features/all_meals" }
     data object Offers : Route { override val route = "features/offers" }
     data object AllMenus : Route { override val route = "features/all_menus" }
+    data object StatisticsScreen : Route { override val route = "features/statistics" }
     data object MenuEditor : Route { override val route = "features/menu_editor" }
     // kasnije
     data object StudentHome : Route { override val route = "student/home" }
