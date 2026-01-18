@@ -86,10 +86,10 @@
 
         implementation(project(":core-ui"))
         implementation(project(":core-model"))
-        implementation(project(":feature-shared"))
+        implementation(project(":feature-home"))
         implementation(project(":feature-intro"))
         implementation(project(":core-data"))
         implementation(project(":feature-auth"))
-        implementation(project(":feature-student"))
-        implementation(project(":feature-employee"))
+        implementation(project(":feature-reusableScreens"))
+        implementation(project(":feature-featureScreens"))
     }

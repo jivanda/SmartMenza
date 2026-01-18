@@ -37,7 +37,7 @@ import com.example.smartmenza.ui.theme.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
-import com.example.smartmenza.R
+import com.example.core_ui.R
 
 
 @Composable
