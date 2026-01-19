@@ -69,7 +69,7 @@ namespace UnitTestbackend
             context.SaveChanges();
         }
 
-        private static FavoriteController BuildController(SmartMenzaContext context)
+        private static SmartMenza.API.Controllers.FavoriteController BuildController(SmartMenzaContext context)
         {
             var favRepo = new FavoriteRepository(context);
             var favService = new FavoriteService(favRepo);
