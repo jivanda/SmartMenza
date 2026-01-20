@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,6 +34,8 @@ import com.example.smartmenza.ui.home.MealScreen
 import com.example.smartmenza.ui.home.MenuScreen
 import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
+import com.example.core_ui.R
+import com.example.smartmenza.R as appR
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -66,11 +69,28 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Route.Login.route) {
-                            LoginScreen(navController = navController)
+                            LoginScreen(
+                                webClientId = getString(appR.string.default_web_client_id),
+                                subtlePattern = painterResource(id = R.drawable.smartmenza_background_empty),
+                                onLoginSuccess = {
+                                    navController.navigate(Route.StudentHome.route) {
+                                        popUpTo(Route.Login.route) { inclusive = true }
+                                    }
+                                },
+                                onGoToRegister = { navController.navigate(Route.Register.route) }
+                            )
                         }
 
                         composable(Route.Register.route) {
-                            RegisterScreen(navController = navController)
+                            RegisterScreen(
+                                subtlePattern = painterResource(id = R.drawable.smartmenza_background_empty),
+                                onRegistered = {
+                                    navController.navigate(Route.Login.route) {
+                                        popUpTo(Route.Register.route) { inclusive = true }
+                                    }
+                                },
+                                onNavigateBackToLogin = { navController.popBackStack() }
+                            )
                         }
 
                         composable(Route.StudentHome.route) {
@@ -93,28 +113,29 @@ class MainActivity : ComponentActivity() {
 
                         composable(Route.AllMeals.route) {
                             AllMealsScreen(
-                                navController = navController,
-                                onNavigateToMeal = actions::navigateToMeal,
+                                onNavigateToMeal = actions::navigateToMeal
                             )
                         }
 
                         composable(Route.StatisticsScreen.route) {
                             StatisticsScreen(
-                                navController = navController,
-                                onNavigateToMeal = actions::navigateToMeal,
+                                onNavigateToMeal = actions::navigateToMeal
                             )
                         }
 
                         composable(Route.Offers.route) {
                             OfferScreen(
                                 onNavigateToMenu = actions::navigateToMenu,
-                                navController = navController)
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
 
                         composable(Route.AllMenus.route) {
                             AllMenusScreen(
                                 onNavigateToMenu = actions::navigateToMenu,
-                                navController = navController
+                                onCreateMenu = { navController.navigate(Route.MenuEditor.route + "/-1") },
+                                onEditMenu = { menuId -> navController.navigate(Route.MenuEditor.route + "/$menuId") },
+                                onNavigateBack = { navController.popBackStack() }
                             )
                         }
 
@@ -135,9 +156,10 @@ class MainActivity : ComponentActivity() {
                             )
 
                             MenuEditScreen(
-                                navController = navController,
                                 mode = mode,
-                                menuTypeOptions = menuTypeOptions
+                                menuTypeOptions = menuTypeOptions,
+                                onNavigateBack = { navController.popBackStack() },
+                                onSaved = { navController.popBackStack() }
                             )
                         }
 

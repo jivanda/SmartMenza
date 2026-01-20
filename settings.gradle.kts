@@ -21,4 +21,11 @@ dependencyResolutionManagement {
 
 rootProject.name = "SmartMenza"
 include(":app")
- 
+include(":core-ui")
+include(":core-model")
+include(":feature-home")
+include(":core-data")
+include(":feature-auth")
+include(":feature-intro")
+include(":feature-featureScreens")
+include(":feature-reusableScreens")
