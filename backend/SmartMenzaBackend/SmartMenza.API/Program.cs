@@ -1,8 +1,14 @@
+using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using SmartMenza.Business.Services;
 using SmartMenza.Data.Context;
 using SmartMenza.Data.Repositories.Interfaces;
 using SmartMenza.Data.Repositories.Implementations;
+using OpenAI;
+using OpenAI.Chat;
+using Azure;
 
 namespace SmartMenza.API
 {
@@ -50,6 +56,34 @@ namespace SmartMenza.API
             builder.Services.AddScoped<RatingCommentService>();
             builder.Services.AddScoped<SmartMenza.Data.Repositories.Interfaces.IStatisticsRepository, SmartMenza.Data.Repositories.Implementations.StatisticsRepository>();
             builder.Services.AddScoped<SmartMenza.Business.Services.StatisticsService>();
+
+            // Register ChatClient (OpenAI v2.x). Uses Azure OpenAI when Endpoint is set.
+            builder.Services.AddSingleton(sp =>
+            {
+                var cfg = sp.GetRequiredService<IConfiguration>();
+                var endpoint = cfg["AzureOpenAI:Endpoint"]?.TrimEnd('/');
+                var apiKey = cfg["AzureOpenAI:ApiKey"] ?? Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
+                var deploymentName = cfg["AzureOpenAI:DeploymentName"] ?? "Meal_Reccomender_AI";
+
+                if (string.IsNullOrWhiteSpace(endpoint))
+                    throw new InvalidOperationException("AzureOpenAI:Endpoint is not configured.");
+
+                if (string.IsNullOrWhiteSpace(apiKey))
+                    throw new InvalidOperationException("AzureOpenAI:ApiKey is not configured. Set AzureOpenAI:ApiKey or AZURE_OPENAI_API_KEY.");
+
+                // Create ChatClient using ApiKeyCredential and set the Azure endpoint.
+                var client = new ChatClient(
+                    credential: new AzureKeyCredential(apiKey),
+                    model: deploymentName,
+                    options: new OpenAIClientOptions()
+                    {
+                        Endpoint = new Uri(endpoint),
+                    });
+
+                return client;
+            });
+
+            builder.Services.AddScoped<MealRecommendationService>();
 
             var app = builder.Build();
 
