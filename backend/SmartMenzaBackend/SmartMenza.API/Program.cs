@@ -63,7 +63,7 @@ namespace SmartMenza.API
                 var cfg = sp.GetRequiredService<IConfiguration>();
                 var endpoint = cfg["AzureOpenAI:Endpoint"]?.TrimEnd('/');
                 var apiKey = cfg["AzureOpenAI:ApiKey"] ?? Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
-                var deploymentName = cfg["AzureOpenAI:DeploymentName"] ?? "Meal_Reccomender_AI";
+                var deploymentName = cfg["AzureOpenAI:DeploymentName"] ?? "Meal_recommend_AI";
 
                 if (string.IsNullOrWhiteSpace(endpoint))
                     throw new InvalidOperationException("AzureOpenAI:Endpoint is not configured.");
