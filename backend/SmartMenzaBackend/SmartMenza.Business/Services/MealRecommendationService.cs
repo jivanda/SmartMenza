@@ -10,8 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SmartMenza.Domain.DTOs;
 using SmartMenza.Data.Entities;
-using OpenAI; // OpenAI-DotNet official SDK
-using OpenAI.Chat; // ChatClient, ChatMessage, ChatCompletion, ChatMessageContentPart
+using OpenAI;
+using OpenAI.Chat;
 
 namespace SmartMenza.Business.Services
 {
@@ -41,11 +41,6 @@ namespace SmartMenza.Business.Services
             _deploymentName = _configuration["AzureOpenAI:DeploymentName"] ?? "Meal_Reccomender_AI";
         }
 
-        /// <summary>
-        /// Recommend a single meal ID for a specific menu id (legacy support).
-        /// This method builds a meals list from the specific menu and delegates to the shared worker.
-        /// It preserves previous behavior but reuses the same deterministic call path.
-        /// </summary>
         public async Task<int> RecommendMealForMenuAsync(int menuId, CancellationToken cancellationToken = default)
         {
             var menu = _menuService.GetMenuById(menuId);
@@ -62,15 +57,9 @@ namespace SmartMenza.Business.Services
                 throw new InvalidOperationException("Menu contains no meals.");
             }
 
-            // No user context available here — pass null for userId
             return await RecommendFromMealDtosAsync(meals, null, cancellationToken).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Recommend a single meal ID for a given date.
-        /// Uses MenuService -> MenuRepository.GetMenusByDate to retrieve menus for the date,
-        /// collects all meals available that day and sends the meals array and optional user goal to the model.
-        /// </summary>
         public async Task<int> RecommendMealForDateAsync(DateOnly date, int? userId = null, CancellationToken cancellationToken = default)
         {
             var menus = _menuService.GetMenusByDate(date);
@@ -80,7 +69,6 @@ namespace SmartMenza.Business.Services
                 throw new InvalidOperationException("No menus found for the requested date.");
             }
 
-            // Collect meals across all menus for the requested date.
             var allMeals = menus
                 .SelectMany(md => md.Meals ?? new List<MealDto>())
                 .DistinctBy(m => m.MealId)
@@ -92,14 +80,9 @@ namespace SmartMenza.Business.Services
                 throw new InvalidOperationException("No meals available for the requested date.");
             }
 
-            // Send the meals and active user goal (if provided) to the AI and parse response.
             return await RecommendFromMealDtosAsync(allMeals, userId, cancellationToken).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Accepts multiple menus (e.g. all menus for a date), collects every meal present in them,
-        /// removes duplicates by MealId and sends the combined meals array to the AI.
-        /// </summary>
         public async Task<int> RecommendMealForMenusAsync(IEnumerable<MenuResponseDto> menus, CancellationToken cancellationToken = default)
         {
             if (menus == null) throw new ArgumentNullException(nameof(menus));
@@ -123,23 +106,16 @@ namespace SmartMenza.Business.Services
             }
 
             _logger.LogDebug("Collected {Count} distinct meals from {MenuCount} menus.", allMeals.Count, menuList.Count);
-            // No user context available here — pass null for userId
             return await RecommendFromMealDtosAsync(allMeals, null, cancellationToken).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Shared worker: serializes provided MealDto list and optional user goal, calls chat completion,
-        /// validates returned ID is in the provided list and returns it.
-        /// </summary>
         private async Task<int> RecommendFromMealDtosAsync(List<MealDto> meals, int? userId, CancellationToken cancellationToken)
         {
             if (meals == null || meals.Count == 0)
                 throw new ArgumentException("meals must contain at least one item.", nameof(meals));
 
-            // Serialize meals (and optional goal) to JSON exactly as requested (no renaming).
             var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = null, WriteIndented = false };
 
-            // Try to obtain the active user's most recent goal if userId provided.
             NutritionGoal? activeGoal = null;
             if (userId.HasValue)
             {
@@ -157,7 +133,6 @@ namespace SmartMenza.Business.Services
                 }
             }
 
-            // Build payload: object with meals array and optional goal object (null if no active goal).
             object payload;
             if (activeGoal != null)
             {
@@ -184,10 +159,8 @@ namespace SmartMenza.Business.Services
 
             var payloadJson = JsonSerializer.Serialize(payload, jsonOptions);
 
-            // System prompt — update to reflect new JSON envelope.
             var systemPrompt = "You are a meal selection engine.\nYou will receive a JSON object with a 'meals' array and an optional 'goal' object.\nSelect exactly one meal ID from the list that best matches the user's nutritional goal if provided.\nRespond with the ID only.\nDo not explain your choice.";
 
-            // Build chat messages: system + user (user contains ONLY the JSON payload)
             var messages = new List<ChatMessage>
             {
                 ChatMessage.CreateSystemMessage(systemPrompt),
@@ -199,27 +172,22 @@ namespace SmartMenza.Business.Services
             ChatCompletion completion;
             try
             {
-                // The ChatClient registered in Program.cs is configured for the deployment/model.
                 completion = await Task.Run(() => _chatClient.CompleteChat(messages), cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                // If the AI client is unavailable (e.g. 401 Unauthorized) fall back to local recommendation.
                 _logger.LogWarning(ex, "Chat completion call failed. Attempting local fallback recommendation.");
 
-                // Detect common unauthorized indicators; fall back on any connectivity/auth error hint.
                 var message = ex?.Message ?? string.Empty;
                 var isAuthError = message.Contains("401") || message.IndexOf("unauthorized", StringComparison.OrdinalIgnoreCase) >= 0;
 
                 if (isAuthError)
                 {
-                    // activeGoal is in scope above; choose best local meal matching the goal (or best-available).
                     var fallbackId = RecommendClosestMealToGoal(meals, activeGoal, cancellationToken);
                     _logger.LogInformation("Fallback selected meal id {Id} due to AI unavailability.", fallbackId);
                     return fallbackId;
                 }
 
-                // Not an auth/connectivity indicator — rethrow as before.
                 _logger.LogError(ex, "Chat completion call failed.");
                 throw new InvalidOperationException("Failed to call AI service.", ex);
             }
@@ -230,7 +198,6 @@ namespace SmartMenza.Business.Services
                 throw new InvalidOperationException("Invalid chat completion response.");
             }
 
-            // Aggregate text parts if present. ChatCompletion does not have a 'Message' property in this SDK.
             var contentBuilder = new StringBuilder();
             if (completion.Content != null && completion.Content.Any())
             {
@@ -242,7 +209,6 @@ namespace SmartMenza.Business.Services
             }
             else
             {
-                // Last-resort fallback: use ChatCompletion.ToString() if the SDK serializes text there.
                 var fallback = completion.ToString();
                 if (!string.IsNullOrWhiteSpace(fallback))
                     contentBuilder.Append(fallback);
@@ -279,14 +245,11 @@ namespace SmartMenza.Business.Services
             return null;
         }
 
-        // Choose the meal from the provided list that is closest to the user's goal.
-        // If goal is null, prefer meals with the most nutrition fields present.
         private int RecommendClosestMealToGoal(List<MealDto> meals, NutritionGoal? goal, CancellationToken cancellationToken)
         {
             if (meals == null || meals.Count == 0)
                 throw new ArgumentException("meals must contain at least one item.", nameof(meals));
 
-            // If no user goal, prefer meals with the most nutrition data present (deterministic by MealId).
             if (goal == null)
             {
                 var chosen = meals
@@ -301,7 +264,6 @@ namespace SmartMenza.Business.Services
                 return chosen.MealId;
             }
 
-            // Weights prioritize calories, then protein, carbs, fat.
             decimal wCalories = 0.5m, wProtein = 0.25m, wCarbs = 0.15m, wFat = 0.10m;
 
             decimal bestScore = decimal.MaxValue;
@@ -319,7 +281,6 @@ namespace SmartMenza.Business.Services
 
                 var score = wCalories * scCalories + wProtein * scProtein + wCarbs * scCarbs + wFat * scFat;
 
-                // Slight preference for more-complete nutrition entries to break ties.
                 var completeness =
                     (meal.Calories.HasValue ? 1 : 0) +
                     (meal.Protein.HasValue ? 1 : 0) +
@@ -341,8 +302,6 @@ namespace SmartMenza.Business.Services
             return bestMeal.MealId;
         }
 
-        // Normalized absolute difference between mealVal and goalVal.
-        // Missing meal value returns 1.0 (penalty).
         private static decimal RelativeDifference(decimal? mealVal, decimal goalVal)
         {
             if (!mealVal.HasValue) return 1.0m;
