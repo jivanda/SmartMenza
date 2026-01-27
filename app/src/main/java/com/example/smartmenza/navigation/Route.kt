@@ -10,6 +10,11 @@ sealed interface Route { val route: String
     data object AllMeals : Route { override val route = "features/all_meals" }
     data object Offers : Route { override val route = "features/offers" }
     data object AllMenus : Route { override val route = "features/all_menus" }
+    data object ReviewCreate : Route {
+        override val route = "features/review_create/{mealId}"
+        fun createRoute(mealId: Int) = "features/review_create/$mealId"
+    }
+
     data object StatisticsScreen : Route { override val route = "features/statistics" }
     data object MenuEditor : Route { override val route = "features/menu_editor" }
     // kasnije

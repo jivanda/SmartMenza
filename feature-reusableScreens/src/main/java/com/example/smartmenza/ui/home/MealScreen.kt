@@ -71,6 +71,7 @@ data class ReviewUi(
 fun MealScreen(
     mealId: Int,
     onNavigateBack: () -> Unit,
+    onNavigateReview: () -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     val context = LocalContext.current
@@ -306,7 +307,7 @@ fun MealScreen(
                                         )
                                     )
 
-                                    IconButton(onClick = { }) {
+                                    IconButton(onClick =  onNavigateReview ) {
                                         Icon(
                                             imageVector = Icons.Filled.Add,
                                             contentDescription = "Add review",

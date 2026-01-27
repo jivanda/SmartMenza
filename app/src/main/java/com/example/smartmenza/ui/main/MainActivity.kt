@@ -35,6 +35,7 @@ import com.example.smartmenza.ui.home.MenuScreen
 import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.core_ui.R
+import com.example.smartmenza.ui.home.ReviewCreateScreen
 import com.example.smartmenza.R as appR
 import kotlinx.coroutines.launch
 
@@ -140,6 +141,19 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(
+                            route = Route.ReviewCreate.route,
+                            arguments = listOf(navArgument("mealId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val mealId = backStackEntry.arguments?.getInt("mealId") ?: return@composable
+
+                            ReviewCreateScreen(
+                                mealId = mealId,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+
+
+                        composable(
                             route = Route.MenuEditor.route + "/{menuId}",
                             arguments = listOf(
                                 navArgument("menuId") { type = NavType.IntType }
@@ -171,7 +185,8 @@ class MainActivity : ComponentActivity() {
 
                             MealScreen(
                                 mealId = mealId,
-                                onNavigateBack = { navController.popBackStack() }
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateReview = { navController.navigate(Route.ReviewCreate.createRoute(mealId)) }
                             )
                         }
 
