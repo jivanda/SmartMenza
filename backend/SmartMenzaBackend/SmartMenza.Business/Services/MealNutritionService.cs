@@ -141,6 +141,185 @@ namespace SmartMenza.Business.Services
             }
         }
 
+        /// <summary>
+        /// Ask the AI to assess a menu. AI must RETURN ONLY a single JSON OBJECT with fields:
+        /// { "menuId": number, "reasoning": string }
+        /// The service returns a strongly-typed DTO. On AI failure or invalid response a local heuristic is used.
+        /// </summary>
+        public async Task<NutritionAssessmentDto> AssessMenuHealthAsync(int menuId, CancellationToken cancellationToken = default)
+        {
+            var menu = _menuService.GetMenuById(menuId)
+                       ?? throw new InvalidOperationException($"Menu {menuId} not found.");
+
+            var meals = menu.Meals ?? new List<MealDto>();
+
+            var payload = new
+            {
+                menuId = menu.MenuId,
+                menuName = menu.Name,
+                meals = meals.Select(m => new
+                {
+                    m.MealId,
+                    m.Name,
+                    calories = m.Calories,
+                    protein = m.Protein,
+                    carbohydrates = m.Carbohydrates,
+                    fat = m.Fat
+                }).ToArray()
+            };
+
+            var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = null, WriteIndented = false };
+            var payloadJson = JsonSerializer.Serialize(payload, jsonOptions);
+
+            var systemPrompt = new StringBuilder()
+                .AppendLine("You are a nutrition assessor.")
+                .AppendLine("You will receive a JSON object with menuId, menuName and an array 'meals' where each meal may include numeric fields: calories, protein, carbohydrates, fat.")
+                .AppendLine("Analyze the menu's total nutrition and macronutrient balance and RETURN ONLY a single JSON OBJECT with exactly these fields:")
+                .AppendLine("{\"menuId\": number, \"reasoning\": string}")
+                .AppendLine("The reasoning should be a concise human-readable explanation of the menu's nutritional status (mention totals / imbalances as needed).")
+                .AppendLine("Do not include extra fields, arrays, or commentary outside the JSON object.")
+                .ToString();
+
+            var messages = new List<ChatMessage>
+            {
+                ChatMessage.CreateSystemMessage(systemPrompt),
+                ChatMessage.CreateUserMessage(payloadJson)
+            };
+
+            ChatCompletion completion;
+            try
+            {
+                completion = await Task.Run(() => _chatClient.CompleteChat(messages), cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "AI assessment failed for menu {MenuId}. Falling back to local heuristic.", menuId);
+                return BuildLocalAssessment(menuId, meals);
+            }
+
+            if (completion == null)
+            {
+                _logger.LogWarning("AI returned null completion for menu {MenuId}. Falling back to local heuristic.", menuId);
+                return BuildLocalAssessment(menuId, meals);
+            }
+
+            var contentBuilder = new StringBuilder();
+            if (completion.Content != null && completion.Content.Any())
+            {
+                foreach (var part in completion.Content)
+                {
+                    if (!string.IsNullOrEmpty(part.Text))
+                        contentBuilder.Append(part.Text);
+                }
+            }
+            else
+            {
+                var fallbackText = completion.ToString();
+                if (!string.IsNullOrWhiteSpace(fallbackText))
+                    contentBuilder.Append(fallbackText);
+            }
+
+            var raw = contentBuilder.ToString().Trim();
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                _logger.LogWarning("AI returned empty response for menu {MenuId}. Falling back to local heuristic.", menuId);
+                return BuildLocalAssessment(menuId, meals);
+            }
+
+            try
+            {
+                using var doc = JsonDocument.Parse(raw);
+                if (doc.RootElement.ValueKind != JsonValueKind.Object)
+                {
+                    _logger.LogWarning("AI returned non-object JSON for menu {MenuId}. Falling back to local heuristic.", menuId);
+                    return BuildLocalAssessment(menuId, meals);
+                }
+
+                var root = doc.RootElement;
+
+                // menuId check (optional)
+                if (root.TryGetProperty("menuId", out var menuIdProp) && menuIdProp.ValueKind == JsonValueKind.Number)
+                {
+                    if (menuIdProp.TryGetInt32(out var returnedMenuId) && returnedMenuId != menuId)
+                    {
+                        _logger.LogWarning("AI returned mismatched menuId ({Returned}) for menu {Expected}. Falling back.", returnedMenuId, menuId);
+                        return BuildLocalAssessment(menuId, meals);
+                    }
+                }
+
+                if (!root.TryGetProperty("reasoning", out var reasoningProp) || reasoningProp.ValueKind != JsonValueKind.String)
+                {
+                    _logger.LogWarning("AI response missing or invalid 'reasoning' for menu {MenuId}. Falling back.", menuId);
+                    return BuildLocalAssessment(menuId, meals);
+                }
+
+                var reasoning = reasoningProp.GetString() ?? string.Empty;
+
+                return new NutritionAssessmentDto
+                {
+                    MenuId = menuId,
+                    Reasoning = reasoning
+                };
+            }
+            catch (JsonException jex)
+            {
+                _logger.LogWarning(jex, "AI returned invalid JSON for menu {MenuId}. Falling back to local heuristic.", menuId);
+                return BuildLocalAssessment(menuId, meals);
+            }
+        }
+
+        private static NutritionAssessmentDto BuildLocalAssessment(int menuId, IEnumerable<MealDto> meals)
+        {
+            var totals = SumLocalNutrition(meals);
+
+            if (totals.Calories <= 0m)
+            {
+                return new NutritionAssessmentDto
+                {
+                    MenuId = menuId,
+                    Reasoning = "Insufficient nutritional data for menu meals to assess healthiness."
+                };
+            }
+
+            // Estimate macro calorie contributions
+            var proteinCalories = totals.Proteins * 4m;
+            var carbsCalories = totals.Carbohydrates * 4m;
+            var fatsCalories = totals.Fats * 9m;
+            var macroTotal = proteinCalories + carbsCalories + fatsCalories;
+
+            var issues = new List<string>();
+
+            if (totals.Calories < 400m)
+                issues.Add($"Total calories ({totals.Calories}) are low.");
+            else if (totals.Calories > 1200m)
+                issues.Add($"Total calories ({totals.Calories}) are high.");
+
+            if (macroTotal > 0m)
+            {
+                var pPct = proteinCalories / macroTotal * 100m;
+                var cPct = carbsCalories / macroTotal * 100m;
+                var fPct = fatsCalories / macroTotal * 100m;
+
+                if (pPct < 10m || pPct > 35m) issues.Add($"Protein proportion ({Math.Round(pPct,1)}%) is outside recommended 10-35%.");
+                if (cPct < 45m || cPct > 65m) issues.Add($"Carbohydrate proportion ({Math.Round(cPct,1)}%) is outside recommended 45-65%.");
+                if (fPct < 20m || fPct > 35m) issues.Add($"Fat proportion ({Math.Round(fPct,1)}%) is outside recommended 20-35%.");
+            }
+            else
+            {
+                issues.Add("No macronutrient breakdown available to assess balance.");
+            }
+
+            var reasoning = issues.Count == 0
+                ? $"Menu looks nutritionally reasonable. Totals: calories={totals.Calories}, proteins={totals.Proteins}, carbohydrates={totals.Carbohydrates}, fats={totals.Fats}."
+                : $"Menu may be suboptimal: {string.Join(" ", issues)} Totals: calories={totals.Calories}, proteins={totals.Proteins}, carbohydrates={totals.Carbohydrates}, fats={totals.Fats}.";
+
+            return new NutritionAssessmentDto
+            {
+                MenuId = menuId,
+                Reasoning = reasoning
+            };
+        }
+
         private static NutritionResultDto SumLocalNutrition(IEnumerable<MealDto> meals)
         {
             decimal calories = 0m, proteins = 0m, carbs = 0m, fats = 0m;

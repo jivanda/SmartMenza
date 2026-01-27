@@ -55,5 +55,40 @@ namespace SmartMenza.API.Controllers
                 return StatusCode(500, new { message = "Internal server error." });
             }
         }
+
+        [HttpGet("assess/menu/{menuId}")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(NutritionAssessmentDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> AssessMenuHealth(int menuId, CancellationToken cancellationToken)
+        {
+            if (menuId <= 0)
+            {
+                _logger.LogWarning("AssessMenuHealth called with invalid menuId: {MenuId}.", menuId);
+                return BadRequest(new { message = "Valid menuId is required." });
+            }
+
+            try
+            {
+                var dto = await _nutritionService.AssessMenuHealthAsync(menuId, cancellationToken).ConfigureAwait(false);
+                return Ok(dto);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Menu health assessment failed for menu {MenuId}.", menuId);
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Menu health assessment cancelled by client for menu {MenuId}.", menuId);
+                return StatusCode(499, new { message = "Request cancelled." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during menu health assessment for menu {MenuId}.", menuId);
+                return StatusCode(500, new { message = "Internal server error." });
+            }
+        }
     }
 }
