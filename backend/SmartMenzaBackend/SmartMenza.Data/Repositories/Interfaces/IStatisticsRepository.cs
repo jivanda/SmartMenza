@@ -19,5 +19,6 @@ namespace SmartMenza.Data.Repositories.Interfaces
     {
         List<MealStatsRow> GetMealStats(DateOnly? date, int? mealTypeId);
         (int TotalMeals, int TotalRatings, decimal OverallAverage) GetSummary(DateOnly? date, int? mealTypeId);
+        (int TotalMeals, int TotalRatings, decimal OverallAverage, int MaxRating) GetOverallStats(DateOnly? dateFrom, DateOnly? dateTo);
     }
 }

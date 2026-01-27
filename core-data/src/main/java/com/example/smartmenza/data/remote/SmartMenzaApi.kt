@@ -109,4 +109,13 @@ interface SmartMenzaApi {
         @Header("Uloga") role: String,
         @Body dto: MenuWriteDto
     ): Response<SimpleResponse>
+
+    @GET("api/Statistics/overall")
+    suspend fun getOverallStats(
+        @Query("dateFrom") dateFrom: String?,
+        @Query("dateTo") dateTo: String?
+    ): Response<OverallStatsDto>
+
+    @GET("api/RatingComment/meal-stats")
+    suspend fun getMealRatingStats(): Response<List<MealRatingStatsDto>>
 }

@@ -26,4 +26,13 @@ namespace SmartMenza.Domain.DTOs
 
         public List<MealStatsItemDto> TopMeals { get; set; } = new();
     }
+    public class OverallStatsDto
+    {
+        public string? DateFrom { get; set; }
+        public string? DateTo { get; set; }
+
+        public int TotalMeals { get; set; }
+        public decimal OverallAverageRating { get; set; }
+        public int MaxRating { get; set; }
+    }
 }

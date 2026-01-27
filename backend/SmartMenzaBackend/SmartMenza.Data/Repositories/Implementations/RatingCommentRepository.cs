@@ -41,5 +41,11 @@ namespace SmartMenza.Data.Repositories.Implementations
         public void Remove(RatingComment entity) => _context.RatingComment.Remove(entity);
 
         public void Save() => _context.SaveChanges();
+        public List<RatingComment> GetAll()
+        {
+            return _context.RatingComment
+                .AsNoTracking()
+                .ToList();
+        }
     }
 }

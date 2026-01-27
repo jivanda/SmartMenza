@@ -111,5 +111,61 @@ namespace SmartMenza.API.Controllers
             var result = _stats.GetSummary(dFrom, mealTypeId, sortBy, limit);
             return Ok(result);
         }
+        private static bool TryParseDateIso(string? date, out DateOnly? parsed, out string? error)
+        {
+            parsed = null;
+            error = null;
+
+            if (string.IsNullOrWhiteSpace(date)) return true;
+
+            if (!DateOnly.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d))
+            {
+                error = "Neispravan format datuma. Koristi yyyy-MM-dd.";
+                return false;
+            }
+
+            parsed = d;
+            return true;
+        }
+
+        private static bool TryParseDateRangeIso(string? dateFrom, string? dateTo, out DateOnly? from, out DateOnly? to, out string? error)
+        {
+            from = null;
+            to = null;
+            error = null;
+
+            if (!TryParseDateIso(dateFrom, out var f, out var errF))
+            {
+                error = errF;
+                return false;
+            }
+
+            if (!TryParseDateIso(dateTo, out var t, out var errT))
+            {
+                error = errT;
+                return false;
+            }
+
+            from = f;
+            to = t;
+
+            if (from != null && to != null && from > to)
+            {
+                error = "Parametar dateFrom ne može biti veći od dateTo.";
+                return false;
+            }
+
+            return true;
+        }
+
+        [HttpGet("overall")]
+        public IActionResult Overall([FromQuery] string? dateFrom, [FromQuery] string? dateTo)
+        {
+            if (!TryParseDateRangeIso(dateFrom, dateTo, out var dFrom, out var dTo, out var err))
+                return BadRequest(new SimpleMessageDto { Message = err! });
+
+            var result = _stats.GetOverallStats(dFrom, dTo);
+            return Ok(result);
+        }
     }
 }

@@ -4,9 +4,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,8 +27,10 @@ import com.example.core_ui.R
 import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.FavoriteToggleDto
 import com.example.smartmenza.data.remote.MealDto
+import com.example.smartmenza.data.remote.MealRatingStatsDto
+import com.example.smartmenza.data.remote.OverallStatsDto
 import com.example.smartmenza.data.remote.RetrofitInstance
-import com.example.smartmenza.ui.components.MealCard
+import com.example.smartmenza.ui.components.MealStatisticsCard
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
@@ -35,7 +38,12 @@ import com.example.smartmenza.ui.theme.SpanRed
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(
     onNavigateToMeal: (Int) -> Unit,
@@ -53,8 +61,71 @@ fun StatisticsScreen(
     var mealTypeNameMap by remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
     var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
-    val mealsJson by remember {
-        derivedStateOf { Gson().toJson(meals) }
+    var statsLoading by remember { mutableStateOf(false) }
+    var statsError by remember { mutableStateOf<String?>(null) }
+    var stats by remember { mutableStateOf<OverallStatsDto?>(null) }
+
+    var mealRatingMap by remember { mutableStateOf<Map<Int, MealRatingStatsDto>>(emptyMap()) }
+
+    val isoFmt = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
+    val hrFmt = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
+
+    var dateFrom by remember { mutableStateOf(LocalDate.now().minusYears(1)) }
+    var dateTo by remember { mutableStateOf(LocalDate.now()) }
+
+    var showFromPicker by remember { mutableStateOf(false) }
+    var showToPicker by remember { mutableStateOf(false) }
+
+    val fromPickerState = rememberDatePickerState()
+    val toPickerState = rememberDatePickerState()
+
+    fun popularityFor(mealId: Int): Double {
+        val r = mealRatingMap[mealId]
+        val reviews = r?.numberOfReviews ?: 0
+        val avg = r?.averageRating ?: 0.0
+        return reviews.toDouble() + avg
+    }
+
+    fun millisToLocalDate(millis: Long): LocalDate {
+        return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+    }
+
+    fun fetchOverallStats() {
+        statsLoading = true
+        statsError = null
+        coroutineScope.launch {
+            try {
+                val res = RetrofitInstance.api.getOverallStats(
+                    dateFrom.format(isoFmt),
+                    dateTo.format(isoFmt)
+                )
+                if (res.isSuccessful) {
+                    stats = res.body()
+                } else {
+                    statsError = "Greška statistike: ${res.code()}"
+                }
+            } catch (e: Exception) {
+                statsError = "Greška statistike: ${e.message}"
+            } finally {
+                statsLoading = false
+            }
+        }
+    }
+
+    fun fetchMealRatingStats() {
+        coroutineScope.launch {
+            try {
+                val res = RetrofitInstance.api.getMealRatingStats()
+                if (res.isSuccessful) {
+                    val list = res.body() ?: emptyList()
+                    mealRatingMap = list.associateBy { it.mealId }
+                } else {
+                    Log.e("Stats", "getMealRatingStats failed: ${res.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("Stats", "getMealRatingStats exception: ${e.message}", e)
+            }
+        }
     }
 
     fun fetchFavorites() {
@@ -66,8 +137,7 @@ fun StatisticsScreen(
                     if (response.isSuccessful) {
                         favoriteMealIds = response.body()?.map { it.mealId }?.toSet() ?: emptySet()
                     }
-                } catch (_: Exception) {
-                }
+                } catch (_: Exception) { }
             }
         }
     }
@@ -90,7 +160,8 @@ fun StatisticsScreen(
                 }
 
                 if (response.isSuccessful) {
-                    favoriteMealIds = if (isCurrentlyFavorite) favoriteMealIds - mealId else favoriteMealIds + mealId
+                    favoriteMealIds =
+                        if (isCurrentlyFavorite) favoriteMealIds - mealId else favoriteMealIds + mealId
                 } else {
                     Toast.makeText(context, "Greška: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
@@ -100,11 +171,12 @@ fun StatisticsScreen(
         }
     }
 
-    LaunchedEffect(userId) {
-        fetchFavorites()
-    }
+    LaunchedEffect(userId) { fetchFavorites() }
 
     LaunchedEffect(Unit) {
+        fetchOverallStats()
+        fetchMealRatingStats()
+
         isLoading = true
         errorMessage = null
         try {
@@ -123,14 +195,13 @@ fun StatisticsScreen(
         }
     }
 
+    val mealsJson by remember { derivedStateOf { Gson().toJson(meals) } }
+
     LaunchedEffect(mealsJson) {
         if (mealsJson.isBlank() || meals.isEmpty()) {
             mealTypeNameMap = emptyMap()
             return@LaunchedEffect
         }
-
-        Log.d("MealTypeDebug", "mealsJson length=${mealsJson.length}")
-        Log.d("MealTypeDebug", "mealsJson preview=${mealsJson.take(400)}")
 
         val parsedMeals: List<MealDto> = try {
             val type = object : TypeToken<List<MealDto>>() {}.type
@@ -140,53 +211,58 @@ fun StatisticsScreen(
             emptyList()
         }
 
-        parsedMeals.forEach { meal ->
-            Log.d(
-                "MealTypeDebug",
-                "Parsed meal: mealId=${meal.mealId}, mealTypeId=${meal.mealTypeId}, name=${meal.name}"
-            )
-        }
-
-        val ids = parsedMeals
-            .map { it.mealTypeId }
-            .distinct()
-
-        Log.d("MealTypeDebug", "Distinct mealTypeIds (filtered) = $ids")
-
+        val ids = parsedMeals.map { it.mealTypeId }.distinct()
         val map = mutableMapOf<Int, String>()
 
         ids.forEach { id ->
             try {
-                Log.d("MealTypeDebug", "Requesting meal type for id=$id")
                 val res = RetrofitInstance.api.getMealTypeName(id)
-
-                Log.d(
-                    "MealTypeDebug",
-                    "Response for id=$id → code=${res.code()} successful=${res.isSuccessful}"
-                )
-
                 if (res.isSuccessful) {
                     val name = res.body()
-                    Log.d("MealTypeDebug", "Body for id=$id → $name")
                     if (!name.isNullOrBlank()) map[id] = name
-                } else {
-                    val error = res.errorBody()?.string()
-                    Log.e("MealTypeDebug", "Error for id=$id → code=${res.code()} body=$error")
                 }
-            } catch (e: Exception) {
-                Log.e("MealTypeDebug", "Exception for id=$id → ${e.message}", e)
-            }
+            } catch (_: Exception) { }
         }
 
-        Log.d("MealTypeDebug", "Final mealTypeNameMap = $map")
         mealTypeNameMap = map
+    }
+
+    if (showFromPicker) {
+        DatePickerDialog(
+            onDismissRequest = { showFromPicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val millis = fromPickerState.selectedDateMillis
+                    if (millis != null) dateFrom = millisToLocalDate(millis)
+                    showFromPicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showFromPicker = false }) { Text("Odustani") }
+            }
+        ) { DatePicker(state = fromPickerState) }
+    }
+
+    if (showToPicker) {
+        DatePickerDialog(
+            onDismissRequest = { showToPicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val millis = toPickerState.selectedDateMillis
+                    if (millis != null) dateTo = millisToLocalDate(millis)
+                    showToPicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showToPicker = false }) { Text("Odustani") }
+            }
+        ) { DatePicker(state = toPickerState) }
     }
 
     SmartMenzaTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -210,9 +286,7 @@ fun StatisticsScreen(
                     Image(
                         painter = subtlePattern,
                         contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .alpha(0.06f),
+                        modifier = Modifier.fillMaxSize().alpha(0.06f),
                         contentScale = ContentScale.Crop
                     )
 
@@ -220,36 +294,35 @@ fun StatisticsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.TopCenter)
-                            .offset(y = (20).dp)
+                            .offset(y = 20.dp)
                             .padding(horizontal = 24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "Statistika",
-                            style = MaterialTheme.typography.headlineLarge
-                        )
+                        Text(text = "Statistika", style = MaterialTheme.typography.headlineLarge)
 
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
                             horizontalAlignment = Alignment.Start
                         ) {
-                            Text(
-                                text = "Ukupno jela:",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Text(
-                                text = "Prosječna ocjena: ",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Text(
-                                text = "Najveća ocjena:",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+                            val totalMealsText = stats?.totalMeals?.toString() ?: "-"
+                            val avgText = stats?.overallAverageRating?.let { String.format("%.2f", it) } ?: "-"
+                            val maxText = stats?.maxRating?.toString() ?: "-"
+
+                            Text("Ukupno jela: $totalMealsText", style = MaterialTheme.typography.bodyLarge)
+                            Text("Prosječna ocjena: $avgText", style = MaterialTheme.typography.bodyLarge)
+                            Text("Najveća ocjena: $maxText", style = MaterialTheme.typography.bodyLarge)
+
+                            if (statsLoading) {
+                                Spacer(Modifier.height(8.dp))
+                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                            }
+                            if (statsError != null) {
+                                Spacer(Modifier.height(8.dp))
+                                Text(text = statsError!!, color = Color.Red)
+                            }
                         }
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -262,49 +335,79 @@ fun StatisticsScreen(
 
                             Spacer(modifier = Modifier.width(12.dp))
 
-                            Button(
-                                onClick = { },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = SpanRed,
-                                    contentColor = Color.White
-                                ),
-                                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
+                            OutlinedButton(
+                                onClick = { showFromPicker = true },
+                                modifier = Modifier.weight(1f).height(56.dp),
+                                shape = RoundedCornerShape(12.dp)
                             ) {
-                                Text(
-                                    text = "10.01.2025 - 10.01.2026",
-                                    style = MaterialTheme.typography.labelLarge.copy(color = Color.White)
-                                )
+                                Icon(Icons.Default.DateRange, contentDescription = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text(dateFrom.format(hrFmt))
                             }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            OutlinedButton(
+                                onClick = { showToPicker = true },
+                                modifier = Modifier.weight(1f).height(56.dp),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Icon(Icons.Default.DateRange, contentDescription = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text(dateTo.format(hrFmt))
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Button(
+                            onClick = {
+                                if (dateFrom.isAfter(dateTo)) {
+                                    Toast.makeText(context, "Datum OD ne može biti poslije datuma DO.", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    fetchOverallStats()
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = SpanRed, contentColor = Color.White),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
+                        ) {
+                            Text("Primijeni", style = MaterialTheme.typography.labelLarge.copy(color = Color.White))
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
                         when {
-                            isLoading -> {
-                                CircularProgressIndicator()
-                            }
-                            errorMessage != null -> {
-                                Text(text = errorMessage!!, color = Color.Red)
-                            }
-                            meals.isEmpty() -> {
-                                Text(text = "Nema dostupnih jela.")
-                            }
+                            isLoading -> CircularProgressIndicator()
+                            errorMessage != null -> Text(text = errorMessage!!, color = Color.Red)
+                            meals.isEmpty() -> Text(text = "Nema dostupnih jela.")
                             else -> {
-                                meals.forEach { meal ->
-                                    MealCard(
+                                val sortedMeals = meals
+                                    .sortedByDescending { meal -> popularityFor(meal.mealId) }
+
+                                sortedMeals.forEach { meal ->
+                                    val r = mealRatingMap[meal.mealId]
+
+                                    val numberOfReviews = r?.numberOfReviews ?: 0
+                                    val averageRating = r?.averageRating ?: 0.0
+                                    val popularnost = numberOfReviews.toDouble() + averageRating
+
+                                    MealStatisticsCard(
                                         name = meal.name,
-                                        typeName = mealTypeNameMap[meal.mealTypeId] ?: "—",
+                                        typeName = mealTypeNameMap[meal.mealTypeId] ?: "-",
                                         price = "%.2f EUR".format(meal.price),
                                         imageRes = R.drawable.hrenovke,
                                         isFavorite = favoriteMealIds.contains(meal.mealId),
                                         onToggleFavorite = { toggleFavorite(meal.mealId) },
                                         modifier = Modifier.fillMaxWidth(),
-                                        onClick = {onNavigateToMeal(meal.mealId)}
+                                        onClick = { onNavigateToMeal(meal.mealId) },
+                                        numberOfReviews = numberOfReviews,
+                                        averageRating = averageRating
                                     )
+
+                                    //Text("Popularnost: ${String.format("%.2f", popularnost)}")
+
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
                             }
@@ -315,9 +418,7 @@ fun StatisticsScreen(
                         Text(
                             text = "Powered by SPAN",
                             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(bottom = 24.dp)
+                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 24.dp)
                         )
                     }
                 }
