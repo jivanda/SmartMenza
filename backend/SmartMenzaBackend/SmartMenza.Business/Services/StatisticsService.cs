@@ -53,5 +53,18 @@ namespace SmartMenza.Business.Services
                 TopMeals = GetTopMeals(date, mealTypeId, sortBy, limit)
             };
         }
+        public OverallStatsDto GetOverallStats(DateOnly? dateFrom, DateOnly? dateTo)
+        {
+            var (totalMeals, totalRatings, overallAvg, maxRating) = _repo.GetOverallStats(dateFrom, dateTo);
+
+            return new OverallStatsDto
+            {
+                DateFrom = dateFrom?.ToString("yyyy-MM-dd"),
+                DateTo = dateTo?.ToString("yyyy-MM-dd"),
+                TotalMeals = totalMeals,
+                OverallAverageRating = overallAvg,
+                MaxRating = maxRating
+            };
+        }
     }
 }

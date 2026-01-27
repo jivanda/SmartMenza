@@ -18,5 +18,6 @@ namespace SmartMenza.Data.Repositories.Interfaces
         void Add(RatingComment entity);
         void Remove(RatingComment entity);
         void Save();
+        List<RatingComment> GetAll();
     }
 }

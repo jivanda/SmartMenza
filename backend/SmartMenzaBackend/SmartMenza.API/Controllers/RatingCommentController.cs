@@ -79,5 +79,24 @@ namespace SmartMenza.API.Controllers
         {
             return Ok(_service.GetSummary(mealId));
         }
+
+        [HttpGet("meal-stats")]
+        public IActionResult GetMealStats()
+        {
+            var all = _service.GetAll();
+
+            var stats = all
+                .GroupBy(r => r.MealId)
+                .Select(g => new MealRatingStatsDto
+                {
+                    MealId = g.Key,
+                    NumberOfReviews = g.Count(),
+                    AverageRating = g.Average(x => (decimal)x.Rating)
+                })
+                .ToList();
+
+            return Ok(stats);
+        }
+
     }
 }

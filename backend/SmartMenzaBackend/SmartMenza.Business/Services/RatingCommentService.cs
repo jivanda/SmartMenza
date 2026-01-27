@@ -1,4 +1,5 @@
-﻿using SmartMenza.Data.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartMenza.Data.Entities;
 using SmartMenza.Data.Repositories.Interfaces;
 using SmartMenza.Domain.DTOs;
 using System.Collections.Generic;
@@ -31,7 +32,8 @@ namespace SmartMenza.Business.Services
                 UserId = userId,
                 MealId = dto.MealId,
                 Rating = dto.Rating,
-                Comment = dto.Comment
+                Comment = dto.Comment,
+                Date = System.DateTime.Now
             });
 
             _repo.Save();
@@ -81,6 +83,10 @@ namespace SmartMenza.Business.Services
         {
             if (userId <= 0 || mealId <= 0) return 0;
             return _repo.Exists(userId, mealId) ? 1 : 0;
+        }
+        public List<RatingComment> GetAll()
+        {
+            return _repo.GetAll();
         }
     }
 }
