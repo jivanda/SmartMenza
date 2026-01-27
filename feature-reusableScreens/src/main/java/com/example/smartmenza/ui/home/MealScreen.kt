@@ -1,20 +1,42 @@
 package com.example.smartmenza.ui.home
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -32,13 +54,18 @@ import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.FavoriteToggleDto
 import com.example.smartmenza.data.remote.MealDto
 import com.example.smartmenza.data.remote.RetrofitInstance
-import com.example.smartmenza.ui.components.MealCard
-import com.example.smartmenza.ui.theme.*
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.example.smartmenza.ui.components.ReviewCard
+import com.example.smartmenza.ui.theme.BackgroundBeige
+import com.example.smartmenza.ui.theme.Montserrat
+import com.example.smartmenza.ui.theme.SmartMenzaTheme
+import com.example.smartmenza.ui.theme.SpanRed
 import kotlinx.coroutines.launch
 import com.example.core_ui.R
 
+data class ReviewUi(
+    val rating: Int = 5,
+    val comment: String
+)
 
 @Composable
 fun MealScreen(
@@ -48,14 +75,17 @@ fun MealScreen(
 ) {
     val context = LocalContext.current
     val prefs = remember { UserPreferences(context) }
+
     val userId by prefs.userId.collectAsState(initial = null)
+    val userRole by prefs.userRole.collectAsState(initial = "Student")
+
     val coroutineScope = rememberCoroutineScope()
+    val shouldShowFavorite = userRole != "Employee"
 
     var mealDto by remember { mutableStateOf<MealDto?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var mealTypeName by remember { mutableStateOf<String?>(null) }
-
 
     var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
@@ -63,6 +93,13 @@ fun MealScreen(
         derivedStateOf { favoriteMealIds.contains(mealId) }
     }
 
+    val reviews = remember {
+        listOf(
+            ReviewUi(5, "Odlično jelo, jako ukusno i svježe. Porcija je super i cijena korektna."),
+            ReviewUi(4, "Dobro, ali bi moglo biti malo više začina. Inače sve ok."),
+            ReviewUi(5, "Top! Uzeo bih opet. Posebno mi se svidio prilog.")
+        )
+    }
 
     fun fetchFavorites() {
         val currentUserId = userId
@@ -78,7 +115,6 @@ fun MealScreen(
             }
         }
     }
-
 
     fun toggleFavorite(mealId: Int) {
         val currentUserId = userId
@@ -189,8 +225,6 @@ fun MealScreen(
                 }
 
                 Box(modifier = Modifier.fillMaxSize()) {
-
-                    // Background pattern
                     Image(
                         painter = subtlePattern,
                         contentDescription = null,
@@ -200,68 +234,98 @@ fun MealScreen(
                         contentScale = ContentScale.Crop
                     )
 
-                    // Foreground content
                     if (mealDto != null) {
-                        Column(
+                        LazyColumn(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.Start
+                                .fillMaxSize()
+                                .padding(16.dp)
                         ) {
-
-                            // BIG MEAL IMAGE
-                            Image(
-                                painter = painterResource(id = R.drawable.hrenovke),
-                                contentDescription = mealDto!!.name,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(220.dp)
-                                    .clip(RoundedCornerShape(16.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = mealDto!!.name,
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    fontWeight = FontWeight.Bold
+                            item {
+                                Image(
+                                    painter = painterResource(id = R.drawable.hrenovke),
+                                    contentDescription = mealDto!!.name,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(220.dp)
+                                        .clip(RoundedCornerShape(16.dp)),
+                                    contentScale = ContentScale.Crop
                                 )
 
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
 
-                                IconButton(onClick = { toggleFavorite(mealId) }) {
-                                    Icon(
-                                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                                        contentDescription = "Favorite",
-                                        tint = if (isFavorite) Color.Yellow else Color.Gray
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = mealDto!!.name,
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        fontWeight = FontWeight.Bold
                                     )
+
+                                    if (shouldShowFavorite) {
+                                        Spacer(modifier = Modifier.width(8.dp))
+
+                                        IconButton(onClick = { toggleFavorite(mealId) }) {
+                                            Icon(
+                                                imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                                                contentDescription = "Favorite",
+                                                tint = if (isFavorite) Color.Yellow else Color.Gray
+                                            )
+                                        }
+                                    }
                                 }
-                            }
 
+                                Spacer(modifier = Modifier.height(8.dp))
 
+                                mealDto!!.description?.let {
+                                    Text(
+                                        text = it,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                                Text("Cijena: %.2f EUR".format(mealDto!!.price))
+                                Text("Tip jela: ${mealTypeName}")
+                                Text("Kalorije: ${mealDto!!.calories ?: "—"} kcal")
+                                Text("Proteini: ${mealDto!!.protein ?: "—"} g")
+                                Text("Ugljikohidrati: ${mealDto!!.carbohydrates ?: "—"} g")
+                                Text("Masti: ${mealDto!!.fat ?: "—"} g")
 
-                            // DESCRIPTION
-                            mealDto!!.description?.let {
-                                Text(
-                                    text = it,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                                Spacer(modifier = Modifier.height(20.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Recenzije",
+                                        style = MaterialTheme.typography.headlineSmall.copy(
+                                            fontFamily = Montserrat,
+                                            fontWeight = FontWeight.Bold,
+                                            color = SpanRed
+                                        )
+                                    )
+
+                                    IconButton(onClick = { }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Add,
+                                            contentDescription = "Add review",
+                                            tint = SpanRed
+                                        )
+                                    }
+                                }
+
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
 
-                            // ATTRIBUTES
-                            Text("Cijena: %.2f EUR".format(mealDto!!.price))
-                            Text("Tip jela: ${mealTypeName}")
-                            Text("Kalorije: ${mealDto!!.calories ?: "—"} kcal")
-                            Text("Proteini: ${mealDto!!.protein ?: "—"} g")
-                            Text("Ugljikohidrati: ${mealDto!!.carbohydrates ?: "—"} g")
-                            Text("Masti: ${mealDto!!.fat ?: "—"} g")
+                            items(reviews) { review ->
+                                ReviewCard(
+                                    rating = review.rating,
+                                    comment = review.comment,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
                         }
                     } else if (isLoading) {
                         Box(

@@ -128,16 +128,6 @@ fun MealStatisticsCard(
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                IconButton(onClick = onToggleFavorite) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                        contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Yellow else Color.Gray
-                    )
-                }
             }
         }
     }

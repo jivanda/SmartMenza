@@ -15,6 +15,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -29,11 +32,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-//import com.example.smartmenza.ui.theme.BackgroundBeige
+import androidx.compose.ui.platform.LocalContext
+import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SpanRed
-import kotlin.Boolean
-
 
 @Composable
 fun MealCard(
@@ -46,6 +48,12 @@ fun MealCard(
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit
 ) {
+    val context = LocalContext.current
+    val prefs = remember { UserPreferences(context) }
+    val userRole by prefs.userRole.collectAsState(initial = "Student")
+
+    val shouldShowFavorite = userRole != "Employee"
+
     val shape = RoundedCornerShape(16.dp)
 
     Card(
@@ -100,14 +108,16 @@ fun MealCard(
                     contentScale = ContentScale.Crop
                 )
 
-                Spacer(modifier = Modifier.width(12.dp))
+                if (shouldShowFavorite) {
+                    Spacer(modifier = Modifier.width(12.dp))
 
-                IconButton(onClick = onToggleFavorite) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                        contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Yellow else Color.Gray
-                    )
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                            contentDescription = "Favorite",
+                            tint = if (isFavorite) Color.Yellow else Color.Gray
+                        )
+                    }
                 }
             }
         }
