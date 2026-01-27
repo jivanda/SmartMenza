@@ -28,13 +28,6 @@ namespace SmartMenza.Business.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        /// <summary>
-        /// Input: menuId
-        /// - collect all meal names from the menu
-        /// - send names as JSON to the AI for analysis
-        /// - if AI returns valid numeric nutrition object, return it
-        /// - otherwise fallback to summing available local nutrition fields from meals
-        /// </summary>
         public async Task<NutritionResultDto> AnalyzeMenuByNamesAsync(int menuId, CancellationToken cancellationToken = default)
         {
             var menu = _menuService.GetMenuById(menuId)
@@ -42,7 +35,6 @@ namespace SmartMenza.Business.Services
 
             var meals = menu.Meals ?? new List<MealDto>();
 
-            // Build names-only payload
             var payload = new
             {
                 menu.MenuId,
@@ -84,7 +76,6 @@ namespace SmartMenza.Business.Services
                 return SumLocalNutrition(meals);
             }
 
-            // Aggregate text parts (SDK may provide content parts)
             var contentBuilder = new StringBuilder();
             if (completion.Content != null && completion.Content.Any())
             {
@@ -108,7 +99,6 @@ namespace SmartMenza.Business.Services
                 return SumLocalNutrition(meals);
             }
 
-            // Parse expected JSON object with numeric fields
             try
             {
                 using var doc = JsonDocument.Parse(raw);
@@ -151,7 +141,6 @@ namespace SmartMenza.Business.Services
             }
         }
 
-        // Fallback: sum available local nutrition values (missing values treated as 0)
         private static NutritionResultDto SumLocalNutrition(IEnumerable<MealDto> meals)
         {
             decimal calories = 0m, proteins = 0m, carbs = 0m, fats = 0m;
@@ -173,7 +162,6 @@ namespace SmartMenza.Business.Services
             };
         }
 
-        // Helper: try to read numeric value (as decimal) from a JsonElement property.
         private static bool TryGetNumber(JsonElement root, string propertyName, out decimal value)
         {
             value = 0m;
