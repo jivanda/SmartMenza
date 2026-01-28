@@ -5,5 +5,5 @@ data class OverallStatsDto(
     val dateTo: String?,
     val totalMeals: Int,
     val overallAverageRating: Double,
-    val maxRating: Int
+    val maxRating: Double
 )

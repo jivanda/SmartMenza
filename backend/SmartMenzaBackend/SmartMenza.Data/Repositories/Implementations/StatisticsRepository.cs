@@ -89,7 +89,7 @@ namespace SmartMenza.Data.Repositories.Implementations
                     where md.Date >= dateFrom && md.Date <= dateTo
                     select mm.MealId).Distinct();
         }
-        public (int TotalMeals, int TotalRatings, decimal OverallAverage, int MaxRating) GetOverallStats(DateOnly? dateFrom, DateOnly? dateTo)
+        public (int TotalMeals, int TotalRatings, decimal OverallAverage, decimal MaxRating) GetOverallStats(DateOnly? dateFrom, DateOnly? dateTo)
         {
             var meals = _context.Meal.AsNoTracking().AsQueryable();
 
@@ -108,10 +108,25 @@ namespace SmartMenza.Data.Repositories.Implementations
                 .AsNoTracking()
                 .Where(rc => mealIds.Contains(rc.MealId));
 
+            var ratingsByMeal = ratings
+                .GroupBy(r => r.MealId)
+                .Select(g => new
+                {
+                    MealId = g.Key,
+                    AvgRating = g.Average(x => (decimal)x.Rating)
+                })
+                .ToList();
+
+
             var totalMeals = meals.Count();
             var totalRatings = ratings.Count();
-            var overallAvg = totalRatings == 0 ? 0m : ratings.Average(x => (decimal)x.Rating);
-            var maxRating = totalRatings == 0 ? 0 : ratings.Max(x => x.Rating);
+            var overallAvg = totalMeals == 0
+                ? 0m
+                : ratingsByMeal.Average(x => x.AvgRating);
+
+            var maxRating = totalMeals == 0
+                ? 0m
+                : ratingsByMeal.Max(x => x.AvgRating);
 
             return (totalMeals, totalRatings, overallAvg, maxRating);
         }

@@ -306,7 +306,7 @@ fun StatisticsScreen(
                         ) {
                             val totalMealsText = stats?.totalMeals?.toString() ?: "-"
                             val avgText = stats?.overallAverageRating?.let { String.format("%.2f", it) } ?: "-"
-                            val maxText = stats?.maxRating?.toString() ?: "-"
+                            val maxText = stats?.maxRating?.let { String.format("%.2f", it) } ?: "-"
 
                             Text("Ukupno jela: $totalMealsText", style = MaterialTheme.typography.bodyLarge)
                             Text("Prosječna ocjena: $avgText", style = MaterialTheme.typography.bodyLarge)

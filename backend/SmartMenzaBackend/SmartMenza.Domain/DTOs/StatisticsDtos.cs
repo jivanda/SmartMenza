@@ -33,6 +33,6 @@ namespace SmartMenza.Domain.DTOs
 
         public int TotalMeals { get; set; }
         public decimal OverallAverageRating { get; set; }
-        public int MaxRating { get; set; }
+        public decimal MaxRating { get; set; }
     }
 }

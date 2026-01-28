@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
@@ -62,6 +63,8 @@ import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.smartmenza.ui.theme.SpanRed
 import kotlinx.coroutines.launch
 import com.example.core_ui.R
+import com.example.smartmenza.data.remote.RatingCommentDto
+
 
 data class ReviewUi(
     val rating: Int = 5,
@@ -90,19 +93,18 @@ fun MealScreen(
     var mealTypeName by remember { mutableStateOf<String?>(null) }
 
     var hasReviewed by remember { mutableStateOf(false) }
+    var hasReviews by remember { mutableStateOf(false) }
+    var reviews by remember { mutableStateOf<List<RatingCommentDto>>(emptyList()) }
+
+    var showDeleteReviewDialog by remember { mutableStateOf(false) }
+
+    var averageRating by remember { mutableStateOf<Double?>(null) }
+    var ratingsCount by remember { mutableStateOf(0) }
 
     var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
     val isFavorite by remember(favoriteMealIds, mealId) {
         derivedStateOf { favoriteMealIds.contains(mealId) }
-    }
-
-    val reviews = remember {
-        listOf(
-            ReviewUi(5, "Odlično jelo, jako ukusno i svježe. Porcija je super i cijena korektna."),
-            ReviewUi(4, "Dobro, ali bi moglo biti malo više začina. Inače sve ok."),
-            ReviewUi(5, "Top! Uzeo bih opet. Posebno mi se svidio prilog.")
-        )
     }
 
     fun fetchFavorites() {
@@ -119,6 +121,44 @@ fun MealScreen(
             }
         }
     }
+
+    fun fetchReviews() {
+        coroutineScope.launch {
+            try {
+                val resp = RetrofitInstance.api.getReviewsByMeal(mealId)
+                if (resp.isSuccessful) {
+                    val list = resp.body() ?: emptyList()
+
+                    val uid = userId
+                    reviews = if (uid != null) {
+                        list.sortedWith(
+                            compareByDescending<RatingCommentDto> { it.userId == uid }
+                        )
+                    } else {
+                        list
+                    }
+                }
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    fun fetchRatingSummary() {
+        coroutineScope.launch {
+            try {
+                val resp = RetrofitInstance.api.getReviewSummary(mealId)
+                if (resp.isSuccessful) {
+                    resp.body()?.let {
+                        averageRating = it.averageRating
+                        ratingsCount = it.ratingsCount
+                    }
+                }
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+
 
     fun toggleFavorite(mealId: Int) {
         val currentUserId = userId
@@ -196,6 +236,49 @@ fun MealScreen(
             mealTypeName = "—"
         }
     }
+
+    LaunchedEffect(mealId) {
+        fetchReviews()
+        fetchRatingSummary()
+    }
+
+    fun deleteMyReview() {
+        val uid = userId ?: return
+
+        coroutineScope.launch {
+            try {
+                val response = RetrofitInstance.api.deleteRatingComment(
+                    mealId = mealId,
+                    userId = uid
+                )
+
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "Recenzija je obrisana.", Toast.LENGTH_SHORT).show()
+
+                    hasReviewed = false
+                    fetchReviews()
+                    fetchRatingSummary()
+                } else {
+                    val msg = response.body()?.message
+                    Toast.makeText(
+                        context,
+                        msg ?: "Greška pri brisanju recenzije.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(
+                    context,
+                    "Greška pri brisanju recenzije: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } finally {
+                showDeleteReviewDialog = false
+            }
+        }
+    }
+
+
 
     SmartMenzaTheme {
         Surface(
@@ -312,17 +395,49 @@ fun MealScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(
-                                        text = "Recenzije",
-                                        style = MaterialTheme.typography.headlineSmall.copy(
-                                            fontFamily = Montserrat,
-                                            fontWeight = FontWeight.Bold,
-                                            color = SpanRed
+                                    if (averageRating != null && ratingsCount > 0) {
+                                        hasReviews = true
+                                        Spacer(modifier = Modifier.height(4.dp))
+
+                                        Text(
+                                            text = "Prosječna ocjena: %.1f / 5  •  %d recenzije"
+                                                .format(averageRating, ratingsCount),
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontFamily = Montserrat,
+                                                color = SpanRed,
+                                                fontWeight = FontWeight.Bold
+                                            )
                                         )
-                                    )
+
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                    } else {
+                                        Spacer(modifier = Modifier.height(12.dp))
+
+                                        Text(
+                                            text = "Još nema recenzija",
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontFamily = Montserrat,
+                                                color = Color.Gray
+                                            )
+                                        )
+
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                    }
 
 
                                     if (isStudent) {
+
+                                        if(hasReviewed){
+                                            IconButton(onClick = { showDeleteReviewDialog = true }) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.Delete,
+                                                    contentDescription = "Delete review",
+                                                    tint = SpanRed
+                                                )
+                                            }
+                                        }
+
+
                                         IconButton(onClick = onNavigateReview) {
                                             Icon(
                                                 imageVector = if (!hasReviewed) Icons.Filled.Add else Icons.Filled.Edit,
@@ -330,19 +445,23 @@ fun MealScreen(
                                                 tint = SpanRed
                                             )
                                         }
+
                                     }
                                 }
 
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
 
-                            items(reviews) { review ->
-                                ReviewCard(
-                                    rating = review.rating,
-                                    comment = review.comment,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
+                            if(hasReviews) {
+                                items(reviews) { review ->
+                                    ReviewCard(
+                                        rating = review.rating,
+                                        comment = review.comment ?: "",
+                                        username = review.username,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
                             }
                         }
                     } else if (isLoading) {
@@ -367,4 +486,27 @@ fun MealScreen(
             }
         }
     }
+
+    if (showDeleteReviewDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDeleteReviewDialog = false },
+            title = { Text("Brisanje recenzije") },
+            text = { Text("Jeste li sigurni da želite obrisati svoju recenziju za ovo jelo?") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { deleteMyReview() }
+                ) {
+                    Text("Obriši", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { showDeleteReviewDialog = false }
+                ) {
+                    Text("Odustani")
+                }
+            }
+        )
+    }
+
 }

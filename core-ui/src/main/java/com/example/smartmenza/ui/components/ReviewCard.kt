@@ -34,6 +34,7 @@ import com.example.core_ui.R
 fun ReviewCard(
     rating: Int = 5,
     comment: String,
+    username: String,
     modifier: Modifier = Modifier,
     imageRes: Int = R.drawable.profile,
 ) {
@@ -76,7 +77,7 @@ fun ReviewCard(
                         Spacer(modifier = Modifier.width(12.dp))
 
                         Text(
-                            text = "Korisnik",
+                            text = username,
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 fontFamily = Montserrat,
                                 color = SpanRed,
