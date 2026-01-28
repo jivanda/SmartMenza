@@ -118,4 +118,34 @@ interface SmartMenzaApi {
 
     @GET("api/RatingComment/meal-stats")
     suspend fun getMealRatingStats(): Response<List<MealRatingStatsDto>>
+
+    @POST("api/RatingComment")
+    suspend fun createRatingComment(
+        @Header("UserId") userId: Int,
+        @Body dto: RatingCommentCreateDto
+    ): Response<SimpleResponse>
+
+    @PUT("api/RatingComment/meal/{mealId}")
+    suspend fun updateRatingComment(
+        @Path("mealId") mealId: Int,
+        @Header("UserId") userId: Int,
+        @Body dto: RatingCommentUpdateDto
+    ): Response<SimpleResponse>
+
+    @DELETE("api/RatingComment/meal/{mealId}")
+    suspend fun deleteRatingComment(
+        @Path("mealId") mealId: Int,
+        @Header("UserId") userId: Int
+    ): Response<SimpleResponse>
+
+    @GET("api/RatingComment/meal/{mealId}")
+    suspend fun getReviewsByMeal(
+        @Path("mealId") mealId: Int
+    ): Response<List<RatingCommentDto>>
+
+    @GET("api/RatingComment/meal/{mealId}/summary")
+    suspend fun getReviewSummary(
+        @Path("mealId") mealId: Int
+    ): Response<RatingSummaryDto>
+
 }

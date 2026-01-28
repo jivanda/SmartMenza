@@ -1,5 +1,6 @@
 package com.example.smartmenza.ui.home
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,11 +54,13 @@ import androidx.compose.ui.unit.sp
 import com.example.core_ui.R
 import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.MealDto
+import com.example.smartmenza.data.remote.RatingCommentCreateDto
 import com.example.smartmenza.data.remote.RetrofitInstance
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.smartmenza.ui.theme.SpanRed
+import kotlinx.coroutines.launch
 
 @Composable
 fun ReviewCreateScreen(
@@ -64,9 +68,9 @@ fun ReviewCreateScreen(
     onNavigateBack: () -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
+    val ctx = LocalContext.current
 
-    val context = LocalContext.current
-    val prefs = remember { UserPreferences(context) }
+    val prefs = remember { UserPreferences(ctx) }
     val userNameNullable by prefs.userName.collectAsState(initial = null)
     val userName = userNameNullable ?: "Korisnik"
 
@@ -75,6 +79,49 @@ fun ReviewCreateScreen(
     var comment by remember { mutableStateOf("") }
 
     var mealDto by remember { mutableStateOf<MealDto?>(null) }
+
+    val userId by prefs.userId.collectAsState(initial = null)
+    val coroutineScope = rememberCoroutineScope()
+
+    fun submitReview() {
+        val uid = userId
+        if (uid == null) {
+            Toast.makeText(ctx, "Morate biti prijavljeni", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (rating !in 1..5) {
+            Toast.makeText(ctx, "Odaberite ocjenu (1-5).", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        coroutineScope.launch {
+            try {
+                val response = RetrofitInstance.api.createRatingComment(
+                    userId = uid,
+                    dto = RatingCommentCreateDto(
+                        mealId = mealId,
+                        rating = rating,
+                        comment = comment.trim().ifBlank { null }
+                    )
+                )
+
+                if (response.isSuccessful) {
+                    Toast.makeText(ctx, "Recenzija je spremljena.", Toast.LENGTH_SHORT).show()
+                    onNavigateBack()
+                } else {
+                    val msg = response.body()?.message
+                    Toast.makeText(
+                        ctx,
+                        msg ?: "Greška: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(ctx, "Greška: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
     LaunchedEffect(mealId) {
         try {
@@ -245,7 +292,7 @@ fun ReviewCreateScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Button(
-                            onClick = { },
+                            onClick = { submitReview()},
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .height(48.dp),
@@ -266,4 +313,6 @@ fun ReviewCreateScreen(
             }
         }
     }
+
 }
+
