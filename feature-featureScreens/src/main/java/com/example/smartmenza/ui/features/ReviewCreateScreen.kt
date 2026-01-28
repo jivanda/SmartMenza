@@ -55,6 +55,7 @@ import com.example.core_ui.R
 import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.MealDto
 import com.example.smartmenza.data.remote.RatingCommentCreateDto
+import com.example.smartmenza.data.remote.RatingCommentUpdateDto
 import com.example.smartmenza.data.remote.RetrofitInstance
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
@@ -82,6 +83,9 @@ fun ReviewCreateScreen(
 
     val userId by prefs.userId.collectAsState(initial = null)
     val coroutineScope = rememberCoroutineScope()
+
+    var existingReview by remember { mutableStateOf(false) }
+
 
     fun submitReview() {
         val uid = userId
@@ -122,6 +126,46 @@ fun ReviewCreateScreen(
         }
     }
 
+    fun updateReview() {
+        val uid = userId
+        if (uid == null) {
+            Toast.makeText(ctx, "Morate biti prijavljeni", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (rating !in 1..5) {
+            Toast.makeText(ctx, "Odaberite ocjenu (1-5).", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        coroutineScope.launch {
+            try {
+                val response = RetrofitInstance.api.updateRatingComment(
+                    mealId = mealId,
+                    userId = uid,
+                    dto = RatingCommentUpdateDto(
+                        rating = rating,
+                        comment = comment.trim().ifBlank { null }
+                    )
+                )
+
+                if (response.isSuccessful) {
+                    Toast.makeText(ctx, "Recenzija je ažurirana.", Toast.LENGTH_SHORT).show()
+                    onNavigateBack()
+                } else {
+                    val msg = response.body()?.message
+                    Toast.makeText(
+                        ctx,
+                        msg ?: "Greška: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(ctx, "Greška: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
 
     LaunchedEffect(mealId) {
         try {
@@ -131,6 +175,22 @@ fun ReviewCreateScreen(
             }
         } catch (_: Exception) { }
     }
+
+    LaunchedEffect(mealId, userId) {
+        val uid = userId ?: return@LaunchedEffect
+        try {
+            val resp = RetrofitInstance.api.getMyReview(mealId, uid)
+            if (resp.isSuccessful) {
+                val mine = resp.body()
+                if (mine != null) {
+                    rating = mine.rating
+                    comment = mine.comment ?: ""
+                    existingReview = true
+                }
+            }
+        } catch (_: Exception) { }
+    }
+
 
 
     SmartMenzaTheme {
@@ -291,22 +351,42 @@ fun ReviewCreateScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Button(
-                            onClick = { submitReview()},
-                            modifier = Modifier
-                                .align(Alignment.End)
-                                .height(48.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = SpanRed),
-                            shape = RoundedCornerShape(999.dp)
-                        ) {
-                            Text(
-                                text = "Submit",
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontFamily = Montserrat,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                        if(!existingReview) {
+                            Button(
+                                onClick = { submitReview() },
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .height(48.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = SpanRed),
+                                shape = RoundedCornerShape(999.dp)
+                            ) {
+                                Text(
+                                    text = "Submit",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontFamily = Montserrat,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
                                 )
-                            )
+                            }
+                        }else{
+                            Button(
+                                onClick = { updateReview() },
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .height(48.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = SpanRed),
+                                shape = RoundedCornerShape(999.dp)
+                            ) {
+                                Text(
+                                    text = "Update",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontFamily = Montserrat,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                )
+                            }
                         }
                     }
                 }

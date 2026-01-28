@@ -98,5 +98,32 @@ namespace SmartMenza.API.Controllers
             return Ok(stats);
         }
 
+        [HttpGet("meal/{mealId}/has")]
+        public IActionResult HasReviewed(int mealId, [FromHeader(Name = "UserId")] int userId)
+        {
+            if (_userService.GetUserById(userId) == null)
+                return Unauthorized(new SimpleMessageDto { Message = "Korisnik nije pronađen." });
+
+            return Ok(_service.HasUserReviewedMeal(userId, mealId));
+        }
+
+        [HttpGet("meal/{mealId}/my")]
+        public IActionResult GetMyReview(int mealId, [FromHeader(Name = "UserId")] int userId)
+        {
+            if (_userService.GetUserById(userId) == null)
+                return Unauthorized(new SimpleMessageDto { Message = "Korisnik nije pronađen." });
+
+            var rc = _service.GetByMeal(mealId).FirstOrDefault(x => x.UserId == userId);
+            if (rc == null) return NotFound();
+
+            return Ok(new RatingCommentDto
+            {
+                MealId = rc.MealId,
+                UserId = rc.UserId,
+                Username = rc.User?.Username ?? string.Empty,
+                Rating = rc.Rating,
+                Comment = rc.Comment
+            });
+        }
     }
 }

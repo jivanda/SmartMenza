@@ -148,4 +148,16 @@ interface SmartMenzaApi {
         @Path("mealId") mealId: Int
     ): Response<RatingSummaryDto>
 
+    @GET("api/RatingComment/meal/{mealId}/has")
+    suspend fun hasReviewedMeal(
+        @Path("mealId") mealId: Int,
+        @Header("UserId") userId: Int
+    ): Response<Int>
+
+    @GET("api/RatingComment/meal/{mealId}/my")
+    suspend fun getMyReview(
+        @Path("mealId") mealId: Int,
+        @Header("UserId") userId: Int
+    ): Response<RatingCommentDto>
+
 }

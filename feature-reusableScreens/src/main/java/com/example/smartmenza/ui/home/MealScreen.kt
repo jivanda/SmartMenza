@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.CircularProgressIndicator
@@ -81,12 +82,14 @@ fun MealScreen(
     val userRole by prefs.userRole.collectAsState(initial = "Student")
 
     val coroutineScope = rememberCoroutineScope()
-    val shouldShowFavorite = userRole != "Employee"
+    val isStudent = userRole != "Employee"
 
     var mealDto by remember { mutableStateOf<MealDto?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var mealTypeName by remember { mutableStateOf<String?>(null) }
+
+    var hasReviewed by remember { mutableStateOf(false) }
 
     var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
@@ -163,6 +166,17 @@ fun MealScreen(
             isLoading = false
         }
     }
+
+    LaunchedEffect(userId, mealId) {
+        val uid = userId ?: return@LaunchedEffect
+        try {
+            val resp = RetrofitInstance.api.hasReviewedMeal(mealId, uid)
+            if (resp.isSuccessful) {
+                hasReviewed = (resp.body() ?: 0) == 1
+            }
+        } catch (_: Exception) { }
+    }
+
 
     LaunchedEffect(userId) {
         fetchFavorites()
@@ -261,7 +275,7 @@ fun MealScreen(
                                         fontWeight = FontWeight.Bold
                                     )
 
-                                    if (shouldShowFavorite) {
+                                    if (isStudent) {
                                         Spacer(modifier = Modifier.width(8.dp))
 
                                         IconButton(onClick = { toggleFavorite(mealId) }) {
@@ -307,12 +321,15 @@ fun MealScreen(
                                         )
                                     )
 
-                                    IconButton(onClick =  onNavigateReview ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Add,
-                                            contentDescription = "Add review",
-                                            tint = SpanRed
-                                        )
+
+                                    if (isStudent) {
+                                        IconButton(onClick = onNavigateReview) {
+                                            Icon(
+                                                imageVector = if (!hasReviewed) Icons.Filled.Add else Icons.Filled.Edit,
+                                                contentDescription = if (!hasReviewed) "Add review" else "Edit review",
+                                                tint = SpanRed
+                                            )
+                                        }
                                     }
                                 }
 
