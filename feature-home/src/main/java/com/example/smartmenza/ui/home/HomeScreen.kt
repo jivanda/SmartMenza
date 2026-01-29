@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.example.core_ui.R
-import com.example.smartmenza.data.remote.MealDto
+import MealDto
 
 @Composable
 fun HomeScreen(
