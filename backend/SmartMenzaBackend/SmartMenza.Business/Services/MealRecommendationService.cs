@@ -41,7 +41,7 @@ namespace SmartMenza.Business.Services
             _deploymentName = _configuration["AzureOpenAI:DeploymentName"] ?? "Meal_Reccomender_AI";
         }
 
-        public async Task<int> RecommendMealForMenuAsync(int menuId, CancellationToken cancellationToken = default)
+        public async Task<int> RecommendMealForMenuAsync(int menuId, int userId, CancellationToken cancellationToken = default)
         {
             var menu = _menuService.GetMenuById(menuId);
             if (menu == null)
@@ -57,10 +57,10 @@ namespace SmartMenza.Business.Services
                 throw new InvalidOperationException("Menu contains no meals.");
             }
 
-            return await RecommendFromMealDtosAsync(meals, null, cancellationToken).ConfigureAwait(false);
+            return await RecommendFromMealDtosAsync(meals, userId, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<int> RecommendMealForDateAsync(DateOnly date, int? userId = null, CancellationToken cancellationToken = default)
+        public async Task<int> RecommendMealForDateAsync(DateOnly date, int userId, CancellationToken cancellationToken = default)
         {
             var menus = _menuService.GetMenusByDate(date);
             if (menus == null || !menus.Any())
@@ -83,7 +83,7 @@ namespace SmartMenza.Business.Services
             return await RecommendFromMealDtosAsync(allMeals, userId, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<int> RecommendMealForMenusAsync(IEnumerable<MenuResponseDto> menus, CancellationToken cancellationToken = default)
+        public async Task<int> RecommendMealForMenusAsync(IEnumerable<MenuResponseDto> menus, int userId, CancellationToken cancellationToken = default)
         {
             if (menus == null) throw new ArgumentNullException(nameof(menus));
 
@@ -106,10 +106,10 @@ namespace SmartMenza.Business.Services
             }
 
             _logger.LogDebug("Collected {Count} distinct meals from {MenuCount} menus.", allMeals.Count, menuList.Count);
-            return await RecommendFromMealDtosAsync(allMeals, null, cancellationToken).ConfigureAwait(false);
+            return await RecommendFromMealDtosAsync(allMeals, userId, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<int> RecommendFromMealDtosAsync(List<MealDto> meals, int? userId, CancellationToken cancellationToken)
+        private async Task<int> RecommendFromMealDtosAsync(List<MealDto> meals, int userId, CancellationToken cancellationToken)
         {
             if (meals == null || meals.Count == 0)
                 throw new ArgumentException("meals must contain at least one item.", nameof(meals));
@@ -117,20 +117,17 @@ namespace SmartMenza.Business.Services
             var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = null, WriteIndented = false };
 
             NutritionGoal? activeGoal = null;
-            if (userId.HasValue)
+            try
             {
-                try
-                {
-                    var goals = _goalService.GetGoalsByUser(userId.Value);
-                    activeGoal = goals
-                        .OrderByDescending(g => g.DateSet)
-                        .FirstOrDefault();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to retrieve goals for user {UserId}. Proceeding without goal.", userId.Value);
-                    activeGoal = null;
-                }
+                var goals = _goalService.GetGoalsByUser(userId);
+                activeGoal = goals
+                    .OrderByDescending(g => g.DateSet)
+                    .FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to retrieve goals for user {UserId}. Proceeding without goal.", userId);
+                activeGoal = null;
             }
 
             object payload;
@@ -167,7 +164,7 @@ namespace SmartMenza.Business.Services
                 ChatMessage.CreateUserMessage(payloadJson)
             };
 
-            _logger.LogDebug("Requesting meal selection from ChatClient (deployment {Deployment}) for {Count} meals. UserId: {UserId}", _deploymentName, meals.Count, userId?.ToString() ?? "none");
+            _logger.LogDebug("Requesting meal selection from ChatClient (deployment {Deployment}) for {Count} meals. UserId: {UserId}", _deploymentName, meals.Count, userId.ToString());
 
             ChatCompletion completion;
             try
