@@ -1,5 +1,6 @@
 package com.example.smartmenza.ui.home
 
+import MealDto
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -28,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.FavoriteToggleDto
-import com.example.smartmenza.data.remote.MealDto
 import com.example.smartmenza.data.remote.RetrofitInstance
 import com.example.smartmenza.ui.components.MealCard
 import com.example.smartmenza.ui.theme.*
@@ -245,13 +245,12 @@ fun MenuScreen(
                                     name = meal.name,
                                     typeName = mealTypeNameMap[meal.mealTypeId] ?: "—",
                                     price = "%.2f EUR".format(meal.price),
-                                    imageRes = R.drawable.hrenovke,
+                                    imageUrl = meal.imageUrl,
                                     isFavorite = favoriteMealIds.contains(meal.mealId),
                                     onToggleFavorite = { toggleFavorite(meal.mealId) },
                                     modifier = Modifier.fillMaxWidth(),
-                                    onClick = {onNavigateToMeal(meal.mealId)}
+                                    onClick = { onNavigateToMeal(meal.mealId) }
                                 )
-
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
 

@@ -1,5 +1,6 @@
 package com.example.smartmenza.data.remote
 
+import MealDto
 import retrofit2.Response
 import retrofit2.http.*
 

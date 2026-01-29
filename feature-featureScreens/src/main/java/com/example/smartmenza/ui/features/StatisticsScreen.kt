@@ -1,5 +1,6 @@
 package com.example.smartmenza.ui.features
 
+import MealDto
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -26,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import com.example.core_ui.R
 import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.FavoriteToggleDto
-import com.example.smartmenza.data.remote.MealDto
 import com.example.smartmenza.data.remote.MealRatingStatsDto
 import com.example.smartmenza.data.remote.OverallStatsDto
 import com.example.smartmenza.data.remote.RetrofitInstance

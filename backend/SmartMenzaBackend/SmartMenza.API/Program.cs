@@ -34,6 +34,8 @@ namespace SmartMenza.API
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
                 });
 
             builder.Services.AddEndpointsApiExplorer();
@@ -94,7 +96,11 @@ namespace SmartMenza.API
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
+            app.UseStaticFiles();
             app.UseCors("AllowAndroid");
             app.UseAuthorization();
 

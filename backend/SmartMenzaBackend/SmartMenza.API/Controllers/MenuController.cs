@@ -2,6 +2,7 @@
 using SmartMenza.Business.Services;
 using SmartMenza.Domain.DTOs;
 using System.Globalization;
+using SmartMenza.API.Helpers;
 
 namespace SmartMenza.API.Controllers
 {
@@ -34,13 +35,9 @@ namespace SmartMenza.API.Controllers
 
             var menus = _menuService.GetMenusByDate(DateOnly.FromDateTime(parsedDate));
 
-            if (menus == null || !menus.Any())
-            {
-                return NotFound(new SimpleMessageDto
-                {
-                    Message = "Za traženi datum ne postoji nijedan meni."
-                });
-            }
+            foreach (var menu in menus)
+                foreach (var meal in menu.Meals)
+                    meal.ImageUrl = Request.ToAbsoluteImageUrl(meal.ImageUrl);
 
             return Ok(menus);
         }
@@ -55,8 +52,11 @@ namespace SmartMenza.API.Controllers
 
             var menus = _menuService.GetMenusByType(menuTypeId);
 
-            if (menus == null || !menus.Any())
-                return NotFound(new { message = "Nema menija za traženi tip." }); return Ok(menus);
+            foreach (var menu in menus)
+                foreach (var meal in menu.Meals)
+                    meal.ImageUrl = Request.ToAbsoluteImageUrl(meal.ImageUrl);
+
+            return Ok(menus);
         }
 
         [HttpGet("{menuId}")]
@@ -70,6 +70,8 @@ namespace SmartMenza.API.Controllers
                     Message = "Meni s traženim ID-jem ne postoji."
                 });
             }
+            foreach (var meal in menu.Meals)
+                meal.ImageUrl = Request.ToAbsoluteImageUrl(meal.ImageUrl);
 
             return Ok(menu);
         }

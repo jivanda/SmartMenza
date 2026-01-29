@@ -28,7 +28,8 @@ namespace SmartMenza.Business.Services
                     Calories = m.Calories,
                     Protein = m.Protein,
                     Carbohydrates = m.Carbohydrates,
-                    Fat = m.Fat
+                    Fat = m.Fat,
+                    ImageUrl = m.ImageUrl,
                 })
                 .ToList();
         }
@@ -50,7 +51,8 @@ namespace SmartMenza.Business.Services
                 Calories = m.Calories,
                 Protein = m.Protein,
                 Carbohydrates = m.Carbohydrates,
-                Fat = m.Fat
+                Fat = m.Fat,
+                ImageUrl = m.ImageUrl,
             };
         }
     }
