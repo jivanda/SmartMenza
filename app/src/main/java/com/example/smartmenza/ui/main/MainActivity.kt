@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
 
                     val prefs = remember { UserPreferences(this) }
                     val isLoggedIn by prefs.isLoggedIn.collectAsState(initial = false)
+                    val userId by prefs.userId.collectAsState(initial = null)
 
                     val scope = rememberCoroutineScope()
 
@@ -95,22 +96,26 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Route.StudentHome.route) {
-                            HomeScreen(
-                                onNavigateToFavorites = { navController.navigate(Route.Favourite.route) },
-                                onNavigateToGoals = { navController.navigate(Route.Goal.route) },
-                                onNavigateToMenu = actions::navigateToMenu,
-                                onLogout = {
-                                    scope.launch { prefs.logout() }
-                                    navController.navigate(Route.Login.route) {
-                                        popUpTo(Route.StudentHome.route) { inclusive = true }
-                                    }
-                                },
-                                onAllMeals = { navController.navigate(Route.AllMeals.route) },
-                                onOffers = { navController.navigate(Route.Offers.route) },
-                                onAllMenus = { navController.navigate(Route.AllMenus.route) },
-                                onNavigateToStatistics = { navController.navigate(Route.StatisticsScreen.route) }
-                            )
+                            if (userId != null) {
+                                HomeScreen(
+                                    userId = userId!!,
+                                    onNavigateToFavorites = { navController.navigate(Route.Favourite.route) },
+                                    onNavigateToGoals = { navController.navigate(Route.Goal.route) },
+                                    onNavigateToMenu = actions::navigateToMenu,
+                                    onLogout = {
+                                        scope.launch { prefs.logout() }
+                                        navController.navigate(Route.Login.route) {
+                                            popUpTo(Route.StudentHome.route) { inclusive = true }
+                                        }
+                                    },
+                                    onAllMeals = { navController.navigate(Route.AllMeals.route) },
+                                    onOffers = { navController.navigate(Route.Offers.route) },
+                                    onAllMenus = { navController.navigate(Route.AllMenus.route) },
+                                    onNavigateToStatistics = { navController.navigate(Route.StatisticsScreen.route) }
+                                )
+                            }
                         }
+
 
                         composable(Route.AllMeals.route) {
                             AllMealsScreen(

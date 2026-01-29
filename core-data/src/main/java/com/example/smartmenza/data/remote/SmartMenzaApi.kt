@@ -110,6 +110,12 @@ interface SmartMenzaApi {
         @Body dto: MenuWriteDto
     ): Response<SimpleResponse>
 
+    @POST("api/Recommendation/date/{date}")
+    suspend fun recommendMeal(
+        @Path("date") date: String,
+        @Header("UserId") userId: Int
+    ): Response<Int>
+
     @GET("api/Statistics/overall")
     suspend fun getOverallStats(
         @Query("dateFrom") dateFrom: String?,
