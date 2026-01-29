@@ -34,7 +34,7 @@ import coil.compose.AsyncImage
 
 @Composable
 fun StickerCard(
-    imageRes: Int,
+    imageUrl: String,
     cardTypeText: String,
     title: String,
     description: String,
@@ -58,7 +58,7 @@ fun StickerCard(
                 contentAlignment = androidx.compose.ui.Alignment.Center
             ) {
                 AsyncImage(
-                    model = "http://10.0.2.2:5246/images/meals/hrenovke_1.png",
+                    model = imageUrl,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()

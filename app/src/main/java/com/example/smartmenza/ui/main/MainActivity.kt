@@ -102,6 +102,7 @@ class MainActivity : ComponentActivity() {
                                     onNavigateToFavorites = { navController.navigate(Route.Favourite.route) },
                                     onNavigateToGoals = { navController.navigate(Route.Goal.route) },
                                     onNavigateToMenu = actions::navigateToMenu,
+                                    onNavigateToMeal = actions::navigateToMeal,
                                     onLogout = {
                                         scope.launch { prefs.logout() }
                                         navController.navigate(Route.Login.route) {

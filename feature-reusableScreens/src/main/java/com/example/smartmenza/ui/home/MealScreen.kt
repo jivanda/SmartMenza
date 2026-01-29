@@ -54,6 +54,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.FavoriteToggleDto
 import com.example.smartmenza.data.remote.RetrofitInstance
@@ -65,6 +66,7 @@ import com.example.smartmenza.ui.theme.SpanRed
 import kotlinx.coroutines.launch
 import com.example.core_ui.R
 import com.example.smartmenza.data.remote.RatingCommentDto
+import androidx.compose.foundation.lazy.items
 
 
 data class ReviewUi(
@@ -352,13 +354,17 @@ fun MealScreen(
                                 Spacer(modifier = Modifier.height(15.dp))
                             }
                             item {
-                                Image(
-                                    painter = painterResource(id = R.drawable.hrenovke),
-                                    contentDescription = mealDto!!.name,
+                                AsyncImage(
+                                    model = mealDto!!.imageUrl,
+                                    contentDescription = null,
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(220.dp)
-                                        .clip(RoundedCornerShape(16.dp)),
+                                        .fillMaxSize()
+                                        .clip(
+                                            RoundedCornerShape(
+                                                topStart = 16.dp,
+                                                topEnd = 16.dp
+                                            )
+                                        ),
                                     contentScale = ContentScale.Crop
                                 )
 

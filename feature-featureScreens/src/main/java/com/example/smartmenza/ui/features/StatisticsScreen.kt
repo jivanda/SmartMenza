@@ -442,7 +442,7 @@ fun StatisticsScreen(
                                                     typeName = mealTypeNameMap[meal.mealTypeId]
                                                         ?: "-",
                                                     price = "%.2f EUR".format(meal.price),
-                                                    imageRes = R.drawable.hrenovke,
+                                                    imageUrl = meal.imageUrl,
                                                     isFavorite = favoriteMealIds.contains(meal.mealId),
                                                     onToggleFavorite = { toggleFavorite(meal.mealId) },
                                                     modifier = Modifier.fillMaxWidth(),

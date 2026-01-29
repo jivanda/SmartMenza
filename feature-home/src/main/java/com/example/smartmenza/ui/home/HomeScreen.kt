@@ -49,6 +49,7 @@ fun HomeScreen(
     onNavigateToFavorites: () -> Unit,
     onNavigateToGoals: () -> Unit,
     onNavigateToMenu: (menuId: Int) -> Unit,
+    onNavigateToMeal: (mealId: Int) -> Unit,
     //onNavigateToMeal: (Int) -> Unit,
     onLogout: () -> Unit = {},
     onAllMeals: () -> Unit = {},
@@ -228,7 +229,6 @@ fun HomeScreen(
                                     )
                                 }
 
-                                // AI Recommendation StickerCard
                                 when {
                                     isAiLoading -> {
                                         Box(
@@ -251,13 +251,13 @@ fun HomeScreen(
 
                                     recommendedMeal != null -> {
                                         StickerCard(
-                                            imageRes = R.drawable.becki, // kasnije možeš mapirati po tipu jela
+                                            imageUrl = recommendedMeal!!.imageUrl,
                                             cardTypeText = "AI Preporuka",
                                             title = recommendedMeal!!.name,
                                             description = recommendedMeal!!.description ?: "",
                                             modifier = Modifier.fillMaxWidth(),
                                             onClick = {
-                                                //onNavigateToMeal(recommendedMeal!!.mealId)
+                                                onNavigateToMeal(recommendedMeal!!.mealId)
                                             }
                                         )
                                     }

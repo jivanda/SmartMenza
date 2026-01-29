@@ -11,5 +11,5 @@ data class MealDto(
     val carbohydrates: Double?,
     val fat: Double?,
     @SerializedName(value = "imageUrl", alternate = ["ImageUrl"])
-    val imageUrl: String?
+    val imageUrl: String
 )
