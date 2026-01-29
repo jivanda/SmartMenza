@@ -1,5 +1,7 @@
 package com.example.smartmenza.data.remote
 
+import MealDto
+
 data class MenuResponseDto(
     val menuId: Int,
     val name: String,

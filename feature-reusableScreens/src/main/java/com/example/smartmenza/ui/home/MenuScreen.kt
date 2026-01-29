@@ -64,11 +64,12 @@ fun MenuScreen(
 
     var nutrition by remember { mutableStateOf<NutritionResultDto?>(null) }
     var assessment by remember { mutableStateOf<NutritionAssessmentDto?>(null) }
+    var isAiLoading by remember { mutableStateOf(true) } // ⬅️ AI loading indikator
 
     var mealTypeNameMap by remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
-
     var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
+    // --- Favorites ---
     fun fetchFavorites() {
         val currentUserId = userId
         if (currentUserId != null) {
@@ -78,8 +79,7 @@ fun MenuScreen(
                     if (response.isSuccessful) {
                         favoriteMealIds = response.body()?.map { it.mealId }?.toSet() ?: emptySet()
                     }
-                } catch (_: Exception) {
-                }
+                } catch (_: Exception) {}
             }
         }
     }
@@ -92,21 +92,18 @@ fun MenuScreen(
         }
 
         val isCurrentlyFavorite = favoriteMealIds.contains(mealId)
-
         coroutineScope.launch {
             try {
-                val response = if (isCurrentlyFavorite) {
+                val response = if (isCurrentlyFavorite)
                     RetrofitInstance.api.removeFavorite(currentUserId, FavoriteToggleDto(mealId))
-                } else {
+                else
                     RetrofitInstance.api.addFavorite(currentUserId, FavoriteToggleDto(mealId))
-                }
 
                 if (response.isSuccessful) {
-                    favoriteMealIds = if (isCurrentlyFavorite) {
+                    favoriteMealIds = if (isCurrentlyFavorite)
                         favoriteMealIds - mealId
-                    } else {
+                    else
                         favoriteMealIds + mealId
-                    }
                 } else {
                     Toast.makeText(context, "Greška: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
@@ -116,75 +113,32 @@ fun MenuScreen(
         }
     }
 
-    LaunchedEffect(userId) {
-        fetchFavorites()
-    }
+    LaunchedEffect(userId) { fetchFavorites() }
 
+    // --- Mapiranje tipova jela ---
     LaunchedEffect(mealsJson) {
-        Log.d("MealTypeDebug", "mealsJson length=${mealsJson.length}")
-        Log.d("MealTypeDebug", "mealsJson preview=${mealsJson.take(400)}")
-
         val parsedMeals: List<MealDto> = try {
             val type = object : TypeToken<List<MealDto>>() {}.type
             Gson().fromJson(mealsJson, type)
         } catch (e: Exception) {
-            Log.e("MealTypeDebug", "Failed to parse mealsJson: ${e.message}", e)
             emptyList()
         }
 
-        parsedMeals.forEach { meal ->
-            Log.d(
-                "MealTypeDebug",
-                "Parsed meal: mealId=${meal.mealId}, mealTypeId=${meal.mealTypeId}, name=${meal.name}"
-            )
-        }
-
-        val ids = parsedMeals
-            .map { it.mealTypeId }
-            .distinct()
-
-        Log.d("MealTypeDebug", "Distinct mealTypeIds (filtered) = $ids")
-
+        val ids = parsedMeals.map { it.mealTypeId }.distinct()
         val map = mutableMapOf<Int, String>()
-
         ids.forEach { id ->
             try {
-                Log.d("MealTypeDebug", "Requesting meal type for id=$id")
-
                 val res = RetrofitInstance.api.getMealTypeName(id)
-
-                Log.d(
-                    "MealTypeDebug",
-                    "Response for id=$id → code=${res.code()} successful=${res.isSuccessful}"
-                )
-
-                if (res.isSuccessful) {
-                    val name = res.body()
-                    Log.d("MealTypeDebug", "Body for id=$id → $name")
-
-                    if (!name.isNullOrBlank()) {
-                        map[id] = name
-                    } else {
-                        Log.e("MealTypeDebug", "Body was NULL/blank for id=$id")
-                    }
-                } else {
-                    val error = res.errorBody()?.string()
-                    Log.e(
-                        "MealTypeDebug",
-                        "Error for id=$id → code=${res.code()} body=$error"
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e("MealTypeDebug", "Exception for id=$id → ${e.message}", e)
-            }
+                if (res.isSuccessful) res.body()?.let { name -> map[id] = name }
+            } catch (_: Exception) {}
         }
-
-        Log.d("MealTypeDebug", "Final mealTypeNameMap = $map")
         mealTypeNameMap = map
     }
 
+    // --- AI analiza (samo Employee) ---
     LaunchedEffect(meals, role) {
         if (role == "Employee") {
+            isAiLoading = true
             try {
                 val nutritionResponse = RetrofitInstance.api.analyzeMenuNutrition(menuId)
                 if (nutritionResponse.isSuccessful) {
@@ -195,22 +149,24 @@ fun MenuScreen(
                 if (assessmentResponse.isSuccessful) {
                     assessment = assessmentResponse.body()
                 }
-            } catch (e: Exception) {
-                Log.e("NutritionDebug", "Error fetching nutrition info: ${e.message}", e)
+            } catch (_: Exception) {
+                nutrition = null
+                assessment = null
+            } finally {
+                isAiLoading = false
             }
         } else {
-            // Ako nije Employee, postavi null da se ništa ne prikazuje
             nutrition = null
             assessment = null
+            isAiLoading = false
         }
     }
 
     SmartMenzaTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = BackgroundBeige
-        ) {
+        Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
             Column(modifier = Modifier.fillMaxSize()) {
+
+                // --- Header ---
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -251,21 +207,13 @@ fun MenuScreen(
                     Image(
                         painter = subtlePattern,
                         contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .alpha(0.06f),
+                        modifier = Modifier.fillMaxSize().alpha(0.06f),
                         contentScale = ContentScale.Crop
                     )
 
                     if (meals.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.Start
-                        ) {
+                        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                             Text("Jela koja ovaj meni sadrži:")
-
                             Spacer(modifier = Modifier.height(8.dp))
 
                             meals.forEach { meal ->
@@ -282,53 +230,61 @@ fun MenuScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
 
-                            Spacer(modifier = Modifier.height(50.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text("Cijena menija: %.2f EUR".format(meals.sumOf { it.price }))
 
-                            val totalPrice = meals.sumOf { it.price }
-                            Text("Cijena menija: %.2f EUR".format(totalPrice))
-
+                            // --- AI analiza karta ---
                             Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
+                                    if (role == "Employee") {
+                                        when {
+                                            isAiLoading -> {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(80.dp),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    CircularProgressIndicator()
+                                                }
+                                            }
+                                            nutrition != null -> {
+                                                Text("Nutritivne vrijednosti menija",
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    fontSize = 18.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(8.dp))
+                                                Text("Kalorije: ${nutrition!!.calories} kcal")
+                                                Text("Proteini: ${nutrition!!.proteins} g")
+                                                Text("Ugljikohidrati: ${nutrition!!.carbohydrates} g")
+                                                Text("Masti: ${nutrition!!.fats} g")
 
-                                    nutrition?.let { n ->
-                                        Text(
-                                            text = "Nutritivne vrijednosti menija",
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 18.sp
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text("Kalorije: ${n.calories} kcal")
-                                        Text("Proteini: ${n.proteins} g")
-                                        Text("Ugljikohidrati: ${n.carbohydrates} g")
-                                        Text("Masti: ${n.fats} g")
-                                    }
-
-                                    assessment?.let { a ->
-                                        if (nutrition != null) Spacer(modifier = Modifier.height(16.dp))
-                                        Text(
-                                            text = "Procjena zdravlja menija",
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 18.sp
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(a.reasoning)
+                                                assessment?.let { a ->
+                                                    Spacer(modifier = Modifier.height(16.dp))
+                                                    Text("Procjena zdravlja menija",
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        fontSize = 18.sp
+                                                    )
+                                                    Spacer(modifier = Modifier.height(8.dp))
+                                                    Text(a.reasoning)
+                                                }
+                                            }
+                                            else -> {
+                                                Text("AI analiza nije dostupna")
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "Nema dostupnih jela za ovaj meni.")
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text("Nema dostupnih jela za ovaj meni.")
                         }
                     }
                 }
@@ -336,3 +292,4 @@ fun MenuScreen(
         }
     }
 }
+
