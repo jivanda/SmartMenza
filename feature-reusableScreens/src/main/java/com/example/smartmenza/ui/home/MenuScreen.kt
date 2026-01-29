@@ -64,12 +64,11 @@ fun MenuScreen(
 
     var nutrition by remember { mutableStateOf<NutritionResultDto?>(null) }
     var assessment by remember { mutableStateOf<NutritionAssessmentDto?>(null) }
-    var isAiLoading by remember { mutableStateOf(true) } // ⬅️ AI loading indikator
+    var isAiLoading by remember { mutableStateOf(true) }
 
     var mealTypeNameMap by remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
     var favoriteMealIds by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
-    // --- Favorites ---
     fun fetchFavorites() {
         val currentUserId = userId
         if (currentUserId != null) {
@@ -115,7 +114,6 @@ fun MenuScreen(
 
     LaunchedEffect(userId) { fetchFavorites() }
 
-    // --- Mapiranje tipova jela ---
     LaunchedEffect(mealsJson) {
         val parsedMeals: List<MealDto> = try {
             val type = object : TypeToken<List<MealDto>>() {}.type
@@ -135,7 +133,6 @@ fun MenuScreen(
         mealTypeNameMap = map
     }
 
-    // --- AI analiza (samo Employee) ---
     LaunchedEffect(meals, role) {
         if (role == "Employee") {
             isAiLoading = true
@@ -166,7 +163,6 @@ fun MenuScreen(
         Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // --- Header ---
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -212,76 +208,122 @@ fun MenuScreen(
                     )
 
                     if (meals.isNotEmpty()) {
-                        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                            Text("Jela koja ovaj meni sadrži:")
-                            Spacer(modifier = Modifier.height(8.dp))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.TopCenter)
+                                .offset(y = (-40).dp)
+                                .padding(horizontal = 1.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Spacer(modifier = Modifier.height(25.dp))
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp)
+                            ) {
+                                item{
+                                    Spacer(modifier = Modifier.height(8.dp))}
+                                item{
+                            Text("Jela koja ovaj meni sadrži:")}
+                                item{
+                            Spacer(modifier = Modifier.height(8.dp))}
 
                             meals.forEach { meal ->
-                                MealCard(
-                                    name = meal.name,
-                                    typeName = mealTypeNameMap[meal.mealTypeId] ?: "—",
-                                    price = "%.2f EUR".format(meal.price),
-                                    imageUrl = meal.imageUrl,
-                                    isFavorite = favoriteMealIds.contains(meal.mealId),
-                                    onToggleFavorite = { toggleFavorite(meal.mealId) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    onClick = { onNavigateToMeal(meal.mealId) }
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
+
+                                item {
+                                    MealCard(
+                                        name = meal.name,
+                                        typeName = mealTypeNameMap[meal.mealTypeId] ?: "-",
+                                        price = "%.2f EUR".format(meal.price),
+                                        imageUrl = meal.imageUrl,
+                                        isFavorite = favoriteMealIds.contains(meal.mealId),
+                                        onToggleFavorite = { toggleFavorite(meal.mealId) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        onClick = { onNavigateToMeal(meal.mealId) }
+                                    )
+                                }
+                                item{
+                                Spacer(modifier = Modifier.height(8.dp))}
                             }
 
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text("Cijena menija: %.2f EUR".format(meals.sumOf { it.price }))
 
-                            // --- AI analiza karta ---
-                            Card(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    if (role == "Employee") {
-                                        when {
-                                            isAiLoading -> {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(80.dp),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    CircularProgressIndicator()
+                                item {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+
+                                item{
+                            Text("Cijena menija: %.2f EUR".format(meals.sumOf { it.price }))}
+
+                            if (role == "Employee") {
+
+                                item {
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = Color(
+                                                0xFFF5F5F5
+                                            )
+                                        ),
+                                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                    ) {
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            when {
+                                                isAiLoading -> {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(80.dp),
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        CircularProgressIndicator()
+                                                    }
                                                 }
-                                            }
-                                            nutrition != null -> {
-                                                Text("Nutritivne vrijednosti menija",
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    fontSize = 18.sp
-                                                )
-                                                Spacer(modifier = Modifier.height(8.dp))
-                                                Text("Kalorije: ${nutrition!!.calories} kcal")
-                                                Text("Proteini: ${nutrition!!.proteins} g")
-                                                Text("Ugljikohidrati: ${nutrition!!.carbohydrates} g")
-                                                Text("Masti: ${nutrition!!.fats} g")
 
-                                                assessment?.let { a ->
-                                                    Spacer(modifier = Modifier.height(16.dp))
-                                                    Text("Procjena zdravlja menija",
+                                                nutrition != null -> {
+                                                    Text(
+                                                        "Nutritivne vrijednosti menija",
                                                         fontWeight = FontWeight.SemiBold,
                                                         fontSize = 18.sp
                                                     )
                                                     Spacer(modifier = Modifier.height(8.dp))
-                                                    Text(a.reasoning)
+                                                    Text("Kalorije: ${nutrition!!.calories} kcal")
+                                                    Text("Proteini: ${nutrition!!.proteins} g")
+                                                    Text("Ugljikohidrati: ${nutrition!!.carbohydrates} g")
+                                                    Text("Masti: ${nutrition!!.fats} g")
+
+                                                    assessment?.let { a ->
+                                                        Spacer(modifier = Modifier.height(16.dp))
+                                                        Text(
+                                                            "Procjena zdravlja menija",
+                                                            fontWeight = FontWeight.SemiBold,
+                                                            fontSize = 18.sp
+                                                        )
+                                                        Spacer(modifier = Modifier.height(8.dp))
+                                                        Text(a.reasoning)
+                                                    }
                                                 }
-                                            }
-                                            else -> {
-                                                Text("AI analiza nije dostupna")
+
+                                                else -> {
+                                                    Text("AI analiza nije dostupna")
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
                         }
+                    }
+
+
+                    Text(
+                        text = "Powered by SPAN",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 24.dp)
+                    )
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text("Nema dostupnih jela za ovaj meni.")

@@ -3,11 +3,15 @@ package com.example.smartmenza.ui.components
 import MealDto
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -19,11 +23,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SpanRed
+import coil.compose.AsyncImage
 
 
 @Composable
@@ -44,19 +50,32 @@ fun StickerCard(
         onClick = { onClick?.invoke() }
     ) {
         Column {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = title,
-                contentScale = ContentScale.Crop,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(140.dp)
-            )
+                    .aspectRatio(1f)
+                    .background(BackgroundBeige),
+                contentAlignment = androidx.compose.ui.Alignment.Center
+            ) {
+                AsyncImage(
+                    model = "http://10.0.2.2:5246/images/meals/hrenovke_1.png",
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 16.dp,
+                                topEnd = 16.dp
+                            )
+                        ),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = Color.White)
+                    .background(Color.White)
                     .padding(12.dp)
             ) {
                 Text(

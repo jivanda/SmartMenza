@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -333,11 +334,23 @@ fun MealScreen(
                     )
 
                     if (mealDto != null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.TopCenter)
+                                .offset(y = (-40).dp)
+                                .padding(horizontal = 1.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Spacer(modifier = Modifier.height(25.dp))
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp)
                         ) {
+                            item {
+                                Spacer(modifier = Modifier.height(15.dp))
+                            }
                             item {
                                 Image(
                                     painter = painterResource(id = R.drawable.hrenovke),
@@ -464,6 +477,16 @@ fun MealScreen(
                                 }
                             }
                         }
+                        }
+
+
+                        Text(
+                            text = "Powered by SPAN",
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 24.dp)
+                        )
                     } else if (isLoading) {
                         Box(
                             modifier = Modifier.fillMaxSize(),

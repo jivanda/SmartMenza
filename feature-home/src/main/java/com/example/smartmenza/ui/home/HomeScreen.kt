@@ -158,195 +158,264 @@ fun HomeScreen(
                         contentScale = ContentScale.Crop
                     )
 
-                    LazyColumn(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
+                            .align(Alignment.TopCenter)
+                            .offset(y = (-40).dp)
+                            .padding(horizontal = 1.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        item {
-                            // User row
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(vertical = 16.dp)
-                            ) {
-                                var menuExpanded by remember { mutableStateOf(false) }
+                        Spacer(modifier = Modifier.height(25.dp))
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            item {
+                                // User row
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(vertical = 16.dp)
+                                ) {
+                                    var menuExpanded by remember { mutableStateOf(false) }
 
-                                Box {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(48.dp)
-                                            .clip(CircleShape)
-                                            .background(Color.LightGray)
-                                            .clickable { menuExpanded = true }
-                                    ) {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.profile),
-                                            contentDescription = "User menu",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier.fillMaxSize()
+                                    Box {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(48.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.LightGray)
+                                                .clickable { menuExpanded = true }
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.profile),
+                                                contentDescription = "User menu",
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
+
+                                        DropdownMenu(
+                                            expanded = menuExpanded,
+                                            onDismissRequest = { menuExpanded = false }
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        "Odjava",
+                                                        color = SpanRed,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                },
+                                                onClick = {
+                                                    menuExpanded = false
+                                                    onLogout()
+                                                }
+                                            )
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                    Text(
+                                        text = "Dobrodošli, $userName 👋",
+                                        style = MaterialTheme.typography.headlineSmall.copy(
+                                            fontFamily = Montserrat,
+                                            fontWeight = FontWeight.Bold,
+                                            color = SpanRed
+                                        )
+                                    )
+                                }
+
+                                // AI Recommendation StickerCard
+                                when {
+                                    isAiLoading -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(120.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator()
+                                        }
+                                    }
+
+                                    error != null -> {
+                                        Text(
+                                            text = error!!,
+                                            color = Color.Red,
+                                            fontFamily = Montserrat
                                         )
                                     }
 
-                                    DropdownMenu(
-                                        expanded = menuExpanded,
-                                        onDismissRequest = { menuExpanded = false }
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text("Odjava", color = SpanRed, fontWeight = FontWeight.Bold) },
+                                    recommendedMeal != null -> {
+                                        StickerCard(
+                                            imageRes = R.drawable.becki, // kasnije možeš mapirati po tipu jela
+                                            cardTypeText = "AI Preporuka",
+                                            title = recommendedMeal!!.name,
+                                            description = recommendedMeal!!.description ?: "",
+                                            modifier = Modifier.fillMaxWidth(),
                                             onClick = {
-                                                menuExpanded = false
-                                                onLogout()
+                                                //onNavigateToMeal(recommendedMeal!!.mealId)
                                             }
                                         )
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.width(12.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                val menuItems = when (userRole) {
+                                    "Student" -> listOf(
+                                        GridItem(
+                                            Icons.Filled.LunchDining,
+                                            "Jelovnik",
+                                            onClick = { onAllMeals() }),
+                                        GridItem(
+                                            Icons.Filled.Flag,
+                                            "Ciljevi",
+                                            onClick = onNavigateToGoals
+                                        ),
+                                        GridItem(
+                                            Icons.Filled.Favorite,
+                                            "Favoriti",
+                                            onClick = onNavigateToFavorites
+                                        ),
+                                        GridItem(
+                                            Icons.Filled.Star,
+                                            "Ponuda",
+                                            onClick = { onOffers() })
+                                    )
+
+                                    "Employee" -> listOf(
+                                        GridItem(
+                                            Icons.Filled.LunchDining,
+                                            "Jelovnik",
+                                            onClick = { onAllMeals() }),
+                                        GridItem(
+                                            Icons.Filled.RestaurantMenu,
+                                            "Meniji",
+                                            onClick = { onAllMenus() }),
+                                        GridItem(
+                                            Icons.Filled.ShowChart,
+                                            "Statistika",
+                                            onClick = { onNavigateToStatistics() }),
+                                        GridItem(
+                                            Icons.Filled.Star,
+                                            "Ponuda",
+                                            onClick = { onOffers() })
+                                    )
+
+                                    else -> emptyList()
+                                }
+
+
+                                IconGrid(
+                                    items = menuItems,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(120.dp)
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
 
                                 Text(
-                                    text = "Dobrodošli, $userName 👋",
+                                    text = "Današnja ponuda - " + LocalDate.now()
+                                        .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                                     style = MaterialTheme.typography.headlineSmall.copy(
                                         fontFamily = Montserrat,
                                         fontWeight = FontWeight.Bold,
                                         color = SpanRed
                                     )
                                 )
+
+                                Spacer(modifier = Modifier.height(12.dp))
                             }
 
-                            // AI Recommendation StickerCard
+                            // Show loading, error, or menus
                             when {
-                                isAiLoading -> {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(120.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator()
-                                    }
-                                }
-
-                                error != null -> {
+                                isLoading -> item { CircularProgressIndicator() }
+                                errorMessage != null -> item {
                                     Text(
-                                        text = error!!,
-                                        color = Color.Red,
-                                        fontFamily = Montserrat
+                                        text = errorMessage!!,
+                                        color = Color.Red
                                     )
                                 }
 
-                                recommendedMeal != null -> {
-                                    StickerCard(
-                                        imageRes = R.drawable.becki, // kasnije možeš mapirati po tipu jela
-                                        cardTypeText = "AI Preporuka",
-                                        title = recommendedMeal!!.name,
-                                        description = recommendedMeal!!.description ?: "",
-                                        modifier = Modifier.fillMaxWidth(),
-                                        onClick = {
-                                            //onNavigateToMeal(recommendedMeal!!.mealId)
-                                        }
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            val menuItems = when (userRole) {
-                                "Student" -> listOf(
-                                    GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {onAllMeals()}),
-                                    GridItem(Icons.Filled.Flag, "Ciljevi", onClick = onNavigateToGoals),
-                                    GridItem(Icons.Filled.Favorite, "Favoriti", onClick = onNavigateToFavorites),
-                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {onOffers()})
-                                )
-
-                                "Employee" -> listOf(
-                                    GridItem(Icons.Filled.LunchDining, "Jelovnik", onClick = {onAllMeals()}),
-                                    GridItem(Icons.Filled.RestaurantMenu, "Meniji", onClick = {onAllMenus()}),
-                                    GridItem(Icons.Filled.ShowChart, "Statistika", onClick = {onNavigateToStatistics()}),
-                                    GridItem(Icons.Filled.Star, "Ponuda", onClick = {onOffers()})
-                                )
-
-                                else -> emptyList()
-                            }
-
-
-                            IconGrid(
-                                items = menuItems,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(120.dp)
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            Text(
-                                text = "Današnja ponuda - " + LocalDate.now()
-                                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-                                style = MaterialTheme.typography.headlineSmall.copy(
-                                    fontFamily = Montserrat,
-                                    fontWeight = FontWeight.Bold,
-                                    color = SpanRed
-                                )
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-
-                        // Show loading, error, or menus
-                        when {
-                            isLoading -> item { CircularProgressIndicator() }
-                            errorMessage != null -> item { Text(text = errorMessage!!, color = Color.Red) }
-                            todayMenus.isEmpty() -> item { Text("Za današnji datum nema spremljenih menija.") }
-                            else -> {
-                                val categoryOrder = listOf("Dorucak", "Rucak", "Vecera")
-                                val comparator = compareBy<String?> { menuTypeName ->
-                                    if (menuTypeName == null) {
-                                        categoryOrder.size + 1 // Nulls go last
-                                    } else {
-                                        val index = categoryOrder.indexOfFirst { it.equals(menuTypeName, ignoreCase = true) }
-                                        if (index != -1) index else categoryOrder.size // Known categories first, then others
-                                    }
-                                }
-                                val groupedMenus = todayMenus.groupBy { it.menuTypeName }.toSortedMap(comparator)
-
-                                groupedMenus.forEach { (menuTypeName, menus) ->
-                                    item {
-                                        Text(
-                                            text = menuTypeName ?: "Jelovnik",
-                                            style = MaterialTheme.typography.titleMedium.copy(
-                                                fontFamily = Montserrat,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                    }
-
-                                    val mergedMenus = menus.groupBy { it.name }
-                                        .map { (_, menusWithSameName) ->
-                                            val allMeals = menusWithSameName.flatMap { it.meals }
-                                            menusWithSameName.first().copy(meals = allMeals)
-                                        }
-
-                                    items(mergedMenus) { menu ->
-                                        val mealsText = menu.meals.joinToString(", ") { it.name }
-                                        val totalPrice = menu.meals.sumOf { it.price }
-
-                                        MenuCard(
-                                            meals = mealsText,
-                                            menuType = menu.name,
-                                            price = "%.2f EUR".format(totalPrice),
-                                            imageRes = R.drawable.hrenovke,
-                                            modifier = Modifier.fillMaxWidth(),
-                                            onClick = {
-                                                val mealsJson = Gson().toJson(menu.meals)
-                                                onNavigateToMenu(menu.menuId, menu.name, mealsJson)
+                                todayMenus.isEmpty() -> item { Text("Za današnji datum nema spremljenih menija.") }
+                                else -> {
+                                    val categoryOrder = listOf("Dorucak", "Rucak", "Vecera")
+                                    val comparator = compareBy<String?> { menuTypeName ->
+                                        if (menuTypeName == null) {
+                                            categoryOrder.size + 1 // Nulls go last
+                                        } else {
+                                            val index = categoryOrder.indexOfFirst {
+                                                it.equals(
+                                                    menuTypeName,
+                                                    ignoreCase = true
+                                                )
                                             }
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
+                                            if (index != -1) index else categoryOrder.size // Known categories first, then others
+                                        }
+                                    }
+                                    val groupedMenus = todayMenus.groupBy { it.menuTypeName }
+                                        .toSortedMap(comparator)
+
+                                    groupedMenus.forEach { (menuTypeName, menus) ->
+                                        item {
+                                            Text(
+                                                text = menuTypeName ?: "Jelovnik",
+                                                style = MaterialTheme.typography.titleMedium.copy(
+                                                    fontFamily = Montserrat,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                        }
+
+                                        val mergedMenus = menus.groupBy { it.name }
+                                            .map { (_, menusWithSameName) ->
+                                                val allMeals =
+                                                    menusWithSameName.flatMap { it.meals }
+                                                menusWithSameName.first().copy(meals = allMeals)
+                                            }
+
+                                        items(mergedMenus) { menu ->
+                                            val mealsText =
+                                                menu.meals.joinToString("\n") { it.name }
+                                            val totalPrice = menu.meals.sumOf { it.price }
+
+                                            MenuCard(
+                                                meals = mealsText,
+                                                menuType = menu.name,
+                                                price = "%.2f EUR".format(totalPrice),
+                                                imageRes = R.drawable.hrenovke,
+                                                modifier = Modifier.fillMaxWidth(),
+                                                onClick = {
+                                                    val mealsJson = Gson().toJson(menu.meals)
+                                                    onNavigateToMenu(
+                                                        menu.menuId,
+                                                        menu.name,
+                                                        mealsJson
+                                                    )
+                                                }
+                                            )
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
+
+                    Text(
+                        text = "Powered by SPAN",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 24.dp)
+                    )
                 }
             }
         }

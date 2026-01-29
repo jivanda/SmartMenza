@@ -136,30 +136,26 @@ fun OfferScreen(
 
                         Spacer(modifier = Modifier.height(40.dp))
 
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Datum: ${selectedDate.format(displayFormatter)}",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            TextButton(onClick = { showDatePicker = true }) {
+                                Text("Promijeni datum")
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
                         ) {
-                            // --- DATE PICKER HEADER ITEM ---
-                            item {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Datum: ${selectedDate.format(displayFormatter)}",
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    TextButton(onClick = { showDatePicker = true }) {
-                                        Text("Promijeni datum")
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
-
-                            // --- MENUS FOR SELECTED DATE ---
                             when {
                                 isLoading -> item {
                                     CircularProgressIndicator()
@@ -212,7 +208,7 @@ fun OfferScreen(
 
                                         items(mergedMenus) { menu ->
                                             val mealsText =
-                                                menu.meals.joinToString("") { it.name }
+                                                menu.meals.joinToString("\n") { it.name }
                                             val totalPrice =
                                                 menu.meals.sumOf { it.price }
 

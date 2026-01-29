@@ -5,7 +5,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,6 +36,8 @@ import com.example.smartmenza.ui.theme.SpanRed
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.lazy.items
+
 
 @Composable
 fun AllMealsScreen(
@@ -181,6 +185,7 @@ fun AllMealsScreen(
         mealTypeNameMap = map
     }
 
+
     SmartMenzaTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -205,7 +210,10 @@ fun AllMealsScreen(
                     )
                 }
 
+                Spacer(modifier = Modifier.height(50.dp))
+
                 Box(modifier = Modifier.fillMaxSize()) {
+                    // Background pattern
                     Image(
                         painter = subtlePattern,
                         contentDescription = null,
@@ -217,57 +225,73 @@ fun AllMealsScreen(
 
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.Start
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter)
+                            .offset(y = (-40).dp)
+                            .padding(horizontal = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Sva jela",
-                            style = MaterialTheme.typography.headlineSmall
+                            text = "Sva jela i pića",
+                            style = MaterialTheme.typography.headlineLarge
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                        when {
-                            isLoading -> {
-                                CircularProgressIndicator()
-                            }
-                            errorMessage != null -> {
-                                Text(text = errorMessage!!, color = Color.Red)
-                            }
-                            meals.isEmpty() -> {
-                                Text(text = "Nema dostupnih jela.")
-                            }
-                            else -> {
-                                meals.forEach { meal ->
-                                    Log.d("IMG", "mealId=${meal.mealId} imageUrl=${meal.imageUrl}")
 
-                                    MealCard(
-                                        name = meal.name,
-                                        typeName = mealTypeNameMap[meal.mealTypeId] ?: "-",
-                                        price = "%.2f EUR".format(meal.price),
-                                        imageUrl = meal.imageUrl,
-                                        isFavorite = favoriteMealIds.contains(meal.mealId),
-                                        onToggleFavorite = { toggleFavorite(meal.mealId) },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        onClick = { onNavigateToMeal(meal.mealId) }
-                                    )
 
-                                    Spacer(modifier = Modifier.height(8.dp))
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            when {
+                                isLoading -> {
+                                    item {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+
+                                errorMessage != null -> {
+                                    item {
+                                        Text(text = errorMessage!!, color = Color.Red)
+                                    }
+                                }
+
+                                meals.isEmpty() -> {
+                                    item {
+                                        Text(text = "Nema dostupnih jela.")
+                                    }
+                                }
+
+                                else -> {
+                                    items(meals, key = { it.mealId }) { meal ->
+                                        MealCard(
+                                            name = meal.name,
+                                            typeName = mealTypeNameMap[meal.mealTypeId] ?: "-",
+                                            price = "%.2f EUR".format(meal.price),
+                                            imageUrl = meal.imageUrl,
+                                            isFavorite = favoriteMealIds.contains(meal.mealId),
+                                            onToggleFavorite = { toggleFavorite(meal.mealId) },
+                                            modifier = Modifier.fillMaxWidth(),
+                                            onClick = { onNavigateToMeal(meal.mealId) }
+                                        )
+
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                    }
                                 }
                             }
                         }
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Text(
-                            text = "Powered by SPAN",
-                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(bottom = 24.dp)
-                        )
                     }
+
+                    Text(
+                        text = "Powered by SPAN",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 24.dp)
+                    )
                 }
             }
         }

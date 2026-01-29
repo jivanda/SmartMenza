@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -42,6 +43,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.lazy.items
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -294,10 +296,12 @@ fun StatisticsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.TopCenter)
-                            .offset(y = 20.dp)
+                            .offset(y = (-40).dp)
                             .padding(horizontal = 24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Spacer(modifier = Modifier.height(48.dp))
+
                         Text(text = "Statistika", style = MaterialTheme.typography.headlineLarge)
 
                         Column(
@@ -305,12 +309,23 @@ fun StatisticsScreen(
                             horizontalAlignment = Alignment.Start
                         ) {
                             val totalMealsText = stats?.totalMeals?.toString() ?: "-"
-                            val avgText = stats?.overallAverageRating?.let { String.format("%.2f", it) } ?: "-"
+                            val avgText =
+                                stats?.overallAverageRating?.let { String.format("%.2f", it) }
+                                    ?: "-"
                             val maxText = stats?.maxRating?.let { String.format("%.2f", it) } ?: "-"
 
-                            Text("Ukupno jela: $totalMealsText", style = MaterialTheme.typography.bodyLarge)
-                            Text("Prosječna ocjena: $avgText", style = MaterialTheme.typography.bodyLarge)
-                            Text("Najveća ocjena: $maxText", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                "Ukupno jela: $totalMealsText",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                "Prosječna ocjena: $avgText",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                "Najveća ocjena: $maxText",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
 
                             if (statsLoading) {
                                 Spacer(Modifier.height(8.dp))
@@ -363,64 +378,98 @@ fun StatisticsScreen(
                         Button(
                             onClick = {
                                 if (dateFrom.isAfter(dateTo)) {
-                                    Toast.makeText(context, "Datum OD ne može biti poslije datuma DO.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Datum OD ne može biti poslije datuma DO.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 } else {
                                     fetchOverallStats()
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(56.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = SpanRed, contentColor = Color.White),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = SpanRed,
+                                contentColor = Color.White
+                            ),
                             elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
                         ) {
-                            Text("Primijeni", style = MaterialTheme.typography.labelLarge.copy(color = Color.White))
+                            Text(
+                                "Primijeni",
+                                style = MaterialTheme.typography.labelLarge.copy(color = Color.White)
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        when {
-                            isLoading -> CircularProgressIndicator()
-                            errorMessage != null -> Text(text = errorMessage!!, color = Color.Red)
-                            meals.isEmpty() -> Text(text = "Nema dostupnih jela.")
-                            else -> {
-                                val sortedMeals = meals
-                                    .sortedByDescending { meal -> popularityFor(meal.mealId) }
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                when {
+                                    isLoading ->
+                                        item { CircularProgressIndicator() }
 
-                                sortedMeals.forEach { meal ->
-                                    val r = mealRatingMap[meal.mealId]
+                                    errorMessage != null ->
+                                        item {
+                                            Text(
+                                                text = errorMessage!!,
+                                                color = Color.Red
+                                            )
+                                        }
 
-                                    val numberOfReviews = r?.numberOfReviews ?: 0
-                                    val averageRating = r?.averageRating ?: 0.0
-                                    val popularnost = numberOfReviews.toDouble() + averageRating
+                                    meals.isEmpty() ->
+                                        item { Text(text = "Nema dostupnih jela.") }
 
-                                    MealStatisticsCard(
-                                        name = meal.name,
-                                        typeName = mealTypeNameMap[meal.mealTypeId] ?: "-",
-                                        price = "%.2f EUR".format(meal.price),
-                                        imageRes = R.drawable.hrenovke,
-                                        isFavorite = favoriteMealIds.contains(meal.mealId),
-                                        onToggleFavorite = { toggleFavorite(meal.mealId) },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        onClick = { onNavigateToMeal(meal.mealId) },
-                                        numberOfReviews = numberOfReviews,
-                                        averageRating = averageRating
-                                    )
+                                    else -> {
+                                        val sortedMeals = meals
+                                            .sortedByDescending { meal -> popularityFor(meal.mealId) }
 
-                                    //Text("Popularnost: ${String.format("%.2f", popularnost)}")
+                                        sortedMeals.forEach { meal ->
+                                            val r = mealRatingMap[meal.mealId]
 
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                            val numberOfReviews = r?.numberOfReviews ?: 0
+                                            val averageRating = r?.averageRating ?: 0.0
+                                            val popularnost =
+                                                numberOfReviews.toDouble() + averageRating
+
+                                            item {
+                                                MealStatisticsCard(
+                                                    name = meal.name,
+                                                    typeName = mealTypeNameMap[meal.mealTypeId]
+                                                        ?: "-",
+                                                    price = "%.2f EUR".format(meal.price),
+                                                    imageRes = R.drawable.hrenovke,
+                                                    isFavorite = favoriteMealIds.contains(meal.mealId),
+                                                    onToggleFavorite = { toggleFavorite(meal.mealId) },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    onClick = { onNavigateToMeal(meal.mealId) },
+                                                    numberOfReviews = numberOfReviews,
+                                                    averageRating = averageRating
+                                                )
+                                            }
+
+                                            //Text("Popularnost: ${String.format("%.2f", popularnost)}")
+
+                                            item {
+                                                Spacer(modifier = Modifier.height(8.dp))
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
 
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Text(
-                            text = "Powered by SPAN",
-                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
-                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 24.dp)
-                        )
-                    }
+                    Text(
+                        text = "Powered by SPAN",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 24.dp)
+                    )
                 }
             }
         }
