@@ -177,6 +177,7 @@ namespace SmartMenza.Business.Services
                 .AppendLine("Analyze the menu's total nutrition and macronutrient balance and RETURN ONLY a single JSON OBJECT with exactly these fields:")
                 .AppendLine("{\"menuId\": number, \"reasoning\": string}")
                 .AppendLine("The reasoning should be a concise human-readable explanation of the menu's nutritional status (mention totals / imbalances as needed).")
+                .AppendLine("You the content of the reasoning field should be written in Croatian.")
                 .AppendLine("Do not include extra fields, arrays, or commentary outside the JSON object.")
                 .ToString();
 
