@@ -13,11 +13,11 @@ namespace SmartMenza.Domain.DTOs
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public decimal Price { get; set; }
-
         public decimal? Calories { get; set; }
         public decimal? Protein { get; set; }
         public decimal? Carbohydrates { get; set; }
         public decimal? Fat { get; set; }
+        public string? ImageUrl { get; set; }
     }
 
     public class MenuResponseDto

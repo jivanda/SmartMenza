@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartMenza.Business.Services;
 using SmartMenza.Domain.DTOs;
+using SmartMenza.API.Helpers;
 
 namespace SmartMenza.API.Controllers
 {
@@ -19,6 +20,9 @@ namespace SmartMenza.API.Controllers
         public IActionResult GetAllMeals()
         {
             var meals = _mealService.GetAllMeals();
+            foreach (var m in meals)
+                m.ImageUrl = Request.ToAbsoluteImageUrl(m.ImageUrl);
+
             return Ok(meals);
         }
 
@@ -34,6 +38,7 @@ namespace SmartMenza.API.Controllers
                 });
             }
 
+            meal.ImageUrl = Request.ToAbsoluteImageUrl(meal.ImageUrl);
             return Ok(meal);
         }
     }

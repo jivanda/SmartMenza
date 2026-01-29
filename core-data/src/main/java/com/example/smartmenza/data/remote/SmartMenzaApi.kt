@@ -1,5 +1,6 @@
 package com.example.smartmenza.data.remote
 
+import MealDto
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -166,4 +167,14 @@ interface SmartMenzaApi {
         @Header("UserId") userId: Int
     ): Response<RatingCommentDto>
 
+    // --- Nutrition AI ---
+    @GET("api/Nutrition/analyze/menu/{menuId}")
+    suspend fun analyzeMenuNutrition(
+        @Path("menuId") menuId: Int
+    ): Response<NutritionResultDto>
+
+    @GET("api/Nutrition/assess/menu/{menuId}")
+    suspend fun assessMenuHealth(
+        @Path("menuId") menuId: Int
+    ): Response<NutritionAssessmentDto>
 }

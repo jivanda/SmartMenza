@@ -41,14 +41,15 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.example.core_ui.R
-import com.example.smartmenza.data.remote.MealDto
+import MealDto
 
 @Composable
 fun HomeScreen(
     userId: Int,
     onNavigateToFavorites: () -> Unit,
     onNavigateToGoals: () -> Unit,
-    onNavigateToMenu: (String, String) -> Unit,
+    onNavigateToMenu: (menuId: Int, menuName: String, mealsJson: String) -> Unit,
+    //onNavigateToMeal: (Int) -> Unit,
     onLogout: () -> Unit = {},
     onAllMeals: () -> Unit = {},
     onOffers: () -> Unit = {},
@@ -69,6 +70,7 @@ fun HomeScreen(
         val coroutineScope = rememberCoroutineScope()
 
         var recommendedMeal by remember { mutableStateOf<MealDto?>(null) }
+        var isAiLoading by remember { mutableStateOf(true) }
         var error by remember { mutableStateOf<String?>(null) }
 
         LaunchedEffect(Unit) {
@@ -92,13 +94,12 @@ fun HomeScreen(
             }
 
             try {
+                isAiLoading = true
                 val date = LocalDate.now().toString() // yyyy-MM-dd
-
                 val recResponse = RetrofitInstance.api.recommendMeal(date, userId)
 
                 if (recResponse.isSuccessful) {
                     val mealId = recResponse.body()
-
                     if (mealId != null) {
                         val mealResponse = RetrofitInstance.api.getMealById(mealId)
                         if (mealResponse.isSuccessful) {
@@ -112,11 +113,10 @@ fun HomeScreen(
                 } else {
                     error = "Greška kod preporuke."
                 }
-
             } catch (e: Exception) {
                 error = "Network error."
             } finally {
-                isLoading = false
+                isAiLoading = false
             }
         }
 
@@ -215,8 +215,15 @@ fun HomeScreen(
 
                             // AI Recommendation StickerCard
                             when {
-                                isLoading -> {
-                                    CircularProgressIndicator()
+                                isAiLoading -> {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(120.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
                                 }
 
                                 error != null -> {
@@ -229,19 +236,17 @@ fun HomeScreen(
 
                                 recommendedMeal != null -> {
                                     StickerCard(
-                                        imageRes = R.drawable.becki, // later you can map by meal type
+                                        imageRes = R.drawable.becki, // kasnije možeš mapirati po tipu jela
                                         cardTypeText = "AI Preporuka",
                                         title = recommendedMeal!!.name,
                                         description = recommendedMeal!!.description ?: "",
                                         modifier = Modifier.fillMaxWidth(),
                                         onClick = {
-                                            // optional: navigate to meal
-                                            // onNavigateToMeal(recommendedMeal!!.id)
+                                            //onNavigateToMeal(recommendedMeal!!.mealId)
                                         }
                                     )
                                 }
                             }
-
 
                             Spacer(modifier = Modifier.height(12.dp))
 
@@ -333,7 +338,7 @@ fun HomeScreen(
                                             modifier = Modifier.fillMaxWidth(),
                                             onClick = {
                                                 val mealsJson = Gson().toJson(menu.meals)
-                                                onNavigateToMenu(menu.name, mealsJson)
+                                                onNavigateToMenu(menu.menuId, menu.name, mealsJson)
                                             }
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))

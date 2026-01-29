@@ -1,5 +1,7 @@
 package com.example.smartmenza.data.remote
 
+import MealDto
+
 data class MenuResponseDto(
     val menuId: Int,
     val name: String,
@@ -42,4 +44,16 @@ data class FavoriteToggleDto(
 
 data class FavoriteStatusDto(
     val isFavorite: Boolean
+)
+
+data class NutritionResultDto(
+    val calories: Double,
+    val proteins: Double,
+    val carbohydrates: Double,
+    val fats: Double
+)
+
+data class NutritionAssessmentDto(
+    val menuId: Int,
+    val reasoning: String
 )

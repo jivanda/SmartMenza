@@ -1,4 +1,4 @@
-package com.example.smartmenza.data.remote
+import com.google.gson.annotations.SerializedName
 
 data class MealDto(
     val mealId: Int,
@@ -9,5 +9,7 @@ data class MealDto(
     val calories: Double?,
     val protein: Double?,
     val carbohydrates: Double?,
-    val fat: Double?
+    val fat: Double?,
+    @SerializedName(value = "imageUrl", alternate = ["ImageUrl"])
+    val imageUrl: String?
 )

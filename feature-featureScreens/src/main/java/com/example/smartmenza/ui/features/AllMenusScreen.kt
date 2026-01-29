@@ -39,12 +39,13 @@ data class MenuTypeOption(
 
 @Composable
 fun AllMenusScreen(
-    onNavigateToMenu: (String, String) -> Unit,
+    onNavigateToMenu: (menuId: Int, menuName: String, mealsJson: String) -> Unit,
     onCreateMenu: () -> Unit,
     onEditMenu: (Int) -> Unit,
     onNavigateBack: () -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
-) {
+)
+ {
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var menus by remember { mutableStateOf<List<MenuResponseDto>>(emptyList()) }
@@ -234,14 +235,15 @@ fun AllMenusScreen(
                                             modifier = Modifier.fillMaxWidth(),
                                             onInfoClick = {
                                                 val mealsJson = Gson().toJson(menu.meals)
-                                                onNavigateToMenu(menu.name, mealsJson)
-                                                          },
+                                                onNavigateToMenu(menu.menuId, menu.name, mealsJson)
+                                            },
                                             onEditClick = { onEditMenu(menu.menuId) },
                                             onDeleteClick = {
                                                 menuToDelete = menu
                                                 showDeleteDialog = true
                                             }
                                         )
+
                                         Spacer(modifier = Modifier.height(16.dp))
                                     }
                                 }

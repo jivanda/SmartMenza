@@ -207,14 +207,17 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = Route.Menu.route,
                             arguments = listOf(
+                                navArgument("menuId") { type = NavType.IntType },
                                 navArgument("menuName") { type = NavType.StringType },
                                 navArgument("mealsJson") { type = NavType.StringType }
                             )
                         ) { backStackEntry ->
+                            val menuId = backStackEntry.arguments?.getInt("menuId") ?: 0
                             val menuName = backStackEntry.arguments?.getString("menuName").orEmpty()
                             val mealsJson = backStackEntry.arguments?.getString("mealsJson").orEmpty()
 
                             MenuScreen(
+                                menuId = menuId,
                                 menuName = menuName,
                                 mealsJson = mealsJson,
                                 onNavigateToMeal = actions::navigateToMeal,
