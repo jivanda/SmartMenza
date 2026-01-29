@@ -62,4 +62,5 @@ dependencies {
 
     implementation(project(":core-model"))
     implementation(project(":core-data"))
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }

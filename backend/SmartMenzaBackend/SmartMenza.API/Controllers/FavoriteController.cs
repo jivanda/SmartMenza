@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartMenza.Business.Services;
 using SmartMenza.Domain.DTOs;
+using SmartMenza.API.Helpers;
 
 namespace SmartMenza.API.Controllers
 {
@@ -61,7 +62,7 @@ namespace SmartMenza.API.Controllers
             {
                 MealId = f.MealId,
                 MealName = f.Meal.Name,
-                ImageUrl = f.Meal.ImageUrl,
+                ImageUrl = Request.ToAbsoluteImageUrl(f.Meal.ImageUrl),
                 Calories = f.Meal.Calories,
                 Protein = f.Meal.Protein
             });

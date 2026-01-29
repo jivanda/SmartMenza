@@ -1,5 +1,6 @@
 package com.example.smartmenza.ui.features
 
+import MealDto
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.core_ui.R
-import com.example.smartmenza.data.remote.MealDto
 import com.example.smartmenza.data.remote.RetrofitInstance
 import com.example.smartmenza.data.remote.MenuMealItemDto
 import com.example.smartmenza.data.remote.MenuWriteDto

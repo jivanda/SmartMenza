@@ -2,7 +2,6 @@ package com.example.smartmenza.ui.main
 
 import android.net.Uri
 import androidx.navigation.NavController
-import com.example.smartmenza.data.remote.MealDto
 import com.google.gson.Gson
 
 class AppActions(
