@@ -39,7 +39,7 @@ data class MenuTypeOption(
 
 @Composable
 fun AllMenusScreen(
-    onNavigateToMenu: (menuId: Int, menuName: String, mealsJson: String) -> Unit,
+    onNavigateToMenu: (menuId: Int) -> Unit,
     onCreateMenu: () -> Unit,
     onEditMenu: (Int) -> Unit,
     onNavigateBack: () -> Unit,
@@ -234,8 +234,7 @@ fun AllMenusScreen(
                                             imageRes = R.drawable.hrenovke,
                                             modifier = Modifier.fillMaxWidth(),
                                             onInfoClick = {
-                                                val mealsJson = Gson().toJson(menu.meals)
-                                                onNavigateToMenu(menu.menuId, menu.name, mealsJson)
+                                                onNavigateToMenu(menu.menuId)
                                             },
                                             onEditClick = { onEditMenu(menu.menuId) },
                                             onDeleteClick = {

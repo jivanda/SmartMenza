@@ -48,7 +48,7 @@ fun HomeScreen(
     userId: Int,
     onNavigateToFavorites: () -> Unit,
     onNavigateToGoals: () -> Unit,
-    onNavigateToMenu: (menuId: Int, menuName: String, mealsJson: String) -> Unit,
+    onNavigateToMenu: (menuId: Int) -> Unit,
     //onNavigateToMeal: (Int) -> Unit,
     onLogout: () -> Unit = {},
     onAllMeals: () -> Unit = {},
@@ -392,12 +392,7 @@ fun HomeScreen(
                                                 imageRes = R.drawable.hrenovke,
                                                 modifier = Modifier.fillMaxWidth(),
                                                 onClick = {
-                                                    val mealsJson = Gson().toJson(menu.meals)
-                                                    onNavigateToMenu(
-                                                        menu.menuId,
-                                                        menu.name,
-                                                        mealsJson
-                                                    )
+                                                    onNavigateToMenu(menu.menuId)
                                                 }
                                             )
                                             Spacer(modifier = Modifier.height(16.dp))

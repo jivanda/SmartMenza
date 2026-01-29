@@ -7,10 +7,8 @@ import com.google.gson.Gson
 class AppActions(
     private val navController: NavController
 ) {
-    fun navigateToMenu(menuId: Int, menuName: String, mealsJson: String) {
-        val encodedName = Uri.encode(menuName)
-        val encodedMeals = Uri.encode(mealsJson)
-        navController.navigate("menu/$menuId/$encodedName/$encodedMeals")
+    fun navigateToMenu(menuId: Int) {
+        navController.navigate("menu/$menuId")
     }
 
 
