@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,8 @@ namespace SmartMenza.API.Controllers
         }
 
         [HttpPost("date/{date}")]
-        public async Task<IActionResult> RecommendFromMenu(string date, [FromHeader(Name = "UserId")] int? userId)
+        [Produces("application/json")]
+        public async Task<IActionResult> RecommendFromMenu(string date, [FromHeader(Name = "UserId")] int? userId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -37,19 +39,30 @@ namespace SmartMenza.API.Controllers
                     return BadRequest(new { message = "Invalid date format. Expected 'yyyy-MM-dd'." });
                 }
 
-                if (userId.HasValue && userId <= 0)
+                if (!userId.HasValue)
+                {
+                    _logger.LogWarning("UserId header missing for recommendation request.");
+                    return BadRequest(new { message = "UserId header is required and must be a positive integer." });
+                }
+
+                if (userId <= 0)
                 {
                     _logger.LogWarning("Invalid UserId header provided: {UserId}", userId);
                     return BadRequest(new { message = "UserId header must be a positive integer." });
                 }
 
-                var chosenId = await _recommendationService.RecommendMealForDateAsync(parsedDate, userId, default);
+                var chosenId = await _recommendationService.RecommendMealForDateAsync(parsedDate, userId.Value, cancellationToken).ConfigureAwait(false);
                 return Ok(chosenId);
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(ex, "Recommendation failed for date {Date}.", date);
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Recommendation cancelled by client for date {Date}.", date);
+                return StatusCode(499, new { message = "Request cancelled." });
             }
             catch (Exception ex)
             {
