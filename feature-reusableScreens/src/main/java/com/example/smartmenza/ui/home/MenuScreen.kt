@@ -36,10 +36,13 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
 import com.example.core_ui.R
+import com.example.smartmenza.data.remote.NutritionAssessmentDto
+import com.example.smartmenza.data.remote.NutritionResultDto
 
 
 @Composable
 fun MenuScreen(
+    menuId: Int,
     menuName: String,
     mealsJson: String,
     onNavigateToMeal: (Int) -> Unit,
@@ -56,7 +59,11 @@ fun MenuScreen(
     val context = LocalContext.current
     val prefs = remember { UserPreferences(context) }
     val userId by prefs.userId.collectAsState(initial = null)
+    val role by prefs.userRole.collectAsState(initial = null)
     val coroutineScope = rememberCoroutineScope()
+
+    var nutrition by remember { mutableStateOf<NutritionResultDto?>(null) }
+    var assessment by remember { mutableStateOf<NutritionAssessmentDto?>(null) }
 
     var mealTypeNameMap by remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
 
@@ -176,6 +183,27 @@ fun MenuScreen(
         mealTypeNameMap = map
     }
 
+    LaunchedEffect(meals, role) {
+        if (role == "Employee") {
+            try {
+                val nutritionResponse = RetrofitInstance.api.analyzeMenuNutrition(menuId)
+                if (nutritionResponse.isSuccessful) {
+                    nutrition = nutritionResponse.body()
+                }
+
+                val assessmentResponse = RetrofitInstance.api.assessMenuHealth(menuId)
+                if (assessmentResponse.isSuccessful) {
+                    assessment = assessmentResponse.body()
+                }
+            } catch (e: Exception) {
+                Log.e("NutritionDebug", "Error fetching nutrition info: ${e.message}", e)
+            }
+        } else {
+            // Ako nije Employee, postavi null da se ništa ne prikazuje
+            nutrition = null
+            assessment = null
+        }
+    }
 
     SmartMenzaTheme {
         Surface(
@@ -259,6 +287,42 @@ fun MenuScreen(
 
                             val totalPrice = meals.sumOf { it.price }
                             Text("Cijena menija: %.2f EUR".format(totalPrice))
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+
+                                    nutrition?.let { n ->
+                                        Text(
+                                            text = "Nutritivne vrijednosti menija",
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 18.sp
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text("Kalorije: ${n.calories} kcal")
+                                        Text("Proteini: ${n.proteins} g")
+                                        Text("Ugljikohidrati: ${n.carbohydrates} g")
+                                        Text("Masti: ${n.fats} g")
+                                    }
+
+                                    assessment?.let { a ->
+                                        if (nutrition != null) Spacer(modifier = Modifier.height(16.dp))
+                                        Text(
+                                            text = "Procjena zdravlja menija",
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 18.sp
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(a.reasoning)
+                                    }
+                                }
+                            }
                         }
                     } else {
                         Box(

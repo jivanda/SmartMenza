@@ -43,7 +43,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OfferScreen(
-    onNavigateToMenu: (String, String) -> Unit,
+    onNavigateToMenu: (menuId: Int, menuName: String, mealsJson: String) -> Unit,
     onNavigateBack: () -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
@@ -224,7 +224,7 @@ fun OfferScreen(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 onClick = {
                                                     val mealsJson = Gson().toJson(menu.meals)
-                                                    onNavigateToMenu(menu.name, mealsJson)
+                                                    onNavigateToMenu(menu.menuId, menu.name, mealsJson)
                                                 },
                                             )
                                             Spacer(modifier = Modifier.height(16.dp))

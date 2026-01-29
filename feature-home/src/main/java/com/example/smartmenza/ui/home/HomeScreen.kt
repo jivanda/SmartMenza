@@ -48,7 +48,7 @@ fun HomeScreen(
     userId: Int,
     onNavigateToFavorites: () -> Unit,
     onNavigateToGoals: () -> Unit,
-    onNavigateToMenu: (String, String) -> Unit,
+    onNavigateToMenu: (menuId: Int, menuName: String, mealsJson: String) -> Unit,
     onLogout: () -> Unit = {},
     onAllMeals: () -> Unit = {},
     onOffers: () -> Unit = {},
@@ -333,7 +333,7 @@ fun HomeScreen(
                                             modifier = Modifier.fillMaxWidth(),
                                             onClick = {
                                                 val mealsJson = Gson().toJson(menu.meals)
-                                                onNavigateToMenu(menu.name, mealsJson)
+                                                onNavigateToMenu(menu.menuId, menu.name, mealsJson)
                                             }
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))

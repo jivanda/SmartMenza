@@ -166,4 +166,14 @@ interface SmartMenzaApi {
         @Header("UserId") userId: Int
     ): Response<RatingCommentDto>
 
+    // --- Nutrition AI ---
+    @GET("api/Nutrition/analyze/menu/{menuId}")
+    suspend fun analyzeMenuNutrition(
+        @Path("menuId") menuId: Int
+    ): Response<NutritionResultDto>
+
+    @GET("api/Nutrition/assess/menu/{menuId}")
+    suspend fun assessMenuHealth(
+        @Path("menuId") menuId: Int
+    ): Response<NutritionAssessmentDto>
 }
