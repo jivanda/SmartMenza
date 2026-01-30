@@ -92,15 +92,18 @@ namespace SmartMenza.API
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            app.MapGet("/", () => Results.Redirect("/swagger"));
 
             if (!app.Environment.IsDevelopment())
             {
                 app.UseHttpsRedirection();
             }
-            app.MapGet("/", () => Results.Redirect("/swagger"));
+
             app.UseStaticFiles();
             app.UseCors("AllowAndroid");
             app.UseAuthorization();
