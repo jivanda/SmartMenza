@@ -1,8 +1,7 @@
 using System;
-using System.ClientModel;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using SmartMenza.Business.Services;
 using SmartMenza.Data.Context;
 using SmartMenza.Data.Repositories.Interfaces;
@@ -19,14 +18,18 @@ namespace SmartMenza.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAndroid", policy =>
                 {
-                    policy.WithOrigins("http://10.0.2.2:8080", "http://localhost:8080")
-                          .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials();
+                    policy.WithOrigins(
+                            "http://10.0.2.2:8080",
+                            "http://localhost:8080"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
             });
 
@@ -41,51 +44,58 @@ namespace SmartMenza.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+                throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
+
             builder.Services.AddDbContext<SmartMenzaContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
 
             builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             builder.Services.AddScoped<IGoalRepository, GoalRepository>();
             builder.Services.AddScoped<IMealRepository, MealRepository>();
             builder.Services.AddScoped<IMealTypeRepository, MealTypeRepository>();
             builder.Services.AddScoped<IMenuRepository, MenuRepository>();
+            builder.Services.AddScoped<IRatingCommentRepository, RatingCommentRepository>();
+            builder.Services.AddScoped<IStatisticsRepository, StatisticsRepository>();
+
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<MenuService>();
             builder.Services.AddScoped<GoalService>();
             builder.Services.AddScoped<FavoriteService>();
             builder.Services.AddScoped<MealService>();
             builder.Services.AddScoped<MealTypeService>();
-            builder.Services.AddScoped<IRatingCommentRepository, RatingCommentRepository>();
             builder.Services.AddScoped<RatingCommentService>();
-            builder.Services.AddScoped<SmartMenza.Data.Repositories.Interfaces.IStatisticsRepository, SmartMenza.Data.Repositories.Implementations.StatisticsRepository>();
-            builder.Services.AddScoped<SmartMenza.Business.Services.StatisticsService>();
+            builder.Services.AddScoped<StatisticsService>();
+            builder.Services.AddScoped<MealRecommendationService>();
+            builder.Services.AddScoped<MealNutritionService>();
 
             builder.Services.AddSingleton(sp =>
             {
-                var cfg = sp.GetRequiredService<IConfiguration>();
-                const string endpoint = "https://smartmenzaai.openai.azure.com/openai/v1/";
-                const string apiKey = ""; // OVDJE UBACITI API KEY
-                var deploymentName = "SmartmenzaAI";
+                var config = sp.GetRequiredService<IConfiguration>();
+
+                var endpoint = config["AzureOpenAI:Endpoint"];
+                var apiKey = config["AzureOpenAI:ApiKey"];
+                var deploymentName = config["AzureOpenAI:DeploymentName"];
 
                 if (string.IsNullOrWhiteSpace(endpoint))
                     throw new InvalidOperationException("AzureOpenAI:Endpoint is not configured.");
-                    
-                if (string.IsNullOrWhiteSpace(apiKey))
-                    throw new InvalidOperationException("AzureOpenAI:ApiKey is not configured. Set AzureOpenAI:ApiKey or AZURE_OPENAI_API_KEY.");
 
-                var client = new ChatClient(
+                if (string.IsNullOrWhiteSpace(apiKey))
+                    throw new InvalidOperationException("AzureOpenAI:ApiKey is not configured.");
+
+                if (string.IsNullOrWhiteSpace(deploymentName))
+                    throw new InvalidOperationException("AzureOpenAI:DeploymentName is not configured.");
+
+                return new ChatClient(
                     credential: new AzureKeyCredential(apiKey),
                     model: deploymentName,
-                    options: new OpenAIClientOptions()
+                    options: new OpenAIClientOptions
                     {
-                        Endpoint = new($"{endpoint}"),
+                        Endpoint = new Uri(endpoint)
                     });
-
-                return client;
             });
-
-            builder.Services.AddScoped<MealRecommendationService>();
-            builder.Services.AddScoped<MealNutritionService>();
 
             var app = builder.Build();
 
