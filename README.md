@@ -1,7 +1,7 @@
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/jivanda/SmartMenza)
 # SmartMenza
 
-lINK NA APP DEPLOYMENT: https://smartmenza-h5csfahadafnajaq.swedencentral-01.azurewebsites.net/swagger/index.html
+LINK NA APP DEPLOYMENT: https://smartmenza-h5csfahadafnajaq.swedencentral-01.azurewebsites.net/swagger/index.html
 
 ## Projektni tim
 
