@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 //import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SpanRed
+import coil.compose.AsyncImage
 
 
 @Composable
@@ -34,7 +35,7 @@ fun MenuCard(
     meals: String,
     menuType: String,
     price: String,
-    imageRes: Int,
+    imageUrl: String?,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
@@ -83,8 +84,8 @@ fun MenuCard(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Image(
-                    painter = painterResource(id = imageRes),
+                AsyncImage(
+                    model = imageUrl,
                     contentDescription = null,
                     modifier = Modifier
                         .size(72.dp)

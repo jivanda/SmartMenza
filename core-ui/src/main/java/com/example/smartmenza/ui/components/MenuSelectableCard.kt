@@ -21,13 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SpanRed
+import coil.compose.AsyncImage
 
 @Composable
 fun MenuSelectableCard(
     meals: String,
     menuType: String,
     price: String,
-    imageRes: Int,
+    imageUrl: String?,
     modifier: Modifier = Modifier,
     onInfoClick: (() -> Unit)? = null,
     onEditClick: (() -> Unit)? = null,
@@ -78,8 +79,8 @@ fun MenuSelectableCard(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Image(
-                    painter = painterResource(id = imageRes),
+                AsyncImage(
+                    model = imageUrl,
                     contentDescription = null,
                     modifier = Modifier
                         .size(72.dp)

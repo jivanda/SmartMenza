@@ -52,6 +52,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.core_ui.R
 import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.RatingCommentCreateDto
@@ -80,6 +81,7 @@ fun ReviewCreateScreen(
     var comment by remember { mutableStateOf("") }
 
     var mealDto by remember { mutableStateOf<MealDto?>(null) }
+    var imageUrl by remember { mutableStateOf<String?>(null) }
 
     val userId by prefs.userId.collectAsState(initial = null)
     val coroutineScope = rememberCoroutineScope()
@@ -171,10 +173,19 @@ fun ReviewCreateScreen(
         try {
             val response = RetrofitInstance.api.getMealById(mealId)
             if (response.isSuccessful) {
-                mealDto = response.body()
+                val body = response.body()
+                mealDto = body
+                imageUrl = body?.imageUrl
+            } else {
+                mealDto = null
+                imageUrl = null
             }
-        } catch (_: Exception) { }
+        } catch (_: Exception) {
+            mealDto = null
+            imageUrl = null
+        }
     }
+
 
     LaunchedEffect(mealId, userId) {
         val uid = userId ?: return@LaunchedEffect
@@ -253,13 +264,17 @@ fun ReviewCreateScreen(
                             .padding(16.dp),
                         horizontalAlignment = Alignment.Start
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.hrenovke),
-                            contentDescription = mealDto?.name ?: "Meal image",
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = null,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(220.dp)
-                                .clip(RoundedCornerShape(16.dp)),
+                                .size(380.dp)
+                                .clip(
+                                    RoundedCornerShape(
+                                        topStart = 16.dp,
+                                        topEnd = 16.dp
+                                    )
+                                ),
                             contentScale = ContentScale.Crop
                         )
 

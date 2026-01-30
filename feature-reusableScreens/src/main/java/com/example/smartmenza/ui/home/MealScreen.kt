@@ -358,7 +358,7 @@ fun MealScreen(
                                     model = mealDto!!.imageUrl,
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .fillMaxSize()
+                                        .size(380.dp)
                                         .clip(
                                             RoundedCornerShape(
                                                 topStart = 16.dp,

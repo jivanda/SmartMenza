@@ -212,11 +212,20 @@ fun OfferScreen(
                                             val totalPrice =
                                                 menu.meals.sumOf { it.price }
 
+                                            var mainDishImageUrl: String? = null
+
+                                            for (meal in menu.meals) {
+                                                if (meal.mealTypeId == 1) {
+                                                    mainDishImageUrl = meal.imageUrl
+                                                    break
+                                                }
+                                            }
+
                                             MenuCard(
                                                 meals = mealsText,
                                                 menuType = menu.name,
                                                 price = "%.2f EUR".format(totalPrice),
-                                                imageRes = R.drawable.hrenovke,
+                                                imageUrl = mainDishImageUrl,
                                                 modifier = Modifier.fillMaxWidth(),
                                                 onClick = {
                                                     onNavigateToMenu(menu.menuId)

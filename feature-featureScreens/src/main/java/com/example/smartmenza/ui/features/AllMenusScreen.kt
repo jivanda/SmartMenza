@@ -1,5 +1,6 @@
 package com.example.smartmenza.ui.features
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -227,11 +228,20 @@ fun AllMenusScreen(
                                         val mealsText = menu.meals.joinToString("\n") { it.name }
                                         val totalPrice = menu.meals.sumOf { it.price }
 
+                                        var mainDishImageUrl: String? = null
+
+                                        for (meal in menu.meals) {
+                                            if (meal.mealTypeId == 1) {
+                                                mainDishImageUrl = meal.imageUrl
+                                                break
+                                            }
+                                        }
+
                                         MenuSelectableCard(
                                             meals = mealsText,
                                             menuType = menu.name,
                                             price = "%.2f EUR".format(totalPrice),
-                                            imageRes = R.drawable.hrenovke,
+                                            imageUrl = mainDishImageUrl,
                                             modifier = Modifier.fillMaxWidth(),
                                             onInfoClick = {
                                                 onNavigateToMenu(menu.menuId)

@@ -76,7 +76,8 @@ namespace SmartMenza.Business.Services
                         Calories = mm.Meal.Calories,
                         Protein = mm.Meal.Protein,
                         Carbohydrates = mm.Meal.Carbohydrates,
-                        Fat = mm.Meal.Fat
+                        Fat = mm.Meal.Fat,
+                        ImageUrl = mm.Meal.ImageUrl
                     }).ToList()
                 })
                 .ToList();
@@ -104,7 +105,8 @@ namespace SmartMenza.Business.Services
                             Calories = mm.Meal.Calories,
                             Protein = mm.Meal.Protein,
                             Carbohydrates = mm.Meal.Carbohydrates,
-                            Fat = mm.Meal.Fat
+                            Fat = mm.Meal.Fat,
+                            ImageUrl = mm.Meal.ImageUrl
                         })
                         .ToList()
                 })

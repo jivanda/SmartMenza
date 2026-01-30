@@ -42,6 +42,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.example.core_ui.R
 import MealDto
+import android.util.Log
 
 @Composable
 fun HomeScreen(
@@ -127,7 +128,6 @@ fun HomeScreen(
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -149,7 +149,6 @@ fun HomeScreen(
 
                 Box(modifier = Modifier.fillMaxSize()) {
 
-                    // Background pattern
                     Image(
                         painter = subtlePattern,
                         contentDescription = null,
@@ -174,7 +173,6 @@ fun HomeScreen(
                                 .padding(16.dp)
                         ) {
                             item {
-                                // User row
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.padding(vertical = 16.dp)
@@ -332,7 +330,6 @@ fun HomeScreen(
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
 
-                            // Show loading, error, or menus
                             when {
                                 isLoading -> item { CircularProgressIndicator() }
                                 errorMessage != null -> item {
@@ -347,7 +344,7 @@ fun HomeScreen(
                                     val categoryOrder = listOf("Dorucak", "Rucak", "Vecera")
                                     val comparator = compareBy<String?> { menuTypeName ->
                                         if (menuTypeName == null) {
-                                            categoryOrder.size + 1 // Nulls go last
+                                            categoryOrder.size + 1
                                         } else {
                                             val index = categoryOrder.indexOfFirst {
                                                 it.equals(
@@ -355,7 +352,7 @@ fun HomeScreen(
                                                     ignoreCase = true
                                                 )
                                             }
-                                            if (index != -1) index else categoryOrder.size // Known categories first, then others
+                                            if (index != -1) index else categoryOrder.size
                                         }
                                     }
                                     val groupedMenus = todayMenus.groupBy { it.menuTypeName }
@@ -385,11 +382,21 @@ fun HomeScreen(
                                                 menu.meals.joinToString("\n") { it.name }
                                             val totalPrice = menu.meals.sumOf { it.price }
 
+                                            var mainDishImageUrl: String? = null
+
+                                            for (meal in menu.meals) {
+                                                if (meal.mealTypeId == 1) {
+                                                    mainDishImageUrl = meal.imageUrl
+                                                    Log.d("MENU_DEBUG", "Main dish imageUrl found: $mainDishImageUrl")
+                                                    break
+                                                }
+                                            }
+
                                             MenuCard(
                                                 meals = mealsText,
                                                 menuType = menu.name,
                                                 price = "%.2f EUR".format(totalPrice),
-                                                imageRes = R.drawable.hrenovke,
+                                                imageUrl = mainDishImageUrl,
                                                 modifier = Modifier.fillMaxWidth(),
                                                 onClick = {
                                                     onNavigateToMenu(menu.menuId)
