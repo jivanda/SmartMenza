@@ -100,6 +100,7 @@ namespace SmartMenza.API
             {
                 app.UseHttpsRedirection();
             }
+            app.MapGet("/", () => Results.Redirect("/swagger"));
             app.UseStaticFiles();
             app.UseCors("AllowAndroid");
             app.UseAuthorization();
