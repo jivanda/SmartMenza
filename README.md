@@ -2,6 +2,7 @@
 # SmartMenza
 
 LINK NA APP DEPLOYMENT: https://smartmenza-h5csfahadafnajaq.swedencentral-01.azurewebsites.net/swagger/index.html
+
 Android aplikacija: https://github.com/jivanda/SmartMenza/releases/tag/mobile-apk-2026-01
 
 ## Projektni tim
