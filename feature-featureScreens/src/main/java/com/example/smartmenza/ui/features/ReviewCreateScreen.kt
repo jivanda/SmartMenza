@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -232,9 +234,8 @@ fun ReviewCreateScreen(
                                 tint = Color.White
                             )
                         }
-
                         Text(
-                            text = "Recenzija",
+                            text = mealDto?.name ?: "",
                             style = TextStyle(
                                 fontFamily = Montserrat,
                                 fontWeight = FontWeight.SemiBold,
@@ -243,7 +244,6 @@ fun ReviewCreateScreen(
                             ),
                             maxLines = 1
                         )
-
                         Spacer(modifier = Modifier.width(48.dp))
                     }
                 }
@@ -258,153 +258,184 @@ fun ReviewCreateScreen(
                         contentScale = ContentScale.Crop
                     )
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        AsyncImage(
-                            model = imageUrl,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(380.dp)
-                                .clip(
-                                    RoundedCornerShape(
-                                        topStart = 16.dp,
-                                        topEnd = 16.dp
-                                    )
-                                ),
-                            contentScale = ContentScale.Crop
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Text(
-                            text = mealDto?.name ?: "Jelo",
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontFamily = Montserrat,
-                                fontWeight = FontWeight.Bold,
-                                color = SpanRed
-                            )
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(vertical = 16.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.LightGray)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.profile),
-                                    contentDescription = "User profile",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.width(12.dp))
-
-                            Text(
-                                text = userName,
-                                style = MaterialTheme.typography.headlineSmall.copy(
-                                    fontFamily = Montserrat,
-                                    fontWeight = FontWeight.Bold,
-                                    color = SpanRed
-                                )
-                            )
-                        }
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                for (i in 1..5) {
-                                    Icon(
-                                        imageVector = if (i <= rating) Icons.Filled.Star else Icons.Outlined.Star,
-                                        contentDescription = "Star $i",
-                                        tint = if (i <= rating) Color(0xFFFFC107) else Color.Gray,
-                                        modifier = Modifier
-                                            .size(34.dp)
-                                            .clickable { rating = i }
-                                            .padding(2.dp)
-                                    )
-                                }
-                            }
-
-                            Text(
-                                text = "$rating/5",
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontFamily = Montserrat,
-                                    fontWeight = FontWeight.Bold,
-                                    color = SpanRed
-                                )
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        OutlinedTextField(
-                            value = comment,
-                            onValueChange = { comment = it },
+                    if (mealDto != null) {
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(220.dp),
-                            placeholder = { Text("Upišite komentar...") },
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = Montserrat),
-                            maxLines = 10,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        if(!existingReview) {
-                            Button(
-                                onClick = { submitReview() },
+                                .align(Alignment.TopCenter)
+                                .offset(y = (-40).dp)
+                                .padding(horizontal = 1.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Spacer(modifier = Modifier.height(25.dp))
+                            LazyColumn(
                                 modifier = Modifier
-                                    .align(Alignment.End)
-                                    .height(48.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = SpanRed),
-                                shape = RoundedCornerShape(999.dp)
+                                    .fillMaxSize()
+                                    .padding(16.dp)
                             ) {
-                                Text(
-                                    text = "Submit",
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontFamily = Montserrat,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                                item {
+                                    Spacer(modifier = Modifier.height(15.dp))
+                                }
+                                item {
+                                    AsyncImage(
+                                        model = imageUrl,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(380.dp)
+                                            .clip(
+                                                RoundedCornerShape(
+                                                    topStart = 16.dp,
+                                                    topEnd = 16.dp
+                                                )
+                                            ),
+                                        contentScale = ContentScale.Crop
                                     )
-                                )
-                            }
-                        }else{
-                            Button(
-                                onClick = { updateReview() },
-                                modifier = Modifier
-                                    .align(Alignment.End)
-                                    .height(48.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = SpanRed),
-                                shape = RoundedCornerShape(999.dp)
-                            ) {
-                                Text(
-                                    text = "Update",
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontFamily = Montserrat,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                                }
+
+                                item {
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
+
+                                item {
+                                    Text(
+                                        text = mealDto?.name ?: "Jelo",
+                                        style = MaterialTheme.typography.headlineSmall.copy(
+                                            fontFamily = Montserrat,
+                                            fontWeight = FontWeight.Bold,
+                                            color = SpanRed
+                                        )
                                     )
-                                )
+                                }
+
+                                item {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+
+                                item {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(vertical = 16.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(48.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.LightGray)
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.profile),
+                                                contentDescription = "User profile",
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
+
+                                        Spacer(modifier = Modifier.width(12.dp))
+
+                                        Text(
+                                            text = userName,
+                                            style = MaterialTheme.typography.headlineSmall.copy(
+                                                fontFamily = Montserrat,
+                                                fontWeight = FontWeight.Bold,
+                                                color = SpanRed
+                                            )
+                                        )
+                                    }
+                                }
+
+                                item {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            for (i in 1..5) {
+                                                Icon(
+                                                    imageVector = if (i <= rating) Icons.Filled.Star else Icons.Outlined.Star,
+                                                    contentDescription = "Star $i",
+                                                    tint = if (i <= rating) Color(0xFFFFC107) else Color.Gray,
+                                                    modifier = Modifier
+                                                        .size(34.dp)
+                                                        .clickable { rating = i }
+                                                        .padding(2.dp)
+                                                )
+                                            }
+                                        }
+
+                                        Text(
+                                            text = "$rating/5",
+                                            style = MaterialTheme.typography.bodyLarge.copy(
+                                                fontFamily = Montserrat,
+                                                fontWeight = FontWeight.Bold,
+                                                color = SpanRed
+                                            )
+                                        )
+                                    }
+                                }
+
+                                item {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+
+                                item {
+                                    OutlinedTextField(
+                                        value = comment,
+                                        onValueChange = { comment = it },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(220.dp),
+                                        placeholder = { Text("Upišite komentar...") },
+                                        textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                            fontFamily = Montserrat
+                                        ),
+                                        maxLines = 10,
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                                }
+
+                                item {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+
+                                item {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 12.dp),
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        Button(
+                                            onClick = { if (!existingReview) submitReview() else updateReview() },
+                                            modifier = Modifier.height(48.dp),
+                                            colors = ButtonDefaults.buttonColors(containerColor = SpanRed),
+                                            shape = RoundedCornerShape(999.dp)
+                                        ) {
+                                            Text(
+                                                text = if (!existingReview) "Submit" else "Update",
+                                                style = MaterialTheme.typography.bodyMedium.copy(
+                                                    fontFamily = Montserrat,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = Color.White
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
+
+
+                    Text(
+                        text = "Powered by SPAN",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 24.dp)
+                    )
                 }
+
             }
         }
     }

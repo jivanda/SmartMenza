@@ -169,7 +169,7 @@ fun AllMenusScreen(
                                     modifier = Modifier
                                         .clickable { expanded = true }
                                         .padding(8.dp),
-                                    style = MaterialTheme.typography.bodyLarge
+                                    style = MaterialTheme.typography.labelLarge.copy(color = SpanRed)
                                 )
 
                                 DropdownMenu(
@@ -178,11 +178,10 @@ fun AllMenusScreen(
                                 ) {
                                     menuTypeOptions.forEach { option ->
                                         DropdownMenuItem(
-                                            text = { Text(option.label) },
+                                            text = { Text(option.label)},
                                             onClick = {
                                                 expanded = false
                                                 selectedType = option
-                                                // LaunchedEffect will trigger fetch
                                             }
                                         )
                                     }

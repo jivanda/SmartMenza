@@ -161,8 +161,9 @@ fun OfferScreen(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Spacer(modifier = Modifier.weight(1f))
-                            TextButton(onClick = { showDatePicker = true }) {
-                                Text("Promijeni datum")
+                            Button(onClick = { showDatePicker = true }) {
+                                Text("Promijeni datum",
+                                    style = MaterialTheme.typography.labelLarge.copy(color = Color.White))
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
