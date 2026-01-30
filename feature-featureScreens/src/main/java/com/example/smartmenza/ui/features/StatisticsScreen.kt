@@ -44,11 +44,13 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(
     onNavigateToMeal: (Int) -> Unit,
+    onNavigateBack: () -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     var isLoading by remember { mutableStateOf(false) }
@@ -273,15 +275,30 @@ fun StatisticsScreen(
                         .background(SpanRed),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "SmartMenza",
-                        style = TextStyle(
-                            fontFamily = Montserrat,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 24.sp,
-                            color = Color.White
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White
+                            )
+                        }
+                        Text(
+                            text = "SmartMenza",
+                            style = TextStyle(
+                                fontFamily = Montserrat,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 24.sp,
+                                color = Color.White
+                            )
                         )
-                    )
+                        Spacer(modifier = Modifier.width(48.dp))
+                    }
                 }
 
                 Box(modifier = Modifier.fillMaxSize()) {

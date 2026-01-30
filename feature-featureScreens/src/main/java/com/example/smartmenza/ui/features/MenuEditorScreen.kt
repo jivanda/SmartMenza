@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -183,15 +185,30 @@ fun MenuEditScreen(
                         .background(SpanRed),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "SmartMenza",
-                        style = TextStyle(
-                            fontFamily = Montserrat,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 24.sp,
-                            color = Color.White
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White
+                            )
+                        }
+                        Text(
+                            text = "SmartMenza",
+                            style = TextStyle(
+                                fontFamily = Montserrat,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 24.sp,
+                                color = Color.White
+                            )
                         )
-                    )
+                        Spacer(modifier = Modifier.width(48.dp))
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(50.dp))

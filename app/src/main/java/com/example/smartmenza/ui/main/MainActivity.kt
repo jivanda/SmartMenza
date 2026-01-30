@@ -120,13 +120,15 @@ class MainActivity : ComponentActivity() {
 
                         composable(Route.AllMeals.route) {
                             AllMealsScreen(
-                                onNavigateToMeal = actions::navigateToMeal
+                                onNavigateToMeal = actions::navigateToMeal,
+                                onNavigateBack = { navController.popBackStack() }
                             )
                         }
 
                         composable(Route.StatisticsScreen.route) {
                             StatisticsScreen(
-                                onNavigateToMeal = actions::navigateToMeal
+                                onNavigateToMeal = actions::navigateToMeal,
+                                onNavigateBack = { navController.popBackStack() }
                             )
                         }
 

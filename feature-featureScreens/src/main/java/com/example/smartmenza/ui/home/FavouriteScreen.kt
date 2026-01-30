@@ -171,6 +171,14 @@ fun FavouriteScreen(
                             }
                         }
                     }
+
+                    Text(
+                        text = "Powered by SPAN",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 24.dp)
+                    )
                 }
             }
         }

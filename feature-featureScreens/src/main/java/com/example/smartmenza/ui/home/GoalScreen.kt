@@ -52,273 +52,307 @@ fun GoalScreen(
     onNavigateBack: () -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
-    SmartMenzaTheme {
-        var isLoading by remember { mutableStateOf(true) }
-        var errorMessage by remember { mutableStateOf<String?>(null) }
-        var goals by remember { mutableStateOf<List<GoalDto>>(emptyList()) }
-        var showCreateGoalDialog by remember { mutableStateOf(false) }
-        var goalToDelete by remember { mutableStateOf<GoalDto?>(null) }
-        var goalToEdit by remember { mutableStateOf<GoalDto?>(null) }
-        var pendingGoalUpdate by remember { mutableStateOf<PendingGoalUpdate?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var goals by remember { mutableStateOf<List<GoalDto>>(emptyList()) }
 
-        val snackbarHostState = remember { SnackbarHostState() }
-        val coroutineScope = rememberCoroutineScope()
-        val context = LocalContext.current
-        val prefs = remember { UserPreferences(context) }
-        val userId by prefs.userId.collectAsState(initial = null)
+    var showCreateGoalDialog by remember { mutableStateOf(false) }
+    var goalToDelete by remember { mutableStateOf<GoalDto?>(null) }
+    var goalToEdit by remember { mutableStateOf<GoalDto?>(null) }
+    var pendingGoalUpdate by remember { mutableStateOf<PendingGoalUpdate?>(null) }
 
-        fun fetchGoals() {
-            val currentUserId = userId
-            if (currentUserId != null) {
-                coroutineScope.launch {
-                    isLoading = true
-                    try {
-                        val response = RetrofitInstance.api.getMyGoals(currentUserId)
-                        if (response.isSuccessful) {
-                            goals = response.body() ?: emptyList()
-                        } else if (response.code() == 404) {
-                            goals = emptyList()
-                        } else {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val prefs = remember { UserPreferences(context) }
+    val userId by prefs.userId.collectAsState(initial = null)
+
+    fun fetchGoals() {
+        val currentUserId = userId
+        if (currentUserId != null) {
+            coroutineScope.launch {
+                isLoading = true
+                errorMessage = null
+                try {
+                    val response = RetrofitInstance.api.getMyGoals(currentUserId)
+                    goals = when {
+                        response.isSuccessful -> response.body() ?: emptyList()
+                        response.code() == 404 -> emptyList()
+                        else -> {
                             errorMessage = "Greška ${response.code()} pri dohvaćanju ciljeva."
+                            emptyList()
                         }
-                    } catch (e: Exception) {
-                        errorMessage = "Greška pri dohvaćanju ciljeva: ${e.message}"
-                    } finally {
-                        isLoading = false
-                    }
-                }
-            } else {
-                isLoading = false
-                goals = emptyList()
-            }
-        }
-
-        fun createGoal(calories: Int, proteins: Double, carbs: Double, fat: Double) {
-            val currentUserId = userId
-            if (currentUserId == null) {
-                coroutineScope.launch { snackbarHostState.showSnackbar("Morate biti prijavljeni") }
-                return
-            }
-            coroutineScope.launch {
-                try {
-                    val request = GoalCreateDto(
-                        calories = calories,
-                        targetProteins = proteins,
-                        targetCarbs = carbs,
-                        targetFats = fat
-                    )
-                    val response = RetrofitInstance.api.createGoal(currentUserId, request)
-                    if (response.isSuccessful) {
-                        snackbarHostState.showSnackbar("Cilj uspješno kreiran!")
-                        fetchGoals()
-                    } else {
-                        snackbarHostState.showSnackbar("Greška pri kreiranju cilja: ${response.code()}")
                     }
                 } catch (e: Exception) {
-                    snackbarHostState.showSnackbar("Greška: ${e.message}")
+                    errorMessage = "Greška pri dohvaćanju ciljeva: ${e.message}"
+                    goals = emptyList()
                 } finally {
-                    showCreateGoalDialog = false
+                    isLoading = false
                 }
             }
+        } else {
+            isLoading = false
+            goals = emptyList()
         }
+    }
 
-        fun updateGoal(goalId: Int, calories: Int, proteins: Double, carbs: Double, fat: Double) {
-            val currentUserId = userId
-            if (currentUserId == null) {
-                coroutineScope.launch { snackbarHostState.showSnackbar("Morate biti prijavljeni") }
-                return
-            }
-            coroutineScope.launch {
-                try {
-                    val request = GoalCreateDto(
-                        calories = calories,
-                        targetProteins = proteins,
-                        targetCarbs = carbs,
-                        targetFats = fat
-                    )
-                    val response = RetrofitInstance.api.updateGoal(goalId, currentUserId, request)
-                    if (response.isSuccessful) {
-                        snackbarHostState.showSnackbar("Cilj uspješno ažuriran!")
-                        fetchGoals()
-                    } else {
-                        snackbarHostState.showSnackbar("Greška pri ažuriranju cilja: ${response.code()}")
-                    }
-                } catch (e: Exception) {
-                    snackbarHostState.showSnackbar("Greška: ${e.message}")
-                } finally {
-                    goalToEdit = null
+    fun createGoal(calories: Int, proteins: Double, carbs: Double, fat: Double) {
+        val currentUserId = userId
+        if (currentUserId == null) {
+            coroutineScope.launch { snackbarHostState.showSnackbar("Morate biti prijavljeni") }
+            return
+        }
+        coroutineScope.launch {
+            try {
+                val request = GoalCreateDto(
+                    calories = calories,
+                    targetProteins = proteins,
+                    targetCarbs = carbs,
+                    targetFats = fat
+                )
+                val response = RetrofitInstance.api.createGoal(currentUserId, request)
+                if (response.isSuccessful) {
+                    snackbarHostState.showSnackbar("Cilj uspješno kreiran!")
+                    fetchGoals()
+                } else {
+                    snackbarHostState.showSnackbar("Greška pri kreiranju cilja: ${response.code()}")
                 }
+            } catch (e: Exception) {
+                snackbarHostState.showSnackbar("Greška: ${e.message}")
+            } finally {
+                showCreateGoalDialog = false
             }
         }
+    }
 
-        fun deleteGoal(goal: GoalDto) {
-            val currentUserId = userId
-            if (currentUserId == null) {
-                coroutineScope.launch { snackbarHostState.showSnackbar("Morate biti prijavljeni") }
-                return
-            }
-            coroutineScope.launch {
-                try {
-                    val response = RetrofitInstance.api.deleteGoal(goal.goalId, currentUserId)
-                    if (response.isSuccessful) {
-                        snackbarHostState.showSnackbar("Cilj uspješno izbrisan!")
-                        fetchGoals()
-                    } else {
-                        snackbarHostState.showSnackbar("Greška pri brisanju cilja: ${response.code()}")
-                    }
-                } catch (e: Exception) {
-                    snackbarHostState.showSnackbar("Greška: ${e.message}")
+    fun updateGoal(goalId: Int, calories: Int, proteins: Double, carbs: Double, fat: Double) {
+        val currentUserId = userId
+        if (currentUserId == null) {
+            coroutineScope.launch { snackbarHostState.showSnackbar("Morate biti prijavljeni") }
+            return
+        }
+        coroutineScope.launch {
+            try {
+                val request = GoalCreateDto(
+                    calories = calories,
+                    targetProteins = proteins,
+                    targetCarbs = carbs,
+                    targetFats = fat
+                )
+                val response = RetrofitInstance.api.updateGoal(goalId, currentUserId, request)
+                if (response.isSuccessful) {
+                    snackbarHostState.showSnackbar("Cilj uspješno ažuriran!")
+                    fetchGoals()
+                } else {
+                    snackbarHostState.showSnackbar("Greška pri ažuriranju cilja: ${response.code()}")
                 }
+            } catch (e: Exception) {
+                snackbarHostState.showSnackbar("Greška: ${e.message}")
             }
         }
+    }
 
-        LaunchedEffect(userId) {
-            fetchGoals()
+    fun deleteGoal(goal: GoalDto) {
+        val currentUserId = userId
+        if (currentUserId == null) {
+            coroutineScope.launch { snackbarHostState.showSnackbar("Morate biti prijavljeni") }
+            return
         }
-
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { showCreateGoalDialog = true },
-                    containerColor = SpanRed,
-                    contentColor = Color.White
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Dodaj cilj")
+        coroutineScope.launch {
+            try {
+                val response = RetrofitInstance.api.deleteGoal(goal.goalId, currentUserId)
+                if (response.isSuccessful) {
+                    snackbarHostState.showSnackbar("Cilj uspješno izbrisan!")
+                    fetchGoals()
+                } else {
+                    snackbarHostState.showSnackbar("Greška pri brisanju cilja: ${response.code()}")
                 }
-            },
-            containerColor = BackgroundBeige
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                // Header
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp)
-                        .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
-                        .background(SpanRed),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
+            } catch (e: Exception) {
+                snackbarHostState.showSnackbar("Greška: ${e.message}")
+            }
+        }
+    }
+
+    LaunchedEffect(userId) { fetchGoals() }
+
+    SmartMenzaTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = BackgroundBeige) {
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                Column(modifier = Modifier.fillMaxSize()) {
+
+                    // Header
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .height(120.dp)
+                            .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
+                            .background(SpanRed),
+                        contentAlignment = Alignment.Center
                     ) {
-                        IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
-                        }
-                        Text(
-                            text = "Ciljevi",
-                            style = TextStyle(
-                                fontFamily = Montserrat,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 24.sp,
-                                color = Color.White
-                            )
-                        )
-                        Spacer(modifier = Modifier.width(48.dp))
-                    }
-                }
-
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Image(
-                        painter = subtlePattern,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .alpha(0.06f),
-                        contentScale = ContentScale.Crop
-                    )
-
-                    if (isLoading) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
-                        }
-                    } else if (errorMessage != null) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(text = errorMessage!!, color = Color.Red)
-                        }
-                    } else if (goals.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize().padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("Nemate spremljenih ciljeva. Dodajte novi cilj klikom na '+' gumb.")
-                        }
-                    } else {
-                        LazyColumn(
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp)
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            items(goals) { goal ->
-                                GoalCard(
-                                    goal = goal,
-                                    onDelete = { goalToDelete = goal },
-                                    onEdit = { goalToEdit = goal }
+                            IconButton(onClick = onNavigateBack) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = Color.White
                                 )
-                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+
+                            Text(
+                                text = "Ciljevi",
+                                style = TextStyle(
+                                    fontFamily = Montserrat,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 24.sp,
+                                    color = Color.White
+                                )
+                            )
+
+                            Spacer(modifier = Modifier.width(48.dp))
+                        }
+                    }
+
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Image(
+                            painter = subtlePattern,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .alpha(0.06f),
+                            contentScale = ContentScale.Crop
+                        )
+
+                        when {
+                            isLoading -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) { CircularProgressIndicator() }
+                            }
+
+                            errorMessage != null -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) { Text(text = errorMessage!!, color = Color.Red) }
+                            }
+
+                            goals.isEmpty() -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("Nemate spremljenih ciljeva. Dodajte novi cilj klikom na '+' gumb.")
+                                }
+                            }
+
+                            else -> {
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                        // da zadnji item ne bude ispod FAB-a/snackbara
+                                        .padding(bottom = 96.dp)
+                                ) {
+                                    items(goals) { goal ->
+                                        GoalCard(
+                                            goal = goal,
+                                            onDelete = { goalToDelete = goal },
+                                            onEdit = { goalToEdit = goal }
+                                        )
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+                                }
+
+
+                                Text(
+                                    text = "Powered by SPAN",
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .padding(bottom = 24.dp)
+                                )
                             }
                         }
                     }
                 }
+
+                FloatingActionButton(
+                    onClick = { showCreateGoalDialog = true },
+                    containerColor = SpanRed,
+                    contentColor = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Dodaj cilj")
+                }
+
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 16.dp)
+                )
             }
-        }
 
-        if (showCreateGoalDialog) {
-            CreateGoalDialog(
-                onDismiss = { showCreateGoalDialog = false },
-                onSave = { cal, pro, carb, fat ->
-                    createGoal(cal, pro, carb, fat)
-                }
-            )
-        }
+            if (showCreateGoalDialog) {
+                CreateGoalDialog(
+                    onDismiss = { showCreateGoalDialog = false },
+                    onSave = { cal, pro, carb, fat -> createGoal(cal, pro, carb, fat) }
+                )
+            }
 
-        goalToEdit?.let { goal ->
-            EditGoalDialog(
-                goal = goal,
-                onDismiss = { goalToEdit = null },
-                onSave = { cal, pro, carb, fat ->
-                    pendingGoalUpdate = PendingGoalUpdate(goal.goalId, cal, pro, carb, fat)
-                    goalToEdit = null
-                }
-            )
-        }
+            goalToEdit?.let { goal ->
+                EditGoalDialog(
+                    goal = goal,
+                    onDismiss = { goalToEdit = null },
+                    onSave = { cal, pro, carb, fat ->
+                        pendingGoalUpdate = PendingGoalUpdate(goal.goalId, cal, pro, carb, fat)
+                        goalToEdit = null
+                    }
+                )
+            }
 
-        pendingGoalUpdate?.let { pendingUpdate ->
-            EditConfirmationDialog(
-                onConfirm = {
-                    updateGoal(
-                        goalId = pendingUpdate.goalId,
-                        calories = pendingUpdate.calories,
-                        proteins = pendingUpdate.proteins,
-                        carbs = pendingUpdate.carbs,
-                        fat = pendingUpdate.fat
-                    )
-                    pendingGoalUpdate = null
-                },
-                onDismiss = { pendingGoalUpdate = null }
-            )
-        }
+            pendingGoalUpdate?.let { pendingUpdate ->
+                EditConfirmationDialog(
+                    onConfirm = {
+                        updateGoal(
+                            goalId = pendingUpdate.goalId,
+                            calories = pendingUpdate.calories,
+                            proteins = pendingUpdate.proteins,
+                            carbs = pendingUpdate.carbs,
+                            fat = pendingUpdate.fat
+                        )
+                        pendingGoalUpdate = null
+                    },
+                    onDismiss = { pendingGoalUpdate = null }
+                )
+            }
 
-        goalToDelete?.let { goal ->
-            DeleteConfirmationDialog(
-                onConfirm = {
-                    deleteGoal(goal)
-                    goalToDelete = null
-                },
-                onDismiss = { goalToDelete = null }
-            )
+            goalToDelete?.let { goal ->
+                DeleteConfirmationDialog(
+                    onConfirm = {
+                        deleteGoal(goal)
+                        goalToDelete = null
+                    },
+                    onDismiss = { goalToDelete = null }
+                )
+            }
         }
     }
 }
+
+
 
 @Composable
 fun CreateGoalDialog(

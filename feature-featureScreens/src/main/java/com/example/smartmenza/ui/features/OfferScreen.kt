@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -89,7 +91,6 @@ fun OfferScreen(
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -98,15 +99,30 @@ fun OfferScreen(
                         .background(SpanRed),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "SmartMenza",
-                        style = TextStyle(
-                            fontFamily = Montserrat,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 24.sp,
-                            color = Color.White
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White
+                            )
+                        }
+                        Text(
+                            text = "SmartMenza",
+                            style = TextStyle(
+                                fontFamily = Montserrat,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 24.sp,
+                                color = Color.White
+                            )
                         )
-                    )
+                        Spacer(modifier = Modifier.width(48.dp))
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(50.dp))

@@ -37,11 +37,14 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
 
 @Composable
 fun AllMealsScreen(
     onNavigateToMeal: (Int) -> Unit,
+    onNavigateBack: () -> Unit,
     subtlePattern: Painter = painterResource(id = R.drawable.smartmenza_background_empty)
 ) {
     var isLoading by remember { mutableStateOf(false) }
@@ -199,15 +202,29 @@ fun AllMealsScreen(
                         .background(SpanRed),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "SmartMenza",
-                        style = TextStyle(
-                            fontFamily = Montserrat,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 24.sp,
-                            color = Color.White
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White
+                            )
+                        }
+                        Text(
+                            text = "SmartMenza",
+                            style = TextStyle(
+                                fontFamily = Montserrat,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 24.sp,
+                                color = Color.White
+                            )
                         )
-                    )
+                        Spacer(modifier = Modifier.width(48.dp))
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(50.dp))
