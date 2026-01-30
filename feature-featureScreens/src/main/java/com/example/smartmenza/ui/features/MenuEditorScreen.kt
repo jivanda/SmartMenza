@@ -157,7 +157,21 @@ fun MenuEditScreen(
     }
 
     val selectedMealsCount = mealSelections.count { it != null }
-    val isFormValid = name.isNotBlank() && selectedMenuTypeId != 0 && selectedMealsCount >= 3
+
+    val seen = mutableSetOf<Int>()
+    var hasDuplicate = false
+
+    for (meal in mealSelections) {
+        if (meal == null) continue
+
+        if (!seen.add(meal.mealId)) {
+            hasDuplicate = true
+            break
+        }
+    }
+
+
+    val isFormValid = name.isNotBlank() && selectedMenuTypeId != 0 && selectedMealsCount >= 3 && !hasDuplicate
 
     fun buildWriteDto(): MenuWriteDto {
         val mealItems = mealSelections
@@ -251,7 +265,6 @@ fun MenuEditScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Naziv
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -272,7 +285,6 @@ fun MenuEditScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Opis
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.Top
@@ -293,7 +305,6 @@ fun MenuEditScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Tip menija
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
