@@ -17,7 +17,7 @@ object RetrofitInstance {
         "https://smartmenza-h5csfahadafnajaq.swedencentral-01.azurewebsites.net/"
 
     // True lokalno, false Azure
-    private const val USE_LOCAL = true
+    private const val USE_LOCAL = false
 
     private val BASE_URL = if (USE_LOCAL) BASE_URL_LOCAL else BASE_URL_PROD
 
