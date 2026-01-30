@@ -51,6 +51,7 @@ fun MenuScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var menuName by remember { mutableStateOf("Meni") }
+    var menuDescription by remember { mutableStateOf("Meni") }
     var meals by remember { mutableStateOf<List<MealDto>>(emptyList()) }
     var isMenuLoading by remember { mutableStateOf(true) }
     var menuError by remember { mutableStateOf<String?>(null) }
@@ -114,6 +115,7 @@ fun MenuScreen(
             if (res.isSuccessful) {
                 val menu = res.body()
                 menuName = menu?.name ?: "Meni"
+                menuDescription = menu?.description ?: "Opis menija"
                 meals = menu?.meals ?: emptyList()
             } else {
                 menuError = "Greška pri dohvaćanju menija: ${res.code()}"
@@ -283,6 +285,13 @@ fun MenuScreen(
 
                                     item {
                                         Spacer(modifier = Modifier.height(16.dp))
+                                        Text(
+                                            text = menuDescription,
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        )
+
                                         Text("Cijena menija: %.2f EUR".format(meals.sumOf { it.price }))
                                     }
 
