@@ -5,6 +5,8 @@ LINK NA APP DEPLOYMENT: https://smartmenza-h5csfahadafnajaq.swedencentral-01.azu
 
 Android aplikacija: https://github.com/jivanda/SmartMenza/releases/tag/mobile-apk-2026-01
 
+Android aplikacija (v2): https://github.com/jivanda/SmartMenza/releases/tag/mobile-apk-2026-02
+
 ## Projektni tim
 
 Ime i prezime | E-mail adresa (FOI) | JMBAG | GitHub korisničko ime
