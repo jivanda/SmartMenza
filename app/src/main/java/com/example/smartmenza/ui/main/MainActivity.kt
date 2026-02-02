@@ -35,6 +35,7 @@ import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.core_ui.R
 import com.example.feature_basic_login.BasicLoginManager
+import com.example.feature_facebook_login.FacebookLoginManager
 import com.example.feature_google_login.GoogleLoginManager
 import com.example.smartmenza.ui.home.ReviewCreateScreen
 import kotlinx.coroutines.launch
@@ -63,6 +64,7 @@ class MainActivity : ComponentActivity() {
                             GoogleLoginManager(
                                 onLoginSuccess = { navController.navigate(Route.StudentHome.route) }
                             ),
+                            //FacebookLoginManager()
                         )
                     }
 

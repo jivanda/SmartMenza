@@ -4,7 +4,6 @@ import MealDto
 import retrofit2.Response
 import retrofit2.http.*
 
-// --- Auth ---
 data class RegisterRequest(
     val username: String,
     val email: String,
@@ -41,7 +40,6 @@ interface SmartMenzaApi {
     @POST("api/Auth/login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
-    // --- Menus ---
     @GET("api/Menu")
     suspend fun getMenusByDate(
         @Query("date") date: String
@@ -54,7 +52,6 @@ interface SmartMenzaApi {
     @GET("api/menu/by-type")
     suspend fun getMenusByType(@Query("menuTypeId") menuTypeId: Int): Response<List<MenuResponseDto>>
 
-    // --- Goals ---
     @GET("api/Goal/myGoal")
     suspend fun getMyGoals(@Header("UserId") userId: Int): Response<List<GoalDto>>
 
@@ -67,7 +64,6 @@ interface SmartMenzaApi {
     @PUT("api/Goal/{goalId}")
     suspend fun updateGoal(@Path("goalId") goalId: Int, @Header("UserId") userId: Int, @Body request: GoalCreateDto): Response<Unit>
 
-    // --- Favorites ---
     @GET("api/Favorite/my")
     suspend fun getMyFavorites(@Header("UserId") userId: Int): Response<List<FavoriteMealDto>>
 
@@ -167,7 +163,6 @@ interface SmartMenzaApi {
         @Header("UserId") userId: Int
     ): Response<RatingCommentDto>
 
-    // --- Nutrition AI ---
     @GET("api/Nutrition/analyze/menu/{menuId}")
     suspend fun analyzeMenuNutrition(
         @Path("menuId") menuId: Int

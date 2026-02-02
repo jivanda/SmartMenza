@@ -96,4 +96,5 @@
 
         implementation(project(":feature-basic-login"))
         implementation(project(":feature-google-login"))
+        implementation(project(":feature-facebook-login"))
     }
