@@ -14,13 +14,12 @@ import androidx.compose.ui.res.stringResource
 import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.data.remote.GoogleLoginRequest
 import com.example.smartmenza.data.remote.RetrofitInstance
-import com.example.smartmenza.utils.LoginManager
+import com.example.smartmenza.ui.utils.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.launch
-import com.example.smartmenza.R as appR
 
 class GoogleLoginManager(
     private val onLoginSuccess: () -> Unit
@@ -34,7 +33,7 @@ class GoogleLoginManager(
 
     @Composable
     override fun OnComposeStart() {
-        val webClientId = stringResource(appR.string.default_web_client_id)
+        val webClientId = "35432297091-5kpm784irvq6n8hl2u3aiq10vj6b996l.apps.googleusercontent.com"
 
         val context = LocalContext.current
         val prefs = remember { UserPreferences(context) }

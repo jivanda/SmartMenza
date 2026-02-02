@@ -93,4 +93,7 @@
         implementation(project(":feature-auth"))
         implementation(project(":feature-reusableScreens"))
         implementation(project(":feature-featureScreens"))
+
+        implementation(project(":feature-basic-login"))
+        implementation(project(":feature-google-login"))
     }

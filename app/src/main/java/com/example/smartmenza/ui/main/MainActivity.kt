@@ -18,7 +18,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.smartmenza.data.local.UserPreferences
 import com.example.smartmenza.navigation.Route
-import com.example.smartmenza.ui.auth.login.LoginScreen
 import com.example.smartmenza.ui.auth.register.RegisterScreen
 import com.example.smartmenza.ui.features.AllMealsScreen
 import com.example.smartmenza.ui.features.AllMenusScreen
@@ -35,8 +34,9 @@ import com.example.smartmenza.ui.home.MenuScreen
 import com.example.smartmenza.ui.intro.IntroScreen
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.core_ui.R
+import com.example.feature_basic_login.BasicLoginManager
+import com.example.feature_google_login.GoogleLoginManager
 import com.example.smartmenza.ui.home.ReviewCreateScreen
-import com.example.smartmenza.R as appR
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -58,6 +58,24 @@ class MainActivity : ComponentActivity() {
 
                     val scope = rememberCoroutineScope()
 
+                    val loginManagersWithoutBasicLogin = remember {
+                        listOf(
+                            GoogleLoginManager(
+                                onLoginSuccess = { navController.navigate(Route.StudentHome.route) }
+                            ),
+                        )
+                    }
+
+                    val loginManagers = remember {
+                        listOf(
+                            BasicLoginManager(
+                                onLoginSuccess = { navController.navigate(Route.StudentHome.route) },
+                                onGoToRegister = { navController.navigate(Route.Register.route) },
+                                loginHandlers = loginManagersWithoutBasicLogin,
+                            ),
+                        )
+                    }
+
                     NavHost(
                         navController = navController,
                         startDestination = if (isLoggedIn) Route.StudentHome.route else Route.Intro.route
@@ -71,16 +89,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Route.Login.route) {
-                            LoginScreen(
-                                webClientId = getString(appR.string.default_web_client_id),
-                                subtlePattern = painterResource(id = R.drawable.smartmenza_background_empty),
-                                onLoginSuccess = {
-                                    navController.navigate(Route.StudentHome.route) {
-                                        popUpTo(Route.Login.route) { inclusive = true }
-                                    }
-                                },
-                                onGoToRegister = { navController.navigate(Route.Register.route) }
-                            )
+                            loginManagers.first().LoginScreen()
                         }
 
                         composable(Route.Register.route) {
@@ -206,7 +215,6 @@ class MainActivity : ComponentActivity() {
                             GoalScreen(onNavigateBack = { navController.popBackStack() })
                         }
 
-                        // IMPORTANT: This must match your Route.Menu.route pattern AND navArguments
                         composable(
                             route = Route.Menu.route,
                             arguments = listOf(

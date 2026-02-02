@@ -49,7 +49,7 @@ import com.example.smartmenza.ui.theme.BackgroundBeige
 import com.example.smartmenza.ui.theme.Montserrat
 import com.example.smartmenza.ui.theme.SmartMenzaTheme
 import com.example.smartmenza.ui.theme.SpanRed
-import com.example.smartmenza.utils.LoginManager
+import com.example.smartmenza.ui.utils.LoginManager
 import kotlinx.coroutines.launch
 
 class BasicLoginManager(

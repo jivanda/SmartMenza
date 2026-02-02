@@ -1,4 +1,4 @@
-package com.example.smartmenza.utils
+package com.example.smartmenza.ui.utils
 
 import androidx.compose.runtime.Composable
 
